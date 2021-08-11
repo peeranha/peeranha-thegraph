@@ -1,0 +1,9 @@
+type User @entity {
+  id: ID!
+  ipfsHash: Bytes!
+  ipfsHash2: Bytes!
+}
+
+type Post @entity {
+  id: ID!
+}

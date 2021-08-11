@@ -1,0 +1,26 @@
+specVersion: 0.0.2
+description: Subgraph for Peeranha
+repository: https://github.com/peeranha/peeranha-subgraph
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Peeranha
+    network: goerli
+    source:
+      address: '0xd635C2e0F2953032B92C451D433c8ab70Fab5CDc'
+      abi: Peeranha
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - User
+        - Post
+      abis:
+        - name: Peeranha
+          file: ./abis/Peeranha.json
+      eventHandlers:
+        - event: UserCreated(address,bytes32,bytes32)
+          handler: handleNewUser
+      file: ./src/mapping.ts
