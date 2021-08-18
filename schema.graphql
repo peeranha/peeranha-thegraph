@@ -1,9 +1,65 @@
 type User @entity {
   id: ID!
+  rating: Int
+  displayName: String
+  company: String
+  position: String
+  location: String
+  about: String
+  avatar: String
   ipfsHash: Bytes!
   ipfsHash2: Bytes!
 }
 
 type Post @entity {
   id: ID!
+  tags: [Int!]!
+  hash: Bytes!
+  hash2: Bytes
+  typePost: String!
+  author: Bytes!
+  rating: Int
+  postTime: Int!
+  communityId: Int!
+
+  propertyCount: Int
+  commentCount: Int
+  replyCount: Int
+  isDeleted: Boolean
+
+  replies: [Reply!]
+  comments: [Comment!]
+  properties: [Bytes!]
+}
+
+type Reply @entity {
+  id: ID!
+  hash: Bytes!
+  hash2: Bytes
+  author: Bytes!
+  rating: Int
+  postTime: Int!
+
+  propertyCount: Int
+  commentCount: Int
+  replyCount: Int
+  isDeleted: Boolean
+
+  replies: [Reply!]
+  comments: [Comment!]
+  properties: [Bytes!]
+}
+
+type Comment @entity {
+  id: ID!
+  hash: Bytes!
+  hash2: Bytes
+  author: Bytes!
+  rating: Int
+  postTime: Int!
+
+  propertyCount: Int
+  isDeleted: Boolean
+
+  properties: [Bytes!]
 }

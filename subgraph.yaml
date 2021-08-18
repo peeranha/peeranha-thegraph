@@ -1,6 +1,4 @@
 specVersion: 0.0.2
-description: Subgraph for Peeranha
-repository: https://github.com/peeranha/peeranha-subgraph
 schema:
   file: ./schema.graphql
 dataSources:
@@ -8,19 +6,44 @@ dataSources:
     name: Peeranha
     network: goerli
     source:
-      address: '0xd635C2e0F2953032B92C451D433c8ab70Fab5CDc'
+      address: "0xd635C2e0F2953032B92C451D433c8ab70Fab5CDc"
       abi: Peeranha
+      startBlock: 5221725
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - User
-        - Post
+        - Peeranha
       abis:
         - name: Peeranha
           file: ./abis/Peeranha.json
       eventHandlers:
         - event: UserCreated(address,bytes32,bytes32)
           handler: handleNewUser
+        - event: UserUpdated(address,bytes32,bytes32)
+          handler: handleUpdatedUser
+        # - event: PostCreated(address,uint32,uint256)
+        #   handler: handleNewPost
+        # - event: ReplyCreated(address,uint256,uint16[],uint16)
+        #   handler: 
+        # - event: CommentCreated(address,uint256,uint16[],uint8)
+        #   handler: 
+        # - event: PostEdited(address,uint256)
+        #   handler: 
+        # - event: ReplyEdited(address,uint256,uint16[],uint16)
+        #   handler: 
+        # - event: CommentEdited(address,uint256,uint16[],uint8)
+        #   handler: 
+        # - event: PostDeleted(address,uint256)
+        #   handler:
+        # - event: ReplyDeleted(address,uint256,uint16[],uint16)
+        #   handler: 
+        # - event: CommentDeleted(address,uint256,uint16[],uint8)
+        #   handler: 
+        # - event: StatusOfficialAnswerChanged(address,uint256,uint16[],uint16,bool)
+        #   handler: 
+        # - event: ForumItemVoted(address,uint256,uint16[],uint16,uint8,bool)
+        #   handler:
+
       file: ./src/mapping.ts

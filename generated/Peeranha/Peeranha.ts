@@ -228,6 +228,328 @@ export class UserUpdated__Params {
   }
 }
 
+export class CommentCreated extends ethereum.Event {
+  get params(): CommentCreated__Params {
+    return new CommentCreated__Params(this);
+  }
+}
+
+export class CommentCreated__Params {
+  _event: CommentCreated;
+
+  constructor(event: CommentCreated) {
+    this._event = event;
+  }
+
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get postId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get path(): Array<i32> {
+    return this._event.parameters[2].value.toI32Array();
+  }
+
+  get commentId(): i32 {
+    return this._event.parameters[3].value.toI32();
+  }
+}
+
+export class CommentDeleted extends ethereum.Event {
+  get params(): CommentDeleted__Params {
+    return new CommentDeleted__Params(this);
+  }
+}
+
+export class CommentDeleted__Params {
+  _event: CommentDeleted;
+
+  constructor(event: CommentDeleted) {
+    this._event = event;
+  }
+
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get postId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get path(): Array<i32> {
+    return this._event.parameters[2].value.toI32Array();
+  }
+
+  get commentId(): i32 {
+    return this._event.parameters[3].value.toI32();
+  }
+}
+
+export class CommentEdited extends ethereum.Event {
+  get params(): CommentEdited__Params {
+    return new CommentEdited__Params(this);
+  }
+}
+
+export class CommentEdited__Params {
+  _event: CommentEdited;
+
+  constructor(event: CommentEdited) {
+    this._event = event;
+  }
+
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get postId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get path(): Array<i32> {
+    return this._event.parameters[2].value.toI32Array();
+  }
+
+  get commentId(): i32 {
+    return this._event.parameters[3].value.toI32();
+  }
+}
+
+export class ForumItemVoted extends ethereum.Event {
+  get params(): ForumItemVoted__Params {
+    return new ForumItemVoted__Params(this);
+  }
+}
+
+export class ForumItemVoted__Params {
+  _event: ForumItemVoted;
+
+  constructor(event: ForumItemVoted) {
+    this._event = event;
+  }
+
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get postId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get path(): Array<i32> {
+    return this._event.parameters[2].value.toI32Array();
+  }
+
+  get replyId(): i32 {
+    return this._event.parameters[3].value.toI32();
+  }
+
+  get commentId(): i32 {
+    return this._event.parameters[4].value.toI32();
+  }
+
+  get isUpvote(): boolean {
+    return this._event.parameters[5].value.toBoolean();
+  }
+}
+
+export class PostCreated extends ethereum.Event {
+  get params(): PostCreated__Params {
+    return new PostCreated__Params(this);
+  }
+}
+
+export class PostCreated__Params {
+  _event: PostCreated;
+
+  constructor(event: PostCreated) {
+    this._event = event;
+  }
+
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get communityId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get postId(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+}
+
+export class PostDeleted extends ethereum.Event {
+  get params(): PostDeleted__Params {
+    return new PostDeleted__Params(this);
+  }
+}
+
+export class PostDeleted__Params {
+  _event: PostDeleted;
+
+  constructor(event: PostDeleted) {
+    this._event = event;
+  }
+
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get postId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+}
+
+export class PostEdited extends ethereum.Event {
+  get params(): PostEdited__Params {
+    return new PostEdited__Params(this);
+  }
+}
+
+export class PostEdited__Params {
+  _event: PostEdited;
+
+  constructor(event: PostEdited) {
+    this._event = event;
+  }
+
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get postId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+}
+
+export class ReplyCreated extends ethereum.Event {
+  get params(): ReplyCreated__Params {
+    return new ReplyCreated__Params(this);
+  }
+}
+
+export class ReplyCreated__Params {
+  _event: ReplyCreated;
+
+  constructor(event: ReplyCreated) {
+    this._event = event;
+  }
+
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get postId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get path(): Array<i32> {
+    return this._event.parameters[2].value.toI32Array();
+  }
+
+  get replyId(): i32 {
+    return this._event.parameters[3].value.toI32();
+  }
+}
+
+export class ReplyDeleted extends ethereum.Event {
+  get params(): ReplyDeleted__Params {
+    return new ReplyDeleted__Params(this);
+  }
+}
+
+export class ReplyDeleted__Params {
+  _event: ReplyDeleted;
+
+  constructor(event: ReplyDeleted) {
+    this._event = event;
+  }
+
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get postId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get path(): Array<i32> {
+    return this._event.parameters[2].value.toI32Array();
+  }
+
+  get replyId(): i32 {
+    return this._event.parameters[3].value.toI32();
+  }
+}
+
+export class ReplyEdited extends ethereum.Event {
+  get params(): ReplyEdited__Params {
+    return new ReplyEdited__Params(this);
+  }
+}
+
+export class ReplyEdited__Params {
+  _event: ReplyEdited;
+
+  constructor(event: ReplyEdited) {
+    this._event = event;
+  }
+
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get postId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get path(): Array<i32> {
+    return this._event.parameters[2].value.toI32Array();
+  }
+
+  get replyId(): i32 {
+    return this._event.parameters[3].value.toI32();
+  }
+}
+
+export class StatusOfficialAnswerChanged extends ethereum.Event {
+  get params(): StatusOfficialAnswerChanged__Params {
+    return new StatusOfficialAnswerChanged__Params(this);
+  }
+}
+
+export class StatusOfficialAnswerChanged__Params {
+  _event: StatusOfficialAnswerChanged;
+
+  constructor(event: StatusOfficialAnswerChanged) {
+    this._event = event;
+  }
+
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get postId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get path(): Array<i32> {
+    return this._event.parameters[2].value.toI32Array();
+  }
+
+  get replyId(): i32 {
+    return this._event.parameters[3].value.toI32();
+  }
+
+  get flagOfficialReply(): boolean {
+    return this._event.parameters[4].value.toBoolean();
+  }
+}
+
 export class Peeranha__getCommentResultValue0Struct extends ethereum.Tuple {
   get ipfsDoc(): Peeranha__getCommentResultValue0IpfsDocStruct {
     return this[0].toTuple() as Peeranha__getCommentResultValue0IpfsDocStruct;

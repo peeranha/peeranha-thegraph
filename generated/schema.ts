@@ -42,6 +42,117 @@ export class User extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get rating(): i32 {
+    let value = this.get("rating");
+    return value.toI32();
+  }
+
+  set rating(value: i32) {
+    this.set("rating", Value.fromI32(value));
+  }
+
+  get displayName(): string | null {
+    let value = this.get("displayName");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set displayName(value: string | null) {
+    if (value === null) {
+      this.unset("displayName");
+    } else {
+      this.set("displayName", Value.fromString(value as string));
+    }
+  }
+
+  get company(): string | null {
+    let value = this.get("company");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set company(value: string | null) {
+    if (value === null) {
+      this.unset("company");
+    } else {
+      this.set("company", Value.fromString(value as string));
+    }
+  }
+
+  get position(): string | null {
+    let value = this.get("position");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set position(value: string | null) {
+    if (value === null) {
+      this.unset("position");
+    } else {
+      this.set("position", Value.fromString(value as string));
+    }
+  }
+
+  get location(): string | null {
+    let value = this.get("location");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set location(value: string | null) {
+    if (value === null) {
+      this.unset("location");
+    } else {
+      this.set("location", Value.fromString(value as string));
+    }
+  }
+
+  get about(): string | null {
+    let value = this.get("about");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set about(value: string | null) {
+    if (value === null) {
+      this.unset("about");
+    } else {
+      this.set("about", Value.fromString(value as string));
+    }
+  }
+
+  get avatar(): string | null {
+    let value = this.get("avatar");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set avatar(value: string | null) {
+    if (value === null) {
+      this.unset("avatar");
+    } else {
+      this.set("avatar", Value.fromString(value as string));
+    }
+  }
+
   get ipfsHash(): Bytes {
     let value = this.get("ipfsHash");
     return value.toBytes();
@@ -89,5 +200,462 @@ export class Post extends Entity {
 
   set id(value: string) {
     this.set("id", Value.fromString(value));
+  }
+
+  get tags(): Array<i32> {
+    let value = this.get("tags");
+    return value.toI32Array();
+  }
+
+  set tags(value: Array<i32>) {
+    this.set("tags", Value.fromI32Array(value));
+  }
+
+  get hash(): Bytes {
+    let value = this.get("hash");
+    return value.toBytes();
+  }
+
+  set hash(value: Bytes) {
+    this.set("hash", Value.fromBytes(value));
+  }
+
+  get hash2(): Bytes | null {
+    let value = this.get("hash2");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set hash2(value: Bytes | null) {
+    if (value === null) {
+      this.unset("hash2");
+    } else {
+      this.set("hash2", Value.fromBytes(value as Bytes));
+    }
+  }
+
+  get typePost(): string {
+    let value = this.get("typePost");
+    return value.toString();
+  }
+
+  set typePost(value: string) {
+    this.set("typePost", Value.fromString(value));
+  }
+
+  get author(): Bytes {
+    let value = this.get("author");
+    return value.toBytes();
+  }
+
+  set author(value: Bytes) {
+    this.set("author", Value.fromBytes(value));
+  }
+
+  get rating(): i32 {
+    let value = this.get("rating");
+    return value.toI32();
+  }
+
+  set rating(value: i32) {
+    this.set("rating", Value.fromI32(value));
+  }
+
+  get postTime(): i32 {
+    let value = this.get("postTime");
+    return value.toI32();
+  }
+
+  set postTime(value: i32) {
+    this.set("postTime", Value.fromI32(value));
+  }
+
+  get communityId(): i32 {
+    let value = this.get("communityId");
+    return value.toI32();
+  }
+
+  set communityId(value: i32) {
+    this.set("communityId", Value.fromI32(value));
+  }
+
+  get propertyCount(): i32 {
+    let value = this.get("propertyCount");
+    return value.toI32();
+  }
+
+  set propertyCount(value: i32) {
+    this.set("propertyCount", Value.fromI32(value));
+  }
+
+  get commentCount(): i32 {
+    let value = this.get("commentCount");
+    return value.toI32();
+  }
+
+  set commentCount(value: i32) {
+    this.set("commentCount", Value.fromI32(value));
+  }
+
+  get replyCount(): i32 {
+    let value = this.get("replyCount");
+    return value.toI32();
+  }
+
+  set replyCount(value: i32) {
+    this.set("replyCount", Value.fromI32(value));
+  }
+
+  get isDeleted(): boolean {
+    let value = this.get("isDeleted");
+    return value.toBoolean();
+  }
+
+  set isDeleted(value: boolean) {
+    this.set("isDeleted", Value.fromBoolean(value));
+  }
+
+  get replies(): Array<string> | null {
+    let value = this.get("replies");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set replies(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("replies");
+    } else {
+      this.set("replies", Value.fromStringArray(value as Array<string>));
+    }
+  }
+
+  get comments(): Array<string> | null {
+    let value = this.get("comments");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set comments(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("comments");
+    } else {
+      this.set("comments", Value.fromStringArray(value as Array<string>));
+    }
+  }
+
+  get properties(): Array<Bytes> | null {
+    let value = this.get("properties");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytesArray();
+    }
+  }
+
+  set properties(value: Array<Bytes> | null) {
+    if (value === null) {
+      this.unset("properties");
+    } else {
+      this.set("properties", Value.fromBytesArray(value as Array<Bytes>));
+    }
+  }
+}
+
+export class Reply extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Reply entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Reply entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Reply", id.toString(), this);
+  }
+
+  static load(id: string): Reply | null {
+    return store.get("Reply", id) as Reply | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get hash(): Bytes {
+    let value = this.get("hash");
+    return value.toBytes();
+  }
+
+  set hash(value: Bytes) {
+    this.set("hash", Value.fromBytes(value));
+  }
+
+  get hash2(): Bytes | null {
+    let value = this.get("hash2");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set hash2(value: Bytes | null) {
+    if (value === null) {
+      this.unset("hash2");
+    } else {
+      this.set("hash2", Value.fromBytes(value as Bytes));
+    }
+  }
+
+  get author(): Bytes {
+    let value = this.get("author");
+    return value.toBytes();
+  }
+
+  set author(value: Bytes) {
+    this.set("author", Value.fromBytes(value));
+  }
+
+  get rating(): i32 {
+    let value = this.get("rating");
+    return value.toI32();
+  }
+
+  set rating(value: i32) {
+    this.set("rating", Value.fromI32(value));
+  }
+
+  get postTime(): i32 {
+    let value = this.get("postTime");
+    return value.toI32();
+  }
+
+  set postTime(value: i32) {
+    this.set("postTime", Value.fromI32(value));
+  }
+
+  get propertyCount(): i32 {
+    let value = this.get("propertyCount");
+    return value.toI32();
+  }
+
+  set propertyCount(value: i32) {
+    this.set("propertyCount", Value.fromI32(value));
+  }
+
+  get commentCount(): i32 {
+    let value = this.get("commentCount");
+    return value.toI32();
+  }
+
+  set commentCount(value: i32) {
+    this.set("commentCount", Value.fromI32(value));
+  }
+
+  get replyCount(): i32 {
+    let value = this.get("replyCount");
+    return value.toI32();
+  }
+
+  set replyCount(value: i32) {
+    this.set("replyCount", Value.fromI32(value));
+  }
+
+  get isDeleted(): boolean {
+    let value = this.get("isDeleted");
+    return value.toBoolean();
+  }
+
+  set isDeleted(value: boolean) {
+    this.set("isDeleted", Value.fromBoolean(value));
+  }
+
+  get replies(): Array<string> | null {
+    let value = this.get("replies");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set replies(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("replies");
+    } else {
+      this.set("replies", Value.fromStringArray(value as Array<string>));
+    }
+  }
+
+  get comments(): Array<string> | null {
+    let value = this.get("comments");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set comments(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("comments");
+    } else {
+      this.set("comments", Value.fromStringArray(value as Array<string>));
+    }
+  }
+
+  get properties(): Array<Bytes> | null {
+    let value = this.get("properties");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytesArray();
+    }
+  }
+
+  set properties(value: Array<Bytes> | null) {
+    if (value === null) {
+      this.unset("properties");
+    } else {
+      this.set("properties", Value.fromBytesArray(value as Array<Bytes>));
+    }
+  }
+}
+
+export class Comment extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Comment entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Comment entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Comment", id.toString(), this);
+  }
+
+  static load(id: string): Comment | null {
+    return store.get("Comment", id) as Comment | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get hash(): Bytes {
+    let value = this.get("hash");
+    return value.toBytes();
+  }
+
+  set hash(value: Bytes) {
+    this.set("hash", Value.fromBytes(value));
+  }
+
+  get hash2(): Bytes | null {
+    let value = this.get("hash2");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
+  }
+
+  set hash2(value: Bytes | null) {
+    if (value === null) {
+      this.unset("hash2");
+    } else {
+      this.set("hash2", Value.fromBytes(value as Bytes));
+    }
+  }
+
+  get author(): Bytes {
+    let value = this.get("author");
+    return value.toBytes();
+  }
+
+  set author(value: Bytes) {
+    this.set("author", Value.fromBytes(value));
+  }
+
+  get rating(): i32 {
+    let value = this.get("rating");
+    return value.toI32();
+  }
+
+  set rating(value: i32) {
+    this.set("rating", Value.fromI32(value));
+  }
+
+  get postTime(): i32 {
+    let value = this.get("postTime");
+    return value.toI32();
+  }
+
+  set postTime(value: i32) {
+    this.set("postTime", Value.fromI32(value));
+  }
+
+  get propertyCount(): i32 {
+    let value = this.get("propertyCount");
+    return value.toI32();
+  }
+
+  set propertyCount(value: i32) {
+    this.set("propertyCount", Value.fromI32(value));
+  }
+
+  get isDeleted(): boolean {
+    let value = this.get("isDeleted");
+    return value.toBoolean();
+  }
+
+  set isDeleted(value: boolean) {
+    this.set("isDeleted", Value.fromBoolean(value));
+  }
+
+  get properties(): Array<Bytes> | null {
+    let value = this.get("properties");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytesArray();
+    }
+  }
+
+  set properties(value: Array<Bytes> | null) {
+    if (value === null) {
+      this.unset("properties");
+    } else {
+      this.set("properties", Value.fromBytesArray(value as Array<Bytes>));
+    }
   }
 }
