@@ -172,6 +172,208 @@ export class User extends Entity {
   }
 }
 
+export class Community extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Community entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Community entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Community", id.toString(), this);
+  }
+
+  static load(id: string): Community | null {
+    return store.get("Community", id) as Community | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get title(): string {
+    let value = this.get("title");
+    return value.toString();
+  }
+
+  set title(value: string) {
+    this.set("title", Value.fromString(value));
+  }
+
+  get description(): string | null {
+    let value = this.get("description");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set description(value: string | null) {
+    if (value === null) {
+      this.unset("description");
+    } else {
+      this.set("description", Value.fromString(value as string));
+    }
+  }
+
+  get website(): string | null {
+    let value = this.get("website");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set website(value: string | null) {
+    if (value === null) {
+      this.unset("website");
+    } else {
+      this.set("website", Value.fromString(value as string));
+    }
+  }
+
+  get language(): string | null {
+    let value = this.get("language");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set language(value: string | null) {
+    if (value === null) {
+      this.unset("language");
+    } else {
+      this.set("language", Value.fromString(value as string));
+    }
+  }
+
+  get isFrozen(): boolean {
+    let value = this.get("isFrozen");
+    return value.toBoolean();
+  }
+
+  set isFrozen(value: boolean) {
+    this.set("isFrozen", Value.fromBoolean(value));
+  }
+
+  get ipfsHash(): Bytes {
+    let value = this.get("ipfsHash");
+    return value.toBytes();
+  }
+
+  set ipfsHash(value: Bytes) {
+    this.set("ipfsHash", Value.fromBytes(value));
+  }
+
+  get ipfsHash2(): Bytes {
+    let value = this.get("ipfsHash2");
+    return value.toBytes();
+  }
+
+  set ipfsHash2(value: Bytes) {
+    this.set("ipfsHash2", Value.fromBytes(value));
+  }
+}
+
+export class Tag extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Tag entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Tag entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Tag", id.toString(), this);
+  }
+
+  static load(id: string): Tag | null {
+    return store.get("Tag", id) as Tag | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get communityId(): BigInt {
+    let value = this.get("communityId");
+    return value.toBigInt();
+  }
+
+  set communityId(value: BigInt) {
+    this.set("communityId", Value.fromBigInt(value));
+  }
+
+  get title(): string {
+    let value = this.get("title");
+    return value.toString();
+  }
+
+  set title(value: string) {
+    this.set("title", Value.fromString(value));
+  }
+
+  get description(): string | null {
+    let value = this.get("description");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set description(value: string | null) {
+    if (value === null) {
+      this.unset("description");
+    } else {
+      this.set("description", Value.fromString(value as string));
+    }
+  }
+
+  get ipfsHash(): Bytes {
+    let value = this.get("ipfsHash");
+    return value.toBytes();
+  }
+
+  set ipfsHash(value: Bytes) {
+    this.set("ipfsHash", Value.fromBytes(value));
+  }
+
+  get ipfsHash2(): Bytes {
+    let value = this.get("ipfsHash2");
+    return value.toBytes();
+  }
+
+  set ipfsHash2(value: Bytes) {
+    this.set("ipfsHash2", Value.fromBytes(value));
+  }
+}
+
 export class Post extends Entity {
   constructor(id: string) {
     super();
@@ -211,17 +413,17 @@ export class Post extends Entity {
     this.set("tags", Value.fromI32Array(value));
   }
 
-  get hash(): Bytes {
-    let value = this.get("hash");
+  get ipfsHash(): Bytes {
+    let value = this.get("ipfsHash");
     return value.toBytes();
   }
 
-  set hash(value: Bytes) {
-    this.set("hash", Value.fromBytes(value));
+  set ipfsHash(value: Bytes) {
+    this.set("ipfsHash", Value.fromBytes(value));
   }
 
-  get hash2(): Bytes | null {
-    let value = this.get("hash2");
+  get ipfsHash2(): Bytes | null {
+    let value = this.get("ipfsHash2");
     if (value === null || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -229,11 +431,11 @@ export class Post extends Entity {
     }
   }
 
-  set hash2(value: Bytes | null) {
+  set ipfsHash2(value: Bytes | null) {
     if (value === null) {
-      this.unset("hash2");
+      this.unset("ipfsHash2");
     } else {
-      this.set("hash2", Value.fromBytes(value as Bytes));
+      this.set("ipfsHash2", Value.fromBytes(value as Bytes));
     }
   }
 
@@ -282,6 +484,24 @@ export class Post extends Entity {
     this.set("communityId", Value.fromI32(value));
   }
 
+  get title(): string {
+    let value = this.get("title");
+    return value.toString();
+  }
+
+  set title(value: string) {
+    this.set("title", Value.fromString(value));
+  }
+
+  get content(): string {
+    let value = this.get("content");
+    return value.toString();
+  }
+
+  set content(value: string) {
+    this.set("content", Value.fromString(value));
+  }
+
   get propertyCount(): i32 {
     let value = this.get("propertyCount");
     return value.toI32();
@@ -316,40 +536,6 @@ export class Post extends Entity {
 
   set isDeleted(value: boolean) {
     this.set("isDeleted", Value.fromBoolean(value));
-  }
-
-  get replies(): Array<string> | null {
-    let value = this.get("replies");
-    if (value === null || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toStringArray();
-    }
-  }
-
-  set replies(value: Array<string> | null) {
-    if (value === null) {
-      this.unset("replies");
-    } else {
-      this.set("replies", Value.fromStringArray(value as Array<string>));
-    }
-  }
-
-  get comments(): Array<string> | null {
-    let value = this.get("comments");
-    if (value === null || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toStringArray();
-    }
-  }
-
-  set comments(value: Array<string> | null) {
-    if (value === null) {
-      this.unset("comments");
-    } else {
-      this.set("comments", Value.fromStringArray(value as Array<string>));
-    }
   }
 
   get properties(): Array<Bytes> | null {
@@ -400,17 +586,17 @@ export class Reply extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get hash(): Bytes {
-    let value = this.get("hash");
+  get ipfsHash(): Bytes {
+    let value = this.get("ipfsHash");
     return value.toBytes();
   }
 
-  set hash(value: Bytes) {
-    this.set("hash", Value.fromBytes(value));
+  set ipfsHash(value: Bytes) {
+    this.set("ipfsHash", Value.fromBytes(value));
   }
 
-  get hash2(): Bytes | null {
-    let value = this.get("hash2");
+  get ipfsHash2(): Bytes | null {
+    let value = this.get("ipfsHash2");
     if (value === null || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -418,11 +604,11 @@ export class Reply extends Entity {
     }
   }
 
-  set hash2(value: Bytes | null) {
+  set ipfsHash2(value: Bytes | null) {
     if (value === null) {
-      this.unset("hash2");
+      this.unset("ipfsHash2");
     } else {
-      this.set("hash2", Value.fromBytes(value as Bytes));
+      this.set("ipfsHash2", Value.fromBytes(value as Bytes));
     }
   }
 
@@ -451,6 +637,24 @@ export class Reply extends Entity {
 
   set postTime(value: i32) {
     this.set("postTime", Value.fromI32(value));
+  }
+
+  get content(): string {
+    let value = this.get("content");
+    return value.toString();
+  }
+
+  set content(value: string) {
+    this.set("content", Value.fromString(value));
+  }
+
+  get path(): string {
+    let value = this.get("path");
+    return value.toString();
+  }
+
+  set path(value: string) {
+    this.set("path", Value.fromString(value));
   }
 
   get propertyCount(): i32 {
@@ -487,40 +691,6 @@ export class Reply extends Entity {
 
   set isDeleted(value: boolean) {
     this.set("isDeleted", Value.fromBoolean(value));
-  }
-
-  get replies(): Array<string> | null {
-    let value = this.get("replies");
-    if (value === null || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toStringArray();
-    }
-  }
-
-  set replies(value: Array<string> | null) {
-    if (value === null) {
-      this.unset("replies");
-    } else {
-      this.set("replies", Value.fromStringArray(value as Array<string>));
-    }
-  }
-
-  get comments(): Array<string> | null {
-    let value = this.get("comments");
-    if (value === null || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toStringArray();
-    }
-  }
-
-  set comments(value: Array<string> | null) {
-    if (value === null) {
-      this.unset("comments");
-    } else {
-      this.set("comments", Value.fromStringArray(value as Array<string>));
-    }
   }
 
   get properties(): Array<Bytes> | null {
@@ -571,17 +741,17 @@ export class Comment extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get hash(): Bytes {
-    let value = this.get("hash");
+  get ipfsHash(): Bytes {
+    let value = this.get("ipfsHash");
     return value.toBytes();
   }
 
-  set hash(value: Bytes) {
-    this.set("hash", Value.fromBytes(value));
+  set ipfsHash(value: Bytes) {
+    this.set("ipfsHash", Value.fromBytes(value));
   }
 
-  get hash2(): Bytes | null {
-    let value = this.get("hash2");
+  get ipfsHash2(): Bytes | null {
+    let value = this.get("ipfsHash2");
     if (value === null || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -589,11 +759,11 @@ export class Comment extends Entity {
     }
   }
 
-  set hash2(value: Bytes | null) {
+  set ipfsHash2(value: Bytes | null) {
     if (value === null) {
-      this.unset("hash2");
+      this.unset("ipfsHash2");
     } else {
-      this.set("hash2", Value.fromBytes(value as Bytes));
+      this.set("ipfsHash2", Value.fromBytes(value as Bytes));
     }
   }
 
@@ -622,6 +792,24 @@ export class Comment extends Entity {
 
   set postTime(value: i32) {
     this.set("postTime", Value.fromI32(value));
+  }
+
+  get content(): string {
+    let value = this.get("content");
+    return value.toString();
+  }
+
+  set content(value: string) {
+    this.set("content", Value.fromString(value));
+  }
+
+  get path(): string {
+    let value = this.get("path");
+    return value.toString();
+  }
+
+  set path(value: string) {
+    this.set("path", Value.fromString(value));
   }
 
   get propertyCount(): i32 {

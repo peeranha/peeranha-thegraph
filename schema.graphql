@@ -11,52 +11,79 @@ type User @entity {
   ipfsHash2: Bytes!
 }
 
+type Community @entity {
+  id: ID!
+  title: String!
+  description: String
+  website: String
+  language: String
+  isFrozen: Boolean
+  ipfsHash: Bytes!
+  ipfsHash2: Bytes!
+}
+
+type Tag @entity {
+  id: ID!
+  communityId: BigInt!
+  title: String!
+  description: String
+  ipfsHash: Bytes!
+  ipfsHash2: Bytes!
+}
+
+
+
 type Post @entity {
   id: ID!
   tags: [Int!]!
-  hash: Bytes!
-  hash2: Bytes
+  ipfsHash: Bytes!
+  ipfsHash2: Bytes
   typePost: String!
   author: Bytes!
   rating: Int
   postTime: Int!
   communityId: Int!
 
+  title: String!
+  content: String!
+
   propertyCount: Int
   commentCount: Int
   replyCount: Int
   isDeleted: Boolean
 
-  replies: [Reply!]
-  comments: [Comment!]
   properties: [Bytes!]
 }
 
 type Reply @entity {
   id: ID!
-  hash: Bytes!
-  hash2: Bytes
+  ipfsHash: Bytes!
+  ipfsHash2: Bytes
   author: Bytes!
   rating: Int
   postTime: Int!
+
+  content: String!
+  path: String!
 
   propertyCount: Int
   commentCount: Int
   replyCount: Int
   isDeleted: Boolean
 
-  replies: [Reply!]
-  comments: [Comment!]
   properties: [Bytes!]
 }
 
 type Comment @entity {
   id: ID!
-  hash: Bytes!
-  hash2: Bytes
+  ipfsHash: Bytes!
+  ipfsHash2: Bytes
   author: Bytes!
   rating: Int
   postTime: Int!
+
+  content: String!
+  path: String!
 
   propertyCount: Int
   isDeleted: Boolean

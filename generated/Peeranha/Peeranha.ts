@@ -550,6 +550,136 @@ export class StatusOfficialAnswerChanged__Params {
   }
 }
 
+export class CommunityCreated extends ethereum.Event {
+  get params(): CommunityCreated__Params {
+    return new CommunityCreated__Params(this);
+  }
+}
+
+export class CommunityCreated__Params {
+  _event: CommunityCreated;
+
+  constructor(event: CommunityCreated) {
+    this._event = event;
+  }
+
+  get id(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get ipfsHash(): Bytes {
+    return this._event.parameters[1].value.toBytes();
+  }
+
+  get ipfsHash2(): Bytes {
+    return this._event.parameters[2].value.toBytes();
+  }
+
+  get tags(): Array<CommunityCreatedTagsStruct> {
+    return this._event.parameters[3].value.toTupleArray<
+      CommunityCreatedTagsStruct
+    >();
+  }
+}
+
+export class CommunityCreatedTagsStruct extends ethereum.Tuple {
+  get ipfsHash(): Bytes {
+    return this[0].toBytes();
+  }
+
+  get ipfsHash2(): Bytes {
+    return this[1].toBytes();
+  }
+}
+
+export class CommunityFrozen extends ethereum.Event {
+  get params(): CommunityFrozen__Params {
+    return new CommunityFrozen__Params(this);
+  }
+}
+
+export class CommunityFrozen__Params {
+  _event: CommunityFrozen;
+
+  constructor(event: CommunityFrozen) {
+    this._event = event;
+  }
+
+  get commintyId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+}
+
+export class CommunityUnfrozen extends ethereum.Event {
+  get params(): CommunityUnfrozen__Params {
+    return new CommunityUnfrozen__Params(this);
+  }
+}
+
+export class CommunityUnfrozen__Params {
+  _event: CommunityUnfrozen;
+
+  constructor(event: CommunityUnfrozen) {
+    this._event = event;
+  }
+
+  get commintyId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+}
+
+export class CommunityUpdated extends ethereum.Event {
+  get params(): CommunityUpdated__Params {
+    return new CommunityUpdated__Params(this);
+  }
+}
+
+export class CommunityUpdated__Params {
+  _event: CommunityUpdated;
+
+  constructor(event: CommunityUpdated) {
+    this._event = event;
+  }
+
+  get id(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get ipfsHash(): Bytes {
+    return this._event.parameters[1].value.toBytes();
+  }
+}
+
+export class TagCreated extends ethereum.Event {
+  get params(): TagCreated__Params {
+    return new TagCreated__Params(this);
+  }
+}
+
+export class TagCreated__Params {
+  _event: TagCreated;
+
+  constructor(event: TagCreated) {
+    this._event = event;
+  }
+
+  get communityId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get tagId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get ipfsHash(): Bytes {
+    return this._event.parameters[2].value.toBytes();
+  }
+
+  get ipfsHash2(): Bytes {
+    return this._event.parameters[3].value.toBytes();
+  }
+}
+
 export class Peeranha__getCommentResultValue0Struct extends ethereum.Tuple {
   get ipfsDoc(): Peeranha__getCommentResultValue0IpfsDocStruct {
     return this[0].toTuple() as Peeranha__getCommentResultValue0IpfsDocStruct;

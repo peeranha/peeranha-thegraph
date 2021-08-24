@@ -23,6 +23,18 @@ dataSources:
           handler: handleNewUser
         - event: UserUpdated(address,bytes32,bytes32)
           handler: handleUpdatedUser
+        - event: CommunityCreated(uint32,bytes32,bytes32,(bytes32,bytes32)[])
+          handler: handleNewCommunity
+        - event: CommunityUpdated(uint32,bytes32)
+          handler: handleUpdatedCommunity
+        - event: CommunityFrozen(uint32)
+          handler: handleFrozenCommunity
+        - event: CommunityUnfrozen(uint32)
+          handler: handleUnfrozenCommunity
+        - event: TagCreated(uint32,uint32,bytes32,bytes32)
+          handler: handleNewTag
+
+
         # - event: PostCreated(address,uint32,uint256)
         #   handler: handleNewPost
         # - event: ReplyCreated(address,uint256,uint16[],uint16)
