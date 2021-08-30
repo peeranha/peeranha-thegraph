@@ -1,9 +1,9 @@
-import { ByteArray } from '@graphprotocol/graph-ts'
+import { Address, ByteArray } from '@graphprotocol/graph-ts'
 import { json, Bytes, ipfs } from '@graphprotocol/graph-ts'
 import { UserCreated, UserUpdated,
   CommunityCreated, CommunityUpdated, CommunityFrozen, CommunityUnfrozen,
   TagCreated,
-  PostCreated } from '../generated/Peeranha/Peeranha'
+  PostCreated, Peeranha } from '../generated/Peeranha/Peeranha'
 import { User, Community, Tag, Post } from '../generated/schema'
 
 
@@ -23,6 +23,8 @@ export function handleUpdatedUser(event: UserUpdated): void {
   }
   getUserData(event.params.ipfsHash, event.params.ipfsHash2, user);
 
+  // const aa = Peeranha.bind(Address.fromHexString("0xd635C2e0F2953032B92C451D433c8ab70Fab5CDc"))
+  // aa.getPost(5);
   user.save();
 }
 
@@ -79,8 +81,19 @@ function getUserData(ipfsHash: Bytes, ipfsHash2: Bytes, user: User | null): void
 }
 
 export function handleNewCommunity(event: CommunityCreated): void {
-  let community = new Community(event.params.id.toHex()); // to string
+  let community = new Community(event.params.id.toString());
   community.isFrozen = false;
+
+  let tagg = event.params.tags;
+  for (let i = 0; i < tagg.length; i++) {
+    if (event.params.id.toString() != "1" && event.params.id.toString() != "2"&& event.params.id.toString() != "4") {
+
+      let tag = new Tag(event.params.id.toString() + "-" + i.toString());
+      tag.communityId = event.params.id;
+      getTagData(tagg[i].ipfsDoc.hash, tagg[i].ipfsDoc.hash, tag);
+      tag.save();
+    }
+  }
 
   getCommunityData(event.params.ipfsHash, event.params.ipfsHash2, community);
 
@@ -88,7 +101,7 @@ export function handleNewCommunity(event: CommunityCreated): void {
 }
 
 export function handleUpdatedCommunity(event: CommunityUpdated): void {
-  let id = event.params.id.toHex() // to string
+  let id = event.params.id.toString() // to string
   let community = Community.load(id)
   if (community == null) {
     community = new Community(id)
@@ -118,7 +131,6 @@ function getCommunityData(ipfsHash: Bytes, ipfsHash2: Bytes, community: Communit
 
     if(!ipfsData.isNull()) {
       let ipfsObj = ipfsData.toObject()
-    
       let title = ipfsObj.get('title');
       if (!title.isNull()) {
         community.title = title.toString();
@@ -182,6 +194,36 @@ export function handleNewTag(event: TagCreated): void {
 
 //   getTagData(event.params.ipfsHash, event.params.ipfsHash, tag);
 
+// }
+
+// export function handleNewPost(event: PostCreated): void {
+//   let post = new Post(event.params.postId.toHex()); // to string
+//   post.isDeleted = false;
+
+//   // let aa = Peeranha.
+
+//   // post.ipfsHash = event.params.ipfsHash;
+//   // post.ipfsHash2 = event.params.ipfsHash2;
+
+//   let hashstr = post.ipfsHash.toHexString();
+//   let hashHex = "1220" + hashstr.slice(2);
+//   let ipfsBytes = ByteArray.fromHexString(hashHex);
+//   let ipfsHashBase58 = ipfsBytes.toBase58();
+//   let result = ipfs.cat(ipfsHashBase58) as Bytes;
+
+//   if (result != null) {
+//     let ipfsData = json.fromBytes(result);
+
+//     if(!ipfsData.isNull()) {
+//       let ipfsObj = ipfsData.toObject()
+  
+//       let title = ipfsObj.get('title');
+//       if (!title.isNull()) {
+//         post.title = title.toString();
+//       }
+//     }
+//   }
+//   post.save(); 
 // }
 
 function getTagData(ipfsHash: Bytes, ipfsHash2: Bytes, tag: Tag | null): void {

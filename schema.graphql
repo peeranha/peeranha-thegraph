@@ -13,7 +13,7 @@ type User @entity {
 
 type Community @entity {
   id: ID!
-  title: String!
+  title: String
   description: String
   website: String
   language: String
@@ -24,11 +24,11 @@ type Community @entity {
 
 type Tag @entity {
   id: ID!
-  communityId: BigInt!
-  title: String!
+  communityId: BigInt
+  title: String
   description: String
-  ipfsHash: Bytes!
-  ipfsHash2: Bytes!
+  ipfsHash: Bytes
+  ipfsHash2: Bytes
 }
 
 
