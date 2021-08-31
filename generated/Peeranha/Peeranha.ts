@@ -201,8 +201,8 @@ export class CommentCreated__Params {
     return this._event.parameters[1].value.toBigInt();
   }
 
-  get path(): Array<i32> {
-    return this._event.parameters[2].value.toI32Array();
+  get parentReplyId(): i32 {
+    return this._event.parameters[2].value.toI32();
   }
 
   get commentId(): i32 {
@@ -231,8 +231,8 @@ export class CommentDeleted__Params {
     return this._event.parameters[1].value.toBigInt();
   }
 
-  get path(): Array<i32> {
-    return this._event.parameters[2].value.toI32Array();
+  get parentReplyId(): i32 {
+    return this._event.parameters[2].value.toI32();
   }
 
   get commentId(): i32 {
@@ -261,8 +261,8 @@ export class CommentEdited__Params {
     return this._event.parameters[1].value.toBigInt();
   }
 
-  get path(): Array<i32> {
-    return this._event.parameters[2].value.toI32Array();
+  get parentReplyId(): i32 {
+    return this._event.parameters[2].value.toI32();
   }
 
   get commentId(): i32 {
@@ -291,20 +291,16 @@ export class ForumItemVoted__Params {
     return this._event.parameters[1].value.toBigInt();
   }
 
-  get path(): Array<i32> {
-    return this._event.parameters[2].value.toI32Array();
-  }
-
   get replyId(): i32 {
-    return this._event.parameters[3].value.toI32();
+    return this._event.parameters[2].value.toI32();
   }
 
   get commentId(): i32 {
-    return this._event.parameters[4].value.toI32();
+    return this._event.parameters[3].value.toI32();
   }
 
   get isUpvote(): boolean {
-    return this._event.parameters[5].value.toBoolean();
+    return this._event.parameters[4].value.toBoolean();
   }
 }
 
@@ -399,8 +395,8 @@ export class ReplyCreated__Params {
     return this._event.parameters[1].value.toBigInt();
   }
 
-  get path(): Array<i32> {
-    return this._event.parameters[2].value.toI32Array();
+  get parentReplyId(): i32 {
+    return this._event.parameters[2].value.toI32();
   }
 
   get replyId(): i32 {
@@ -429,12 +425,8 @@ export class ReplyDeleted__Params {
     return this._event.parameters[1].value.toBigInt();
   }
 
-  get path(): Array<i32> {
-    return this._event.parameters[2].value.toI32Array();
-  }
-
   get replyId(): i32 {
-    return this._event.parameters[3].value.toI32();
+    return this._event.parameters[2].value.toI32();
   }
 }
 
@@ -459,12 +451,8 @@ export class ReplyEdited__Params {
     return this._event.parameters[1].value.toBigInt();
   }
 
-  get path(): Array<i32> {
-    return this._event.parameters[2].value.toI32Array();
-  }
-
   get replyId(): i32 {
-    return this._event.parameters[3].value.toI32();
+    return this._event.parameters[2].value.toI32();
   }
 }
 
@@ -801,7 +789,7 @@ export class Peeranha__getReplyResultValue0Struct extends ethereum.Tuple {
     return this[3].toBigInt();
   }
 
-  get replyCount(): i32 {
+  get parentReplyId(): i32 {
     return this[4].toI32();
   }
 
@@ -999,15 +987,15 @@ export class Peeranha extends ethereum.SmartContract {
 
   getComment(
     postId: BigInt,
-    path: Array<i32>,
+    parentReplyId: i32,
     commentId: i32
   ): Peeranha__getCommentResultValue0Struct {
     let result = super.call(
       "getComment",
-      "getComment(uint256,uint16[],uint8):(((bytes32,bytes32),address,int32,uint32,uint8,bool))",
+      "getComment(uint256,uint16,uint8):(((bytes32,bytes32),address,int32,uint32,uint8,bool))",
       [
         ethereum.Value.fromUnsignedBigInt(postId),
-        ethereum.Value.fromI32Array(path),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(parentReplyId)),
         ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(commentId))
       ]
     );
@@ -1017,15 +1005,15 @@ export class Peeranha extends ethereum.SmartContract {
 
   try_getComment(
     postId: BigInt,
-    path: Array<i32>,
+    parentReplyId: i32,
     commentId: i32
   ): ethereum.CallResult<Peeranha__getCommentResultValue0Struct> {
     let result = super.tryCall(
       "getComment",
-      "getComment(uint256,uint16[],uint8):(((bytes32,bytes32),address,int32,uint32,uint8,bool))",
+      "getComment(uint256,uint16,uint8):(((bytes32,bytes32),address,int32,uint32,uint8,bool))",
       [
         ethereum.Value.fromUnsignedBigInt(postId),
-        ethereum.Value.fromI32Array(path),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(parentReplyId)),
         ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(commentId))
       ]
     );
@@ -1115,17 +1103,12 @@ export class Peeranha extends ethereum.SmartContract {
     );
   }
 
-  getReply(
-    postId: BigInt,
-    path: Array<i32>,
-    replyId: i32
-  ): Peeranha__getReplyResultValue0Struct {
+  getReply(postId: BigInt, replyId: i32): Peeranha__getReplyResultValue0Struct {
     let result = super.call(
       "getReply",
-      "getReply(uint256,uint16[],uint16):(((bytes32,bytes32),address,int32,uint32,uint16,uint8,uint8,bool,bool,bool))",
+      "getReply(uint256,uint16):(((bytes32,bytes32),address,int32,uint32,uint16,uint8,uint8,bool,bool,bool))",
       [
         ethereum.Value.fromUnsignedBigInt(postId),
-        ethereum.Value.fromI32Array(path),
         ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(replyId))
       ]
     );
@@ -1135,15 +1118,13 @@ export class Peeranha extends ethereum.SmartContract {
 
   try_getReply(
     postId: BigInt,
-    path: Array<i32>,
     replyId: i32
   ): ethereum.CallResult<Peeranha__getReplyResultValue0Struct> {
     let result = super.tryCall(
       "getReply",
-      "getReply(uint256,uint16[],uint16):(((bytes32,bytes32),address,int32,uint32,uint16,uint8,uint8,bool,bool,bool))",
+      "getReply(uint256,uint16):(((bytes32,bytes32),address,int32,uint32,uint16,uint8,uint8,bool,bool,bool))",
       [
         ethereum.Value.fromUnsignedBigInt(postId),
-        ethereum.Value.fromI32Array(path),
         ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(replyId))
       ]
     );
@@ -1578,8 +1559,8 @@ export class CreateCommentCall__Inputs {
     return this._call.inputValues[0].value.toBigInt();
   }
 
-  get path(): Array<i32> {
-    return this._call.inputValues[1].value.toI32Array();
+  get parentReplyId(): i32 {
+    return this._call.inputValues[1].value.toI32();
   }
 
   get ipfsHash(): Bytes {
@@ -1612,16 +1593,12 @@ export class CreateCommunityCall__Inputs {
     this._call = call;
   }
 
-  get communityId(): BigInt {
-    return this._call.inputValues[0].value.toBigInt();
-  }
-
   get ipfsHash(): Bytes {
-    return this._call.inputValues[1].value.toBytes();
+    return this._call.inputValues[0].value.toBytes();
   }
 
   get tags(): Array<CreateCommunityCallTagsStruct> {
-    return this._call.inputValues[2].value.toTupleArray<
+    return this._call.inputValues[1].value.toTupleArray<
       CreateCommunityCallTagsStruct
     >();
   }
@@ -1714,8 +1691,8 @@ export class CreateReplyCall__Inputs {
     return this._call.inputValues[0].value.toBigInt();
   }
 
-  get path(): Array<i32> {
-    return this._call.inputValues[1].value.toI32Array();
+  get parentReplyId(): i32 {
+    return this._call.inputValues[1].value.toI32();
   }
 
   get ipfsHash(): Bytes {
@@ -1756,12 +1733,8 @@ export class CreateTagCall__Inputs {
     return this._call.inputValues[0].value.toBigInt();
   }
 
-  get tagId(): i32 {
-    return this._call.inputValues[1].value.toI32();
-  }
-
   get ipfsHash(): Bytes {
-    return this._call.inputValues[2].value.toBytes();
+    return this._call.inputValues[1].value.toBytes();
   }
 }
 
@@ -1824,8 +1797,8 @@ export class DeleteCommentCall__Inputs {
     return this._call.inputValues[0].value.toBigInt();
   }
 
-  get path(): Array<i32> {
-    return this._call.inputValues[1].value.toI32Array();
+  get parentReplyId(): i32 {
+    return this._call.inputValues[1].value.toI32();
   }
 
   get commentId(): i32 {
@@ -1892,12 +1865,8 @@ export class DeleteReplyCall__Inputs {
     return this._call.inputValues[0].value.toBigInt();
   }
 
-  get path(): Array<i32> {
-    return this._call.inputValues[1].value.toI32Array();
-  }
-
   get replyId(): i32 {
-    return this._call.inputValues[2].value.toI32();
+    return this._call.inputValues[1].value.toI32();
   }
 }
 
@@ -1930,8 +1899,8 @@ export class EditCommentCall__Inputs {
     return this._call.inputValues[0].value.toBigInt();
   }
 
-  get path(): Array<i32> {
-    return this._call.inputValues[1].value.toI32Array();
+  get parentReplyId(): i32 {
+    return this._call.inputValues[1].value.toI32();
   }
 
   get commentId(): i32 {
@@ -2014,16 +1983,12 @@ export class EditReplyCall__Inputs {
     return this._call.inputValues[0].value.toBigInt();
   }
 
-  get path(): Array<i32> {
-    return this._call.inputValues[1].value.toI32Array();
-  }
-
   get replyId(): i32 {
-    return this._call.inputValues[2].value.toI32();
+    return this._call.inputValues[1].value.toI32();
   }
 
   get ipfsHash(): Bytes {
-    return this._call.inputValues[3].value.toBytes();
+    return this._call.inputValues[2].value.toBytes();
   }
 }
 
@@ -2496,20 +2461,16 @@ export class VoteItemCall__Inputs {
     return this._call.inputValues[0].value.toBigInt();
   }
 
-  get path(): Array<i32> {
-    return this._call.inputValues[1].value.toI32Array();
-  }
-
   get replyId(): i32 {
-    return this._call.inputValues[2].value.toI32();
+    return this._call.inputValues[1].value.toI32();
   }
 
   get commentId(): i32 {
-    return this._call.inputValues[3].value.toI32();
+    return this._call.inputValues[2].value.toI32();
   }
 
   get isUpvote(): boolean {
-    return this._call.inputValues[4].value.toBoolean();
+    return this._call.inputValues[3].value.toBoolean();
   }
 }
 

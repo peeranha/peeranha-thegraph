@@ -86,17 +86,13 @@ export function handleNewCommunity(event: CommunityCreated): void {
 
   let tagg = event.params.tags;
   for (let i = 0; i < tagg.length; i++) {
-    if (event.params.id.toString() != "1" && event.params.id.toString() != "2"&& event.params.id.toString() != "4") {
-
-      let tag = new Tag(event.params.id.toString() + "-" + i.toString());
-      tag.communityId = event.params.id;
-      getTagData(tagg[i].ipfsDoc.hash, tagg[i].ipfsDoc.hash, tag);
-      tag.save();
-    }
+    let tag = new Tag(event.params.id.toString() + "-" + i.toString());
+    tag.communityId = event.params.id;
+    getTagData(tagg[i].ipfsDoc.hash, tagg[i].ipfsDoc.hash, tag);
+    tag.save();
   }
 
   getCommunityData(event.params.ipfsHash, event.params.ipfsHash2, community);
-
   community.save(); 
 }
 
@@ -155,46 +151,39 @@ function getCommunityData(ipfsHash: Bytes, ipfsHash2: Bytes, community: Communit
 }
 
 export function handleFrozenCommunity(event: CommunityFrozen): void {
-  let id = event.params.commintyId.toHex() // to string
+  let id = event.params.commintyId.toString()
   let community = Community.load(id)
-  if (community == null) {
-    community = new Community(id)
+  if (community != null) {
+    community.isFrozen = true;
+    community.save();
+  } else {
+    // get community data
   }
-
-  community.isFrozen = true;
-  community.save();
 }
 
 export function handleUnfrozenCommunity(event: CommunityUnfrozen): void {
-  let id = event.params.commintyId.toHex() // to string
+  let id = event.params.commintyId.toString()
   let community = Community.load(id)
-  if (community == null) {
-    community = new Community(id)
+  if (community != null) {
+    community.isFrozen = false;
+    community.save();
+  } else {
+    // get community data?
   }
-  
-  community.isFrozen = false;
-  community.save();
 }
 
 export function handleNewTag(event: TagCreated): void {
-  let tag = new Tag(event.params.tagId.toHex()); // to string
-  tag.communityId = event.params.communityId;
-
-  getTagData(event.params.ipfsHash, event.params.ipfsHash, tag);
-
-  tag.save(); 
+  let community = Community.load(event.params.tagId.toString()) //communityId -> tagId
+  if (community != null) {
+    let tag = new Tag(event.params.tagId.toString() + "-" +event.params.communityId.toString());
+    tag.communityId = event.params.tagId;
+  
+    getTagData(event.params.ipfsHash, event.params.ipfsHash, tag);
+    tag.save(); 
+  } else {
+    // get community data?
+  }
 }
-
-// export function handleUpdatedTag(event: TagUpdated): void {
-//   let id = event.params.id.toHex() // to string
-//   let tag = Tag.load(id)
-//   if (tag == null) {
-//     tag = new Tag(id)
-//   }
-
-//   getTagData(event.params.ipfsHash, event.params.ipfsHash, tag);
-
-// }
 
 // export function handleNewPost(event: PostCreated): void {
 //   let post = new Post(event.params.postId.toHex()); // to string

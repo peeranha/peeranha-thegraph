@@ -202,13 +202,21 @@ export class Community extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get title(): string {
+  get title(): string | null {
     let value = this.get("title");
-    return value.toString();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set title(value: string) {
-    this.set("title", Value.fromString(value));
+  set title(value: string | null) {
+    if (value === null) {
+      this.unset("title");
+    } else {
+      this.set("title", Value.fromString(value as string));
+    }
   }
 
   get description(): string | null {
@@ -320,22 +328,38 @@ export class Tag extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get communityId(): BigInt {
+  get communityId(): BigInt | null {
     let value = this.get("communityId");
-    return value.toBigInt();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
   }
 
-  set communityId(value: BigInt) {
-    this.set("communityId", Value.fromBigInt(value));
+  set communityId(value: BigInt | null) {
+    if (value === null) {
+      this.unset("communityId");
+    } else {
+      this.set("communityId", Value.fromBigInt(value as BigInt));
+    }
   }
 
-  get title(): string {
+  get title(): string | null {
     let value = this.get("title");
-    return value.toString();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set title(value: string) {
-    this.set("title", Value.fromString(value));
+  set title(value: string | null) {
+    if (value === null) {
+      this.unset("title");
+    } else {
+      this.set("title", Value.fromString(value as string));
+    }
   }
 
   get description(): string | null {
@@ -355,22 +379,38 @@ export class Tag extends Entity {
     }
   }
 
-  get ipfsHash(): Bytes {
+  get ipfsHash(): Bytes | null {
     let value = this.get("ipfsHash");
-    return value.toBytes();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
   }
 
-  set ipfsHash(value: Bytes) {
-    this.set("ipfsHash", Value.fromBytes(value));
+  set ipfsHash(value: Bytes | null) {
+    if (value === null) {
+      this.unset("ipfsHash");
+    } else {
+      this.set("ipfsHash", Value.fromBytes(value as Bytes));
+    }
   }
 
-  get ipfsHash2(): Bytes {
+  get ipfsHash2(): Bytes | null {
     let value = this.get("ipfsHash2");
-    return value.toBytes();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
   }
 
-  set ipfsHash2(value: Bytes) {
-    this.set("ipfsHash2", Value.fromBytes(value));
+  set ipfsHash2(value: Bytes | null) {
+    if (value === null) {
+      this.unset("ipfsHash2");
+    } else {
+      this.set("ipfsHash2", Value.fromBytes(value as Bytes));
+    }
   }
 }
 

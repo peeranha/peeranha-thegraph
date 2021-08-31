@@ -221,9 +221,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint16[]",
-        "name": "path",
-        "type": "uint16[]"
+        "internalType": "uint16",
+        "name": "parentReplyId",
+        "type": "uint16"
       },
       {
         "internalType": "bytes32",
@@ -238,11 +238,6 @@
   },
   {
     "inputs": [
-      {
-        "internalType": "uint32",
-        "name": "communityId",
-        "type": "uint32"
-      },
       {
         "internalType": "bytes32",
         "name": "ipfsHash",
@@ -314,9 +309,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint16[]",
-        "name": "path",
-        "type": "uint16[]"
+        "internalType": "uint16",
+        "name": "parentReplyId",
+        "type": "uint16"
       },
       {
         "internalType": "bytes32",
@@ -340,11 +335,6 @@
         "internalType": "uint32",
         "name": "communityId",
         "type": "uint32"
-      },
-      {
-        "internalType": "uint8",
-        "name": "tagId",
-        "type": "uint8"
       },
       {
         "internalType": "bytes32",
@@ -378,9 +368,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint16[]",
-        "name": "path",
-        "type": "uint16[]"
+        "internalType": "uint16",
+        "name": "parentReplyId",
+        "type": "uint16"
       },
       {
         "internalType": "uint8",
@@ -414,11 +404,6 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint16[]",
-        "name": "path",
-        "type": "uint16[]"
-      },
-      {
         "internalType": "uint16",
         "name": "replyId",
         "type": "uint16"
@@ -437,9 +422,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint16[]",
-        "name": "path",
-        "type": "uint16[]"
+        "internalType": "uint16",
+        "name": "parentReplyId",
+        "type": "uint16"
       },
       {
         "internalType": "uint8",
@@ -493,11 +478,6 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint16[]",
-        "name": "path",
-        "type": "uint16[]"
-      },
-      {
         "internalType": "uint16",
         "name": "replyId",
         "type": "uint16"
@@ -534,9 +514,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint16[]",
-        "name": "path",
-        "type": "uint16[]"
+        "internalType": "uint16",
+        "name": "parentReplyId",
+        "type": "uint16"
       },
       {
         "internalType": "uint8",
@@ -771,11 +751,6 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint16[]",
-        "name": "path",
-        "type": "uint16[]"
-      },
-      {
         "internalType": "uint16",
         "name": "replyId",
         "type": "uint16"
@@ -819,7 +794,7 @@
           },
           {
             "internalType": "uint16",
-            "name": "replyCount",
+            "name": "parentReplyId",
             "type": "uint16"
           },
           {
@@ -1368,11 +1343,6 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint16[]",
-        "name": "path",
-        "type": "uint16[]"
-      },
-      {
         "internalType": "uint16",
         "name": "replyId",
         "type": "uint16"
@@ -1470,9 +1440,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint16[]",
-        "name": "path",
-        "type": "uint16[]"
+        "internalType": "uint16",
+        "name": "parentReplyId",
+        "type": "uint16"
       },
       {
         "indexed": false,
@@ -1501,9 +1471,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint16[]",
-        "name": "path",
-        "type": "uint16[]"
+        "internalType": "uint16",
+        "name": "parentReplyId",
+        "type": "uint16"
       },
       {
         "indexed": false,
@@ -1532,9 +1502,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint16[]",
-        "name": "path",
-        "type": "uint16[]"
+        "internalType": "uint16",
+        "name": "parentReplyId",
+        "type": "uint16"
       },
       {
         "indexed": false,
@@ -1560,12 +1530,6 @@
         "internalType": "uint256",
         "name": "postId",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint16[]",
-        "name": "path",
-        "type": "uint16[]"
       },
       {
         "indexed": false,
@@ -1669,9 +1633,9 @@
       },
       {
         "indexed": false,
-        "internalType": "uint16[]",
-        "name": "path",
-        "type": "uint16[]"
+        "internalType": "uint16",
+        "name": "parentReplyId",
+        "type": "uint16"
       },
       {
         "indexed": false,
@@ -1700,12 +1664,6 @@
       },
       {
         "indexed": false,
-        "internalType": "uint16[]",
-        "name": "path",
-        "type": "uint16[]"
-      },
-      {
-        "indexed": false,
         "internalType": "uint16",
         "name": "replyId",
         "type": "uint16"
@@ -1728,12 +1686,6 @@
         "internalType": "uint256",
         "name": "postId",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint16[]",
-        "name": "path",
-        "type": "uint16[]"
       },
       {
         "indexed": false,
