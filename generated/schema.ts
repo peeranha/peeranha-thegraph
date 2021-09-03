@@ -153,6 +153,23 @@ export class User extends Entity {
     }
   }
 
+  get creationTime(): BigInt | null {
+    let value = this.get("creationTime");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set creationTime(value: BigInt | null) {
+    if (value === null) {
+      this.unset("creationTime");
+    } else {
+      this.set("creationTime", Value.fromBigInt(value as BigInt));
+    }
+  }
+
   get ipfsHash(): Bytes {
     let value = this.get("ipfsHash");
     return value.toBytes();
@@ -277,6 +294,32 @@ export class Community extends Entity {
 
   set isFrozen(value: boolean) {
     this.set("isFrozen", Value.fromBoolean(value));
+  }
+
+  get creationTime(): BigInt | null {
+    let value = this.get("creationTime");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set creationTime(value: BigInt | null) {
+    if (value === null) {
+      this.unset("creationTime");
+    } else {
+      this.set("creationTime", Value.fromBigInt(value as BigInt));
+    }
+  }
+
+  get postCount(): i32 {
+    let value = this.get("postCount");
+    return value.toI32();
+  }
+
+  set postCount(value: i32) {
+    this.set("postCount", Value.fromI32(value));
   }
 
   get ipfsHash(): Bytes {
@@ -444,22 +487,38 @@ export class Post extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get tags(): Array<i32> {
+  get tags(): Array<i32> | null {
     let value = this.get("tags");
-    return value.toI32Array();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toI32Array();
+    }
   }
 
-  set tags(value: Array<i32>) {
-    this.set("tags", Value.fromI32Array(value));
+  set tags(value: Array<i32> | null) {
+    if (value === null) {
+      this.unset("tags");
+    } else {
+      this.set("tags", Value.fromI32Array(value as Array<i32>));
+    }
   }
 
-  get ipfsHash(): Bytes {
+  get ipfsHash(): Bytes | null {
     let value = this.get("ipfsHash");
-    return value.toBytes();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
   }
 
-  set ipfsHash(value: Bytes) {
-    this.set("ipfsHash", Value.fromBytes(value));
+  set ipfsHash(value: Bytes | null) {
+    if (value === null) {
+      this.unset("ipfsHash");
+    } else {
+      this.set("ipfsHash", Value.fromBytes(value as Bytes));
+    }
   }
 
   get ipfsHash2(): Bytes | null {
@@ -479,22 +538,30 @@ export class Post extends Entity {
     }
   }
 
-  get typePost(): string {
-    let value = this.get("typePost");
-    return value.toString();
+  get postType(): i32 {
+    let value = this.get("postType");
+    return value.toI32();
   }
 
-  set typePost(value: string) {
-    this.set("typePost", Value.fromString(value));
+  set postType(value: i32) {
+    this.set("postType", Value.fromI32(value));
   }
 
-  get author(): Bytes {
+  get author(): Bytes | null {
     let value = this.get("author");
-    return value.toBytes();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
   }
 
-  set author(value: Bytes) {
-    this.set("author", Value.fromBytes(value));
+  set author(value: Bytes | null) {
+    if (value === null) {
+      this.unset("author");
+    } else {
+      this.set("author", Value.fromBytes(value as Bytes));
+    }
   }
 
   get rating(): i32 {
@@ -506,49 +573,72 @@ export class Post extends Entity {
     this.set("rating", Value.fromI32(value));
   }
 
-  get postTime(): i32 {
+  get postTime(): BigInt | null {
     let value = this.get("postTime");
-    return value.toI32();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
   }
 
-  set postTime(value: i32) {
-    this.set("postTime", Value.fromI32(value));
+  set postTime(value: BigInt | null) {
+    if (value === null) {
+      this.unset("postTime");
+    } else {
+      this.set("postTime", Value.fromBigInt(value as BigInt));
+    }
   }
 
-  get communityId(): i32 {
+  get communityId(): BigInt | null {
     let value = this.get("communityId");
-    return value.toI32();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
   }
 
-  set communityId(value: i32) {
-    this.set("communityId", Value.fromI32(value));
+  set communityId(value: BigInt | null) {
+    if (value === null) {
+      this.unset("communityId");
+    } else {
+      this.set("communityId", Value.fromBigInt(value as BigInt));
+    }
   }
 
-  get title(): string {
+  get title(): string | null {
     let value = this.get("title");
-    return value.toString();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set title(value: string) {
-    this.set("title", Value.fromString(value));
+  set title(value: string | null) {
+    if (value === null) {
+      this.unset("title");
+    } else {
+      this.set("title", Value.fromString(value as string));
+    }
   }
 
-  get content(): string {
+  get content(): string | null {
     let value = this.get("content");
-    return value.toString();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set content(value: string) {
-    this.set("content", Value.fromString(value));
-  }
-
-  get propertyCount(): i32 {
-    let value = this.get("propertyCount");
-    return value.toI32();
-  }
-
-  set propertyCount(value: i32) {
-    this.set("propertyCount", Value.fromI32(value));
+  set content(value: string | null) {
+    if (value === null) {
+      this.unset("content");
+    } else {
+      this.set("content", Value.fromString(value as string));
+    }
   }
 
   get commentCount(): i32 {
@@ -578,20 +668,47 @@ export class Post extends Entity {
     this.set("isDeleted", Value.fromBoolean(value));
   }
 
-  get properties(): Array<Bytes> | null {
+  get officialReply(): i32 {
+    let value = this.get("officialReply");
+    return value.toI32();
+  }
+
+  set officialReply(value: i32) {
+    this.set("officialReply", Value.fromI32(value));
+  }
+
+  get isFirstReply(): boolean {
+    let value = this.get("isFirstReply");
+    return value.toBoolean();
+  }
+
+  set isFirstReply(value: boolean) {
+    this.set("isFirstReply", Value.fromBoolean(value));
+  }
+
+  get isQuickReply(): boolean {
+    let value = this.get("isQuickReply");
+    return value.toBoolean();
+  }
+
+  set isQuickReply(value: boolean) {
+    this.set("isQuickReply", Value.fromBoolean(value));
+  }
+
+  get properties(): Array<BigInt> | null {
     let value = this.get("properties");
     if (value === null || value.kind == ValueKind.NULL) {
       return null;
     } else {
-      return value.toBytesArray();
+      return value.toBigIntArray();
     }
   }
 
-  set properties(value: Array<Bytes> | null) {
+  set properties(value: Array<BigInt> | null) {
     if (value === null) {
       this.unset("properties");
     } else {
-      this.set("properties", Value.fromBytesArray(value as Array<Bytes>));
+      this.set("properties", Value.fromBigIntArray(value as Array<BigInt>));
     }
   }
 }
@@ -626,13 +743,21 @@ export class Reply extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get ipfsHash(): Bytes {
+  get ipfsHash(): Bytes | null {
     let value = this.get("ipfsHash");
-    return value.toBytes();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
   }
 
-  set ipfsHash(value: Bytes) {
-    this.set("ipfsHash", Value.fromBytes(value));
+  set ipfsHash(value: Bytes | null) {
+    if (value === null) {
+      this.unset("ipfsHash");
+    } else {
+      this.set("ipfsHash", Value.fromBytes(value as Bytes));
+    }
   }
 
   get ipfsHash2(): Bytes | null {
@@ -652,13 +777,21 @@ export class Reply extends Entity {
     }
   }
 
-  get author(): Bytes {
+  get author(): Bytes | null {
     let value = this.get("author");
-    return value.toBytes();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
   }
 
-  set author(value: Bytes) {
-    this.set("author", Value.fromBytes(value));
+  set author(value: Bytes | null) {
+    if (value === null) {
+      this.unset("author");
+    } else {
+      this.set("author", Value.fromBytes(value as Bytes));
+    }
   }
 
   get rating(): i32 {
@@ -670,40 +803,64 @@ export class Reply extends Entity {
     this.set("rating", Value.fromI32(value));
   }
 
-  get postTime(): i32 {
+  get postTime(): BigInt | null {
     let value = this.get("postTime");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set postTime(value: BigInt | null) {
+    if (value === null) {
+      this.unset("postTime");
+    } else {
+      this.set("postTime", Value.fromBigInt(value as BigInt));
+    }
+  }
+
+  get postId(): BigInt | null {
+    let value = this.get("postId");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set postId(value: BigInt | null) {
+    if (value === null) {
+      this.unset("postId");
+    } else {
+      this.set("postId", Value.fromBigInt(value as BigInt));
+    }
+  }
+
+  get parentReplyId(): i32 {
+    let value = this.get("parentReplyId");
     return value.toI32();
   }
 
-  set postTime(value: i32) {
-    this.set("postTime", Value.fromI32(value));
+  set parentReplyId(value: i32) {
+    this.set("parentReplyId", Value.fromI32(value));
   }
 
-  get content(): string {
+  get content(): string | null {
     let value = this.get("content");
-    return value.toString();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set content(value: string) {
-    this.set("content", Value.fromString(value));
-  }
-
-  get path(): string {
-    let value = this.get("path");
-    return value.toString();
-  }
-
-  set path(value: string) {
-    this.set("path", Value.fromString(value));
-  }
-
-  get propertyCount(): i32 {
-    let value = this.get("propertyCount");
-    return value.toI32();
-  }
-
-  set propertyCount(value: i32) {
-    this.set("propertyCount", Value.fromI32(value));
+  set content(value: string | null) {
+    if (value === null) {
+      this.unset("content");
+    } else {
+      this.set("content", Value.fromString(value as string));
+    }
   }
 
   get commentCount(): i32 {
@@ -715,15 +872,6 @@ export class Reply extends Entity {
     this.set("commentCount", Value.fromI32(value));
   }
 
-  get replyCount(): i32 {
-    let value = this.get("replyCount");
-    return value.toI32();
-  }
-
-  set replyCount(value: i32) {
-    this.set("replyCount", Value.fromI32(value));
-  }
-
   get isDeleted(): boolean {
     let value = this.get("isDeleted");
     return value.toBoolean();
@@ -731,6 +879,24 @@ export class Reply extends Entity {
 
   set isDeleted(value: boolean) {
     this.set("isDeleted", Value.fromBoolean(value));
+  }
+
+  get isFirstReply(): boolean {
+    let value = this.get("isFirstReply");
+    return value.toBoolean();
+  }
+
+  set isFirstReply(value: boolean) {
+    this.set("isFirstReply", Value.fromBoolean(value));
+  }
+
+  get isQuickReply(): boolean {
+    let value = this.get("isQuickReply");
+    return value.toBoolean();
+  }
+
+  set isQuickReply(value: boolean) {
+    this.set("isQuickReply", Value.fromBoolean(value));
   }
 
   get properties(): Array<Bytes> | null {
@@ -781,13 +947,21 @@ export class Comment extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get ipfsHash(): Bytes {
+  get ipfsHash(): Bytes | null {
     let value = this.get("ipfsHash");
-    return value.toBytes();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
   }
 
-  set ipfsHash(value: Bytes) {
-    this.set("ipfsHash", Value.fromBytes(value));
+  set ipfsHash(value: Bytes | null) {
+    if (value === null) {
+      this.unset("ipfsHash");
+    } else {
+      this.set("ipfsHash", Value.fromBytes(value as Bytes));
+    }
   }
 
   get ipfsHash2(): Bytes | null {
@@ -807,13 +981,21 @@ export class Comment extends Entity {
     }
   }
 
-  get author(): Bytes {
+  get author(): Bytes | null {
     let value = this.get("author");
-    return value.toBytes();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
   }
 
-  set author(value: Bytes) {
-    this.set("author", Value.fromBytes(value));
+  set author(value: Bytes | null) {
+    if (value === null) {
+      this.unset("author");
+    } else {
+      this.set("author", Value.fromBytes(value as Bytes));
+    }
   }
 
   get rating(): i32 {
@@ -825,40 +1007,64 @@ export class Comment extends Entity {
     this.set("rating", Value.fromI32(value));
   }
 
-  get postTime(): i32 {
+  get postTime(): BigInt | null {
     let value = this.get("postTime");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set postTime(value: BigInt | null) {
+    if (value === null) {
+      this.unset("postTime");
+    } else {
+      this.set("postTime", Value.fromBigInt(value as BigInt));
+    }
+  }
+
+  get postId(): BigInt | null {
+    let value = this.get("postId");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set postId(value: BigInt | null) {
+    if (value === null) {
+      this.unset("postId");
+    } else {
+      this.set("postId", Value.fromBigInt(value as BigInt));
+    }
+  }
+
+  get parentReplyId(): i32 {
+    let value = this.get("parentReplyId");
     return value.toI32();
   }
 
-  set postTime(value: i32) {
-    this.set("postTime", Value.fromI32(value));
+  set parentReplyId(value: i32) {
+    this.set("parentReplyId", Value.fromI32(value));
   }
 
-  get content(): string {
+  get content(): string | null {
     let value = this.get("content");
-    return value.toString();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
   }
 
-  set content(value: string) {
-    this.set("content", Value.fromString(value));
-  }
-
-  get path(): string {
-    let value = this.get("path");
-    return value.toString();
-  }
-
-  set path(value: string) {
-    this.set("path", Value.fromString(value));
-  }
-
-  get propertyCount(): i32 {
-    let value = this.get("propertyCount");
-    return value.toI32();
-  }
-
-  set propertyCount(value: i32) {
-    this.set("propertyCount", Value.fromI32(value));
+  set content(value: string | null) {
+    if (value === null) {
+      this.unset("content");
+    } else {
+      this.set("content", Value.fromString(value as string));
+    }
   }
 
   get isDeleted(): boolean {

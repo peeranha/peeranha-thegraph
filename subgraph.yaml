@@ -33,29 +33,27 @@ dataSources:
           handler: handleUnfrozenCommunity
         - event: TagCreated(uint32,uint32,bytes32,bytes32)
           handler: handleNewTag
-
-          
-        # - event: PostCreated(address,uint32,uint256)
-        #   handler: handleNewPost
-        # - event: ReplyCreated(address,uint256,uint16[],uint16)
-        #   handler: 
-        # - event: CommentCreated(address,uint256,uint16[],uint8)
-        #   handler: 
-        # - event: PostEdited(address,uint256)
-        #   handler: 
-        # - event: ReplyEdited(address,uint256,uint16[],uint16)
-        #   handler: 
-        # - event: CommentEdited(address,uint256,uint16[],uint8)
-        #   handler: 
-        # - event: PostDeleted(address,uint256)
-        #   handler:
-        # - event: ReplyDeleted(address,uint256,uint16[],uint16)
-        #   handler: 
-        # - event: CommentDeleted(address,uint256,uint16[],uint8)
-        #   handler: 
+        - event: PostCreated(address,uint32,uint256)
+          handler: handleNewPost
+        - event: PostEdited(address,uint256)
+          handler: handleEditedPost
+        - event: PostDeleted(address,uint256)
+          handler: handleDeletedPost
+        - event: ReplyCreated(address,uint256,uint16,uint16)
+          handler: handleNewReply
+        - event: ReplyEdited(address,uint256,uint16)
+          handler: handleEditedReply
+        - event: ReplyDeleted(address,uint256,uint16)
+          handler: handleDeletedReply
+        - event: CommentCreated(address,uint256,uint16,uint8)
+          handler: handleNewComment
+        - event: CommentEdited(address,uint256,uint16,uint8)
+          handler: handleEditedComment
+        - event: CommentDeleted(address,uint256,uint16,uint8)
+          handler: handleDeletedComment
         # - event: StatusOfficialAnswerChanged(address,uint256,uint16[],uint16,bool)
         #   handler: 
-        # - event: ForumItemVoted(address,uint256,uint16[],uint16,uint8,bool)
-        #   handler:
+        - event: ForumItemVoted(address,uint256,uint16,uint8,bool)
+          handler: handlerForumItemVoted
 
       file: ./src/mapping.ts

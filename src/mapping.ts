@@ -1,16 +1,26 @@
-import { Address, ByteArray } from '@graphprotocol/graph-ts'
-import { json, Bytes, ipfs } from '@graphprotocol/graph-ts'
+import { BigInt } from '@graphprotocol/graph-ts'
 import { UserCreated, UserUpdated,
   CommunityCreated, CommunityUpdated, CommunityFrozen, CommunityUnfrozen,
   TagCreated,
-  PostCreated, Peeranha } from '../generated/Peeranha/Peeranha'
-import { User, Community, Tag, Post } from '../generated/schema'
+  PostCreated, PostEdited, PostDeleted,
+  ReplyCreated, ReplyEdited, ReplyDeleted,
+  CommentCreated, CommentEdited, CommentDeleted,
+  ForumItemVoted
+} from '../generated/Peeranha/Peeranha'
+import { User, Community, Tag, Post, Reply, Comment } from '../generated/schema'
+
+import { getPeeranha } from './utils'
+import { newPost, addDataToPost,
+  newReply, addDataToReply, 
+  newComment, addDataToComment } from './post'
+import { newCommunity, addDataToCommunity, newTag } from './community-tag'
+import { newUser, addDataToUser } from './user'
+  
 
 
 export function handleNewUser(event: UserCreated): void {
   let user = new User(event.params.userAddress.toHex());
-  user.rating = 0;
-  getUserData(event.params.ipfsHash, event.params.ipfsHash2, user);
+  newUser(user, event.params.userAddress);
 
   user.save();
 }
@@ -20,134 +30,35 @@ export function handleUpdatedUser(event: UserUpdated): void {
   let user = User.load(id)
   if (user == null) {
     user = new User(id)
+    newUser(user, event.params.userAddress);
+  } else {
+    addDataToUser(user, event.params.userAddress);
   }
-  getUserData(event.params.ipfsHash, event.params.ipfsHash2, user);
 
-  // const aa = Peeranha.bind(Address.fromHexString("0xd635C2e0F2953032B92C451D433c8ab70Fab5CDc"))
-  // aa.getPost(5);
   user.save();
-}
-
-function getUserData(ipfsHash: Bytes, ipfsHash2: Bytes, user: User | null): void {
-  if (user == null) return;
-  if (ipfsHash == null) return;
-
-  user.ipfsHash = ipfsHash;
-  user.ipfsHash2 = ipfsHash2;
-
-  let hashstr = ipfsHash.toHexString();
-  let hashHex = "1220" + hashstr.slice(2);
-  let ipfsBytes = ByteArray.fromHexString(hashHex);
-  let ipfsHashBase58 = ipfsBytes.toBase58();
-  let result = ipfs.cat(ipfsHashBase58) as Bytes;
-
-  if (result != null) {
-    let ipfsData = json.fromBytes(result);
-
-    if(!ipfsData.isNull()) {
-      let ipfsObj = ipfsData.toObject()
-    
-      let displayName = ipfsObj.get('displayName');
-      if (!displayName.isNull()) {
-        user.displayName = displayName.toString();
-      }
-    
-      let company = ipfsObj.get('company');
-      if (!company.isNull()) {
-        user.company = company.toString();
-      }
-
-      let position = ipfsObj.get('position');
-      if (!position.isNull()) {
-        user.position = position.toString()
-      }
-
-      let location = ipfsObj.get('location');
-      if (!location.isNull()) {
-        user.location = location.toString();
-      }
-
-      let about = ipfsObj.get('about');
-      if (!about.isNull()) {
-        user.about = about.toString();
-      }
-
-      let avatar = ipfsObj.get('avatar');
-      if (!avatar.isNull()) {
-        user.avatar = avatar.toString();
-      }
-    }
-  }
 }
 
 export function handleNewCommunity(event: CommunityCreated): void {
   let community = new Community(event.params.id.toString());
-  community.isFrozen = false;
 
-  let tagg = event.params.tags;
-  for (let i = 0; i < tagg.length; i++) {
-    let tag = new Tag(event.params.id.toString() + "-" + i.toString());
-    tag.communityId = event.params.id;
-    getTagData(tagg[i].ipfsDoc.hash, tagg[i].ipfsDoc.hash, tag);
-    tag.save();
-  }
+  const peeranhaCommunity = getPeeranha().getCommunity(event.params.id);
+  if (peeranhaCommunity == null) return;
 
-  getCommunityData(event.params.ipfsHash, event.params.ipfsHash2, community);
+  newCommunity(community, event.params.id);
   community.save(); 
 }
 
 export function handleUpdatedCommunity(event: CommunityUpdated): void {
-  let id = event.params.id.toString() // to string
+  let id = event.params.id.toString()
   let community = Community.load(id)
   if (community == null) {
-    community = new Community(id)
+    community = new Community(id);
+    newCommunity(community, event.params.id);
+  } else {
+    addDataToCommunity(community, event.params.id);
   }
-  community.ipfsHash = event.params.ipfsHash;
-
-  getCommunityData(event.params.ipfsHash, community.ipfsHash2, community);    //community.ipfsHash2 = community.ipfsHash2?
 
   community.save();
-}
-
-function getCommunityData(ipfsHash: Bytes, ipfsHash2: Bytes, community: Community | null): void {
-  if (community == null) return;
-  if (ipfsHash == null) return;
-
-  community.ipfsHash = ipfsHash;
-  community.ipfsHash2 = ipfsHash2;
-
-  let hashstr = ipfsHash.toHexString();
-  let hashHex = "1220" + hashstr.slice(2);
-  let ipfsBytes = ByteArray.fromHexString(hashHex);
-  let ipfsHashBase58 = ipfsBytes.toBase58();
-  let result = ipfs.cat(ipfsHashBase58) as Bytes;
-
-  if (result != null) {
-    let ipfsData = json.fromBytes(result);
-
-    if(!ipfsData.isNull()) {
-      let ipfsObj = ipfsData.toObject()
-      let title = ipfsObj.get('title');
-      if (!title.isNull()) {
-        community.title = title.toString();
-      }
-
-      let description = ipfsObj.get('description');
-      if (!description.isNull()) {
-        community.description = description.toString();
-      }
-
-      let website = ipfsObj.get('website');
-      if (!website.isNull()) {
-        community.website = website.toString();
-      }
-
-      let language = ipfsObj.get('language');
-      if (!language.isNull()) {
-        community.language = language.toString();
-      }
-    }
-  }
 }
 
 export function handleFrozenCommunity(event: CommunityFrozen): void {
@@ -156,8 +67,6 @@ export function handleFrozenCommunity(event: CommunityFrozen): void {
   if (community != null) {
     community.isFrozen = true;
     community.save();
-  } else {
-    // get community data
   }
 }
 
@@ -168,81 +77,156 @@ export function handleUnfrozenCommunity(event: CommunityUnfrozen): void {
     community.isFrozen = false;
     community.save();
   } else {
-    // get community data?
+    community = new Community(id);
+    newCommunity(community, event.params.commintyId);
   }
 }
 
 export function handleNewTag(event: TagCreated): void {
   let community = Community.load(event.params.tagId.toString()) //communityId -> tagId
   if (community != null) {
-    let tag = new Tag(event.params.tagId.toString() + "-" +event.params.communityId.toString());
+    let tag = new Tag(event.params.tagId.toString() + "-" + event.params.communityId.toString());
     tag.communityId = event.params.tagId;
   
-    getTagData(event.params.ipfsHash, event.params.ipfsHash, tag);
+    newTag(tag, event.params.communityId, event.params.tagId);
     tag.save(); 
   } else {
-    // get community data?
+    newCommunity(community, event.params.communityId);
   }
 }
 
-// export function handleNewPost(event: PostCreated): void {
-//   let post = new Post(event.params.postId.toHex()); // to string
-//   post.isDeleted = false;
+export function handleNewPost(event: PostCreated): void {
+  let post = new Post(event.params.postId.toString());
 
-//   // let aa = Peeranha.
+  newPost(post, event.params.postId);
+  post.save(); 
+}
 
-//   // post.ipfsHash = event.params.ipfsHash;
-//   // post.ipfsHash2 = event.params.ipfsHash2;
+export function handleEditedPost(event: PostEdited): void {
+  let post = Post.load(event.params.postId.toString())
+  if (post == null) {
+    post = new Post(event.params.postId.toString())
+    newPost(post, event.params.postId);
+  } else {
+    addDataToPost(post, event.params.postId);
+  }
 
-//   let hashstr = post.ipfsHash.toHexString();
-//   let hashHex = "1220" + hashstr.slice(2);
-//   let ipfsBytes = ByteArray.fromHexString(hashHex);
-//   let ipfsHashBase58 = ipfsBytes.toBase58();
-//   let result = ipfs.cat(ipfsHashBase58) as Bytes;
+  post.save();
+}
 
-//   if (result != null) {
-//     let ipfsData = json.fromBytes(result);
+export function handleDeletedPost(event: PostDeleted): void {
+  let post = Post.load(event.params.postId.toString());
+  if (post == null) return;
 
-//     if(!ipfsData.isNull()) {
-//       let ipfsObj = ipfsData.toObject()
-  
-//       let title = ipfsObj.get('title');
-//       if (!title.isNull()) {
-//         post.title = title.toString();
-//       }
-//     }
-//   }
-//   post.save(); 
-// }
+  post.isDeleted = true;
+  post.save(); 
+}
 
-function getTagData(ipfsHash: Bytes, ipfsHash2: Bytes, tag: Tag | null): void {
-  if (tag == null) return;
-  if (ipfsHash == null) return;
+export function handleNewReply(event: ReplyCreated): void {
+  let replyId = BigInt.fromI32(event.params.replyId);
+  let reply = new Reply(event.params.postId.toString() + "-" + replyId.toString());
 
-  tag.ipfsHash = ipfsHash;
-  tag.ipfsHash2 = ipfsHash2;
+  newReply(reply, event.params.postId, replyId);
+  reply.save(); 
+}
 
-  let hashstr = ipfsHash.toHexString();
-  let hashHex = "1220" + hashstr.slice(2);
-  let ipfsBytes = ByteArray.fromHexString(hashHex);
-  let ipfsHashBase58 = ipfsBytes.toBase58();
-  let result = ipfs.cat(ipfsHashBase58) as Bytes;
+export function handleEditedReply(event: ReplyEdited): void { 
+  let replyId = BigInt.fromI32(event.params.replyId);
+  let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
 
-  if (result != null) {
-    let ipfsData = json.fromBytes(result);
+  if (reply == null) {
+    reply = new Reply(event.params.postId.toString() + "-" + replyId.toString());
+    newReply(reply, event.params.postId, replyId);
+  } else {
+    addDataToReply(reply, event.params.postId, replyId);
+  }
 
-    if(!ipfsData.isNull()) {
-      let ipfsObj = ipfsData.toObject()
-    
-      let title = ipfsObj.get('title');
-      if (!title.isNull()) {
-        tag.title = title.toString();
-      }
+  reply.save(); 
+}
 
-      let description = ipfsObj.get('description');
-      if (!description.isNull()) {
-        tag.description = description.toString();
-      }
+export function handleDeletedReply(event: ReplyDeleted): void {
+  let replyId = BigInt.fromI32(event.params.replyId);
+  let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString());
+  if (reply == null) return;
+
+  reply.isDeleted = true;
+  reply.save(); 
+}
+
+export function handleNewComment(event: CommentCreated): void {
+  let commentId = BigInt.fromI32(event.params.commentId);
+  let parentReplyId = BigInt.fromI32(event.params.parentReplyId);
+  let comment = new Comment(event.params.postId.toString() + "-" + parentReplyId.toString() + "-" +  commentId.toString());
+
+  newComment(comment, event.params.postId, BigInt.fromI32(event.params.parentReplyId), commentId);  //без конвертации
+  comment.save(); 
+}
+
+export function handleEditedComment(event: CommentEdited): void { 
+  let commentId = BigInt.fromI32(event.params.commentId);
+  let parentReplyId = BigInt.fromI32(event.params.parentReplyId);
+  let comment = Comment.load(event.params.postId.toString() + "-" + parentReplyId.toString() + "-" +  commentId.toString());
+
+  if (comment == null) {
+    comment = new Comment(event.params.postId.toString() + "-" + parentReplyId.toString() + "-" +  commentId.toString());
+    newComment(comment, event.params.postId, parentReplyId, commentId);
+  } else {
+    addDataToComment(comment, event.params.postId, parentReplyId, commentId);
+  }
+
+  comment.save(); 
+}
+
+export function handleDeletedComment(event: CommentDeleted): void {
+  let commentId = BigInt.fromI32(event.params.commentId);
+  let parentReplyId = BigInt.fromI32(event.params.parentReplyId);
+  let comment = Comment.load(event.params.postId.toString() + "-" + parentReplyId.toString() + "-" +  commentId.toString());
+  if (comment == null) return;
+
+  comment.isDeleted = true;
+  comment.save(); 
+}
+
+export function handlerForumItemVoted(event: ForumItemVoted): void {    // вынести в этдельную function with edit
+  if (event.params.commentId != 0) {
+    let commentId = BigInt.fromI32(event.params.commentId);
+    let replyId = BigInt.fromI32(event.params.replyId);
+    let comment = Comment.load(event.params.postId.toString() + "-" + replyId.toString() + "-" +  commentId.toString());
+
+    if (comment == null) {
+      comment = new Comment(event.params.postId.toString() + "-" + replyId.toString() + "-" +  commentId.toString());
+      newComment(comment, event.params.postId, replyId, commentId);
+    } else {
+      let peeranhaComment = getPeeranha().getComment(event.params.postId, replyId.toI32(), commentId.toI32());
+      if (peeranhaComment == null) return;
+      comment.rating = peeranhaComment.rating;
     }
+    
+    comment.save();
+  } else if (event.params.replyId != 0) {
+    let replyId = BigInt.fromI32(event.params.replyId);
+    let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
+
+    if (reply == null) {
+      reply = new Reply(event.params.postId.toString() + "-" + replyId.toString());
+      newReply(reply, event.params.postId, replyId);
+    } else {
+      let peeranhaReply = getPeeranha().getReply(event.params.postId, replyId.toI32());
+      if (peeranhaReply == null) return;
+      reply.rating = peeranhaReply.rating;
+    }
+    reply.save();
+  } else {
+    let post = Post.load(event.params.postId.toString())
+    if (post == null) {
+      post = new Post(event.params.postId.toString())
+      newPost(post, event.params.postId);
+    } else {
+      let peeranhaPost = getPeeranha().getPost(event.params.postId);
+      if (peeranhaPost == null) return;
+      post.rating = peeranhaPost.rating;
+    }
+
+    post.save();
   }
 }

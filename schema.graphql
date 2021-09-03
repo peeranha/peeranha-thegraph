@@ -7,6 +7,7 @@ type User @entity {
   location: String
   about: String
   avatar: String
+  creationTime: BigInt
   ipfsHash: Bytes!
   ipfsHash2: Bytes!
 }
@@ -18,6 +19,8 @@ type Community @entity {
   website: String
   language: String
   isFrozen: Boolean
+  creationTime: BigInt
+  postCount: Int
   ipfsHash: Bytes!
   ipfsHash2: Bytes!
 }
@@ -31,62 +34,69 @@ type Tag @entity {
   ipfsHash2: Bytes
 }
 
-
+enum PostType {
+  ExpertPost
+  CommonPost
+  Tutorial
+}
 
 type Post @entity {
   id: ID!
-  tags: [Int!]!
-  ipfsHash: Bytes!
+  tags: [Int!]
+  ipfsHash: Bytes
   ipfsHash2: Bytes
-  typePost: String!
-  author: Bytes!
+  postType: Int
+  
+  author: Bytes
   rating: Int
-  postTime: Int!
-  communityId: Int!
+  postTime: BigInt
+  communityId: BigInt
 
-  title: String!
-  content: String!
+  title: String
+  content: String
 
-  propertyCount: Int
   commentCount: Int
   replyCount: Int
   isDeleted: Boolean
 
-  properties: [Bytes!]
+  officialReply: Int
+  isFirstReply: Boolean
+  isQuickReply: Boolean
+  properties: [BigInt!]
 }
 
 type Reply @entity {
   id: ID!
-  ipfsHash: Bytes!
+  ipfsHash: Bytes
   ipfsHash2: Bytes
-  author: Bytes!
+  author: Bytes
   rating: Int
-  postTime: Int!
+  postTime: BigInt
+  postId: BigInt
+  parentReplyId: Int
 
-  content: String!
-  path: String!
+  content: String
 
-  propertyCount: Int
   commentCount: Int
-  replyCount: Int
   isDeleted: Boolean
 
+  isFirstReply: Boolean
+  isQuickReply: Boolean
   properties: [Bytes!]
 }
 
 type Comment @entity {
   id: ID!
-  ipfsHash: Bytes!
+  ipfsHash: Bytes
   ipfsHash2: Bytes
-  author: Bytes!
+  author: Bytes
   rating: Int
-  postTime: Int!
+  postTime: BigInt
+  postId: BigInt
+  parentReplyId: Int
 
-  content: String!
-  path: String!
+  content: String
 
-  propertyCount: Int
   isDeleted: Boolean
-
   properties: [Bytes!]
 }

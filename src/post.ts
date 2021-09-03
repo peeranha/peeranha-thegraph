@@ -1,0 +1,166 @@
+import { ByteArray } from '@graphprotocol/graph-ts'
+import { json, Bytes, ipfs, BigInt } from '@graphprotocol/graph-ts'
+import { Post, Reply, Comment, Community } from '../generated/schema'
+import { getPeeranha } from './utils'
+
+export function newPost(post: Post | null, postId: BigInt): void {
+  const peeranhaPost = getPeeranha().getPost(postId);
+  if (peeranhaPost == null) return;
+
+  post.communityId = peeranhaPost.communityId;
+  post.author = peeranhaPost.author;
+  post.rating = peeranhaPost.rating;
+  post.postTime = peeranhaPost.postTime
+  post.commentCount = peeranhaPost.commentCount;
+  post.replyCount = peeranhaPost.replyCount;
+  post.officialReply = peeranhaPost.officialReply;
+  post.isDeleted = peeranhaPost.isDeleted;
+
+  let community = Community.load(peeranhaPost.communityId.toString())
+  if (community != null) {
+    community.postCount++;
+  }
+
+  addDataToPost(post, postId);
+}
+
+export function addDataToPost(post: Post | null, postId: BigInt): void {
+  const peeranhaPost = getPeeranha().getPost(postId);
+  if (peeranhaPost == null) return;
+  
+  post.tags = peeranhaPost.tags;
+  post.ipfsHash = peeranhaPost.ipfsDoc.hash;
+  post.ipfsHash2 = peeranhaPost.ipfsDoc.hash2;
+  post.postType = peeranhaPost.postType;
+  post.tags = peeranhaPost.tags;
+
+  getIpfsPostData(post);
+}
+
+function getIpfsPostData(post: Post | null): void {
+  let hashstr = post.ipfsHash.toHexString();
+  let hashHex = "1220" + hashstr.slice(2);
+  let ipfsBytes = ByteArray.fromHexString(hashHex);
+  let ipfsHashBase58 = ipfsBytes.toBase58();
+  let result = ipfs.cat(ipfsHashBase58) as Bytes;
+  
+  if (result != null) {
+    let ipfsData = json.fromBytes(result);
+  
+    if(!ipfsData.isNull()) {
+      let ipfsObj = ipfsData.toObject()
+      let title = ipfsObj.get('title');
+      if (!title.isNull()) {
+        post.title = title.toString();
+      }
+  
+      let content = ipfsObj.get('content');
+      if (!content.isNull()) {
+        post.content = content.toString();
+      }
+    }
+  }
+}
+
+export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt): void {
+  let peeranhaReply = getPeeranha().getReply(postId, replyId.toI32());
+  if (peeranhaReply == null) return;
+
+  reply.author = peeranhaReply.author;
+  reply.postTime = peeranhaReply.postTime;
+  reply.rating = peeranhaReply.rating;
+  reply.postId = postId;
+  reply.parentReplyId = peeranhaReply.parentReplyId;
+  reply.commentCount = peeranhaReply.commentCount;
+  reply.isFirstReply = peeranhaReply.isFirstReply;
+  reply.isFirstReply = peeranhaReply.isFirstReply;
+  reply.isDeleted = false;
+
+  let post = Post.load(postId.toString())
+  if (post == null && peeranhaReply.parentReplyId == 0) {
+    post.replyCount++;
+  }
+
+  addDataToReply(reply, postId, replyId);
+}
+
+export function addDataToReply(reply: Reply | null, postId: BigInt, replyId: BigInt): void {
+  const peeranhaReply = getPeeranha().getReply(postId, replyId.toI32());
+  if (peeranhaReply == null) return;
+
+  reply.ipfsHash = peeranhaReply.ipfsDoc.hash;
+  reply.ipfsHash2 = peeranhaReply.ipfsDoc.hash2;
+  
+  getIpfsReplyData(reply);
+}
+
+export function newComment(comment: Comment | null, postId: BigInt, parentReplyId: BigInt, commentId: BigInt): void {
+  let peeranhaComment = getPeeranha().getComment(postId, parentReplyId.toI32(), commentId.toI32());
+  if (peeranhaComment == null) return;
+
+  comment.author = peeranhaComment.author;
+  comment.postTime = peeranhaComment.postTime;
+  comment.postId = postId;
+  comment.rating = peeranhaComment.rating;
+  comment.parentReplyId = parentReplyId.toI32();  
+  comment.isDeleted = false;
+
+  let post = Post.load(postId.toString())
+  if (post == null && parentReplyId == BigInt.fromI32(0)) {
+    post.commentCount++;
+  }
+
+  addDataToComment(comment, postId, parentReplyId, commentId);
+}
+
+export function addDataToComment(comment: Comment | null, postId: BigInt, parentReplyId: BigInt, commentId: BigInt): void {
+  const peeranhaComment = getPeeranha().getComment(postId, parentReplyId.toI32(), commentId.toI32());
+  if (peeranhaComment == null) return;
+
+  comment.ipfsHash = peeranhaComment.ipfsDoc.hash;
+  comment.ipfsHash2 = peeranhaComment.ipfsDoc.hash2;
+  
+  getIpfsCommentData(comment);
+}
+
+function getIpfsReplyData(reply: Reply | null): void {
+  let hashstr = reply.ipfsHash.toHexString();
+  let hashHex = "1220" + hashstr.slice(2);
+  let ipfsBytes = ByteArray.fromHexString(hashHex);
+  let ipfsHashBase58 = ipfsBytes.toBase58();
+  let result = ipfs.cat(ipfsHashBase58) as Bytes;
+  
+  if (result != null) {
+    let ipfsData = json.fromBytes(result);
+  
+    if(!ipfsData.isNull()) {
+      let ipfsObj = ipfsData.toObject()
+  
+      let content = ipfsObj.get('content');
+      if (!content.isNull()) {
+        reply.content = content.toString();
+      }
+    }
+  }
+}
+
+function getIpfsCommentData(comment: Comment | null): void {
+  let hashstr = comment.ipfsHash.toHexString();
+  let hashHex = "1220" + hashstr.slice(2);
+  let ipfsBytes = ByteArray.fromHexString(hashHex);
+  let ipfsHashBase58 = ipfsBytes.toBase58();
+  let result = ipfs.cat(ipfsHashBase58) as Bytes;
+  
+  if (result != null) {
+    let ipfsData = json.fromBytes(result);
+  
+    if(!ipfsData.isNull()) {
+      let ipfsObj = ipfsData.toObject()
+  
+      let content = ipfsObj.get('content');
+      if (!content.isNull()) {
+        comment.content = content.toString();
+      }
+    }
+  }
+}
