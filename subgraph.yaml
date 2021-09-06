@@ -51,7 +51,9 @@ dataSources:
           handler: handleEditedComment
         - event: CommentDeleted(address,uint256,uint16,uint8)
           handler: handleDeletedComment
-        # - event: StatusOfficialAnswerChanged(address,uint256,uint16[],uint16,bool)
+        # - event: StatusOfficialAnswerChanged(address,uint256,uint16)
+        #   handler: 
+        # - event: StatusBestReplyChanged(address,uint256,uint16)
         #   handler: 
         - event: ForumItemVoted(address,uint256,uint16,uint8,bool)
           handler: handlerForumItemVoted
