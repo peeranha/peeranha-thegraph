@@ -5,7 +5,8 @@ import { UserCreated, UserUpdated,
   PostCreated, PostEdited, PostDeleted,
   ReplyCreated, ReplyEdited, ReplyDeleted,
   CommentCreated, CommentEdited, CommentDeleted,
-  ForumItemVoted
+  ForumItemVoted,
+  StatusOfficialReplyChanged, StatusBestReplyChanged
 } from '../generated/Peeranha/Peeranha'
 import { User, Community, Tag, Post, Reply, Comment } from '../generated/schema'
 
@@ -39,12 +40,13 @@ export function handleUpdatedUser(event: UserUpdated): void {
 }
 
 export function handleNewCommunity(event: CommunityCreated): void {
-  let community = new Community(event.params.id.toString());
+  let communityiD = event.params.id; 
+  let community = new Community(communityiD.toString());
 
-  const peeranhaCommunity = getPeeranha().getCommunity(event.params.id);
+  let peeranhaCommunity = getPeeranha().getCommunity(communityiD);
   if (peeranhaCommunity == null) return;
 
-  newCommunity(community, event.params.id);
+  newCommunity(community, communityiD);
   community.save(); 
 }
 
@@ -62,7 +64,7 @@ export function handleUpdatedCommunity(event: CommunityUpdated): void {
 }
 
 export function handleFrozenCommunity(event: CommunityFrozen): void {
-  let id = event.params.commintyId.toString()
+  let id = event.params.communityId.toString()
   let community = Community.load(id)
   if (community != null) {
     community.isFrozen = true;
@@ -71,24 +73,24 @@ export function handleFrozenCommunity(event: CommunityFrozen): void {
 }
 
 export function handleUnfrozenCommunity(event: CommunityUnfrozen): void {
-  let id = event.params.commintyId.toString()
+  let id = event.params.communityId.toString()
   let community = Community.load(id)
   if (community != null) {
     community.isFrozen = false;
     community.save();
   } else {
     community = new Community(id);
-    newCommunity(community, event.params.commintyId);
+    newCommunity(community, event.params.communityId);
   }
 }
 
 export function handleNewTag(event: TagCreated): void {
-  let community = Community.load(event.params.tagId.toString()) //communityId -> tagId
+  let community = Community.load(event.params.communityId.toString()) //communityId -> tagId
   if (community != null) {
-    let tag = new Tag(event.params.tagId.toString() + "-" + event.params.communityId.toString());
-    tag.communityId = event.params.tagId;
+    let tag = new Tag(event.params.communityId.toString() + "-" + BigInt.fromI32(event.params.tagId).toString());
+    tag.communityId = event.params.communityId;
   
-    newTag(tag, event.params.communityId, event.params.tagId);
+    newTag(tag, event.params.communityId, event.params.communityId);
     tag.save(); 
   } else {
     newCommunity(community, event.params.communityId);
@@ -132,7 +134,7 @@ export function handleNewReply(event: ReplyCreated): void {
 
 export function handleEditedReply(event: ReplyEdited): void { 
   let replyId = BigInt.fromI32(event.params.replyId);
-  let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
+  let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString());
 
   if (reply == null) {
     reply = new Reply(event.params.postId.toString() + "-" + replyId.toString());
@@ -141,7 +143,7 @@ export function handleEditedReply(event: ReplyEdited): void {
     addDataToReply(reply, event.params.postId, replyId);
   }
 
-  reply.save(); 
+  reply.save();
 }
 
 export function handleDeletedReply(event: ReplyDeleted): void {
@@ -187,6 +189,76 @@ export function handleDeletedComment(event: CommentDeleted): void {
   comment.save(); 
 }
 
+export function handlerChangedStatusOfficialReply(event: StatusOfficialReplyChanged): void {
+  let post = Post.load(event.params.postId.toString())
+  let previousOfficialReply = 0;
+  if (post == null) {
+    post = new Post(event.params.postId.toString())
+    newPost(post, event.params.postId);
+  } else {
+    previousOfficialReply = post.officialReply;
+    post.officialReply = event.params.replyId;
+  }
+  post.save();
+  
+  if (previousOfficialReply) {
+    let replyId = BigInt.fromI32(previousOfficialReply);
+    let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
+
+    if (reply == null) {
+      newReply(reply, event.params.postId, replyId);
+    } else {
+      reply.isOfficialReply = false;
+    }
+
+    reply.save(); 
+  }
+
+  let replyId = BigInt.fromI32(event.params.replyId);
+  let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
+
+  if (reply == null) {
+    newReply(reply, event.params.postId, replyId);
+  } 
+  reply.isOfficialReply = true;
+  reply.save(); 
+}
+
+export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): void {
+  let post = Post.load(event.params.postId.toString())
+  let previousBestReply = 0;
+  if (post == null) {
+    post = new Post(event.params.postId.toString())
+    newPost(post, event.params.postId);
+  } else {
+    previousBestReply = post.bestReply;
+    post.bestReply = event.params.replyId;
+  }
+  post.save();
+  
+  if (previousBestReply) {
+    let replyId = BigInt.fromI32(previousBestReply);
+    let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
+
+    if (reply == null) {
+      newReply(reply, event.params.postId, replyId);
+    } else {
+      reply.isBestReply = false;
+    }
+
+    reply.save(); 
+  }
+
+  let replyId = BigInt.fromI32(event.params.replyId);
+  let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
+
+  if (reply == null) {
+    newReply(reply, event.params.postId, replyId);
+  } 
+  reply.isBestReply = true;
+  reply.save(); 
+}
+
 export function handlerForumItemVoted(event: ForumItemVoted): void {    // вынести в этдельную function with edit
   if (event.params.commentId != 0) {
     let commentId = BigInt.fromI32(event.params.commentId);
@@ -215,6 +287,7 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    // вы�
       if (peeranhaReply == null) return;
       reply.rating = peeranhaReply.rating;
     }
+
     reply.save();
   } else {
     let post = Post.load(event.params.postId.toString())

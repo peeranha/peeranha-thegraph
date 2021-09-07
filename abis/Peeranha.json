@@ -501,6 +501,19 @@
         "type": "uint32"
       }
     ],
+    "name": "followCommunity",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      }
+    ],
     "name": "freezeCommunity",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -899,6 +912,49 @@
         "internalType": "uint32",
         "name": "communityId",
         "type": "uint32"
+      },
+      {
+        "internalType": "uint8",
+        "name": "tagId",
+        "type": "uint8"
+      }
+    ],
+    "name": "getTag",
+    "outputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "bytes32",
+                "name": "hash",
+                "type": "bytes32"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "hash2",
+                "type": "bytes32"
+              }
+            ],
+            "internalType": "struct IpfsLib.IpfsHash",
+            "name": "ipfsDoc",
+            "type": "tuple"
+          }
+        ],
+        "internalType": "struct CommunityLib.Tag",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
       }
     ],
     "name": "getTags",
@@ -993,6 +1049,11 @@
             "internalType": "bytes32[]",
             "name": "roles",
             "type": "bytes32[]"
+          },
+          {
+            "internalType": "uint32[]",
+            "name": "followCommunity",
+            "type": "uint32[]"
           }
         ],
         "internalType": "struct UserLib.User",
@@ -1046,6 +1107,11 @@
             "internalType": "bytes32[]",
             "name": "roles",
             "type": "bytes32[]"
+          },
+          {
+            "internalType": "uint32[]",
+            "name": "followCommunity",
+            "type": "uint32[]"
           }
         ],
         "internalType": "struct UserLib.User",
@@ -1292,6 +1358,19 @@
         "type": "uint32"
       }
     ],
+    "name": "unfollowCommunity",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      }
+    ],
     "name": "unfreezeCommunity",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -1373,24 +1452,6 @@
         "internalType": "address",
         "name": "userAddress",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "ipfsHash",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "ipfsHash2",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "creationTime",
-        "type": "uint256"
       }
     ],
     "name": "UserCreated",
@@ -1404,18 +1465,6 @@
         "internalType": "address",
         "name": "userAddress",
         "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "ipfsHash",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "ipfsHash2",
-        "type": "bytes32"
       }
     ],
     "name": "UserUpdated",
@@ -1545,9 +1594,9 @@
       },
       {
         "indexed": false,
-        "internalType": "bool",
-        "name": "isUpvote",
-        "type": "bool"
+        "internalType": "int8",
+        "name": "wayVote",
+        "type": "int8"
       }
     ],
     "name": "ForumItemVoted",
@@ -1754,46 +1803,15 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "uint32",
         "name": "id",
         "type": "uint32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "ipfsHash",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "ipfsHash2",
-        "type": "bytes32"
-      },
-      {
-        "components": [
-          {
-            "components": [
-              {
-                "internalType": "bytes32",
-                "name": "hash",
-                "type": "bytes32"
-              },
-              {
-                "internalType": "bytes32",
-                "name": "hash2",
-                "type": "bytes32"
-              }
-            ],
-            "internalType": "struct IpfsLib.IpfsHash",
-            "name": "ipfsDoc",
-            "type": "tuple"
-          }
-        ],
-        "indexed": false,
-        "internalType": "struct CommunityLib.Tag[]",
-        "name": "tags",
-        "type": "tuple[]"
       }
     ],
     "name": "CommunityCreated",
@@ -1804,8 +1822,14 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "uint32",
-        "name": "commintyId",
+        "name": "communityId",
         "type": "uint32"
       }
     ],
@@ -1817,8 +1841,14 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "uint32",
-        "name": "commintyId",
+        "name": "communityId",
         "type": "uint32"
       }
     ],
@@ -1830,15 +1860,15 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint32",
-        "name": "id",
-        "type": "uint32"
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
       },
       {
         "indexed": false,
-        "internalType": "bytes32",
-        "name": "ipfsHash",
-        "type": "bytes32"
+        "internalType": "uint32",
+        "name": "id",
+        "type": "uint32"
       }
     ],
     "name": "CommunityUpdated",
@@ -1849,27 +1879,21 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "tagId",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
         "internalType": "uint32",
         "name": "communityId",
         "type": "uint32"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint32",
-        "name": "tagId",
-        "type": "uint32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "ipfsHash",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "ipfsHash2",
-        "type": "bytes32"
       }
     ],
     "name": "TagCreated",

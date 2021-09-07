@@ -60,6 +60,7 @@ type Post @entity {
   isDeleted: Boolean
 
   officialReply: Int
+  bestReply: Int
   isFirstReply: Boolean
   isQuickReply: Boolean
   properties: [BigInt!]
@@ -80,6 +81,8 @@ type Reply @entity {
   commentCount: Int
   isDeleted: Boolean
 
+  isOfficialReply: Boolean
+  isBestReply: Boolean
   isFirstReply: Boolean
   isQuickReply: Boolean
   properties: [Bytes!]

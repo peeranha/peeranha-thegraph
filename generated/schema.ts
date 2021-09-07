@@ -677,6 +677,15 @@ export class Post extends Entity {
     this.set("officialReply", Value.fromI32(value));
   }
 
+  get bestReply(): i32 {
+    let value = this.get("bestReply");
+    return value.toI32();
+  }
+
+  set bestReply(value: i32) {
+    this.set("bestReply", Value.fromI32(value));
+  }
+
   get isFirstReply(): boolean {
     let value = this.get("isFirstReply");
     return value.toBoolean();
@@ -879,6 +888,24 @@ export class Reply extends Entity {
 
   set isDeleted(value: boolean) {
     this.set("isDeleted", Value.fromBoolean(value));
+  }
+
+  get isOfficialReply(): boolean {
+    let value = this.get("isOfficialReply");
+    return value.toBoolean();
+  }
+
+  set isOfficialReply(value: boolean) {
+    this.set("isOfficialReply", Value.fromBoolean(value));
+  }
+
+  get isBestReply(): boolean {
+    let value = this.get("isBestReply");
+    return value.toBoolean();
+  }
+
+  set isBestReply(value: boolean) {
+    this.set("isBestReply", Value.fromBoolean(value));
   }
 
   get isFirstReply(): boolean {

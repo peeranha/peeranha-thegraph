@@ -4,14 +4,14 @@ import { Community, Tag } from '../generated/schema'
 import { getPeeranha } from './utils'
 
 export function newCommunity(community: Community | null, communityId: BigInt): void {
-  const peeranhaCommunity = getPeeranha().getCommunity(communityId);
+  let peeranhaCommunity = getPeeranha().getCommunity(communityId);
   if (peeranhaCommunity == null) return;
 
   community.creationTime = peeranhaCommunity.timeCreate;
   community.isFrozen = peeranhaCommunity.isFrozen;
   community.postCount = 0;
 
-  const peeranhaTags = getPeeranha().getTags(communityId);
+  let peeranhaTags = getPeeranha().getTags(communityId);
   if (peeranhaTags.length == 0) return;
 
   for (let i = 0; i < peeranhaTags.length; i++) {
@@ -25,7 +25,7 @@ export function newCommunity(community: Community | null, communityId: BigInt): 
 }
 
 export function addDataToCommunity(community: Community | null, communityId: BigInt): void {
-  const peeranhaCommunity = getPeeranha().getCommunity(communityId);
+  let peeranhaCommunity = getPeeranha().getCommunity(communityId);
   if (peeranhaCommunity == null) return;
   
   community.ipfsHash = peeranhaCommunity.ipfsDoc.hash;
@@ -73,17 +73,15 @@ export function newTag(tag: Tag | null, communityId: BigInt, tagId: BigInt): voi
   addDataToTag(tag, communityId, tagId);
 }
 
-export function addDataToTag(tag: Tag | null, communityId: BigInt, tagId: BigInt): void {   // tagId: BigInt -> number?
-  // const peeranhaTag = getPeeranha().getTag(communityId, tagId);                        //add action
-  // if (peeranhaTag == null) return;
+export function addDataToTag(tag: Tag | null, communityId: BigInt, tagId: BigInt): void {
+  let peeranhaTag = getPeeranha().getTag(communityId, tagId.toI32());
+  if (peeranhaTag == null) return;
   
-  // tag.ipfsHash = peeranhaTag.ipfsDoc.hash;
-  // tag.ipfsHash2 = peeranhaTag.ipfsDoc.hash2;
+  tag.ipfsHash = peeranhaTag.ipfsDoc.hash;
+  tag.ipfsHash2 = peeranhaTag.ipfsDoc.hash2;
 
-  // getIpfsCommunityData(tag);
+  getIpfsTagData(tag);
 }
-
-
 
 function getIpfsTagData(tag: Tag | null): void { 
   let hashstr = tag.ipfsHash.toHexString();

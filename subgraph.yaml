@@ -19,19 +19,19 @@ dataSources:
         - name: Peeranha
           file: ./abis/Peeranha.json
       eventHandlers:
-        - event: UserCreated(address,bytes32,bytes32,uint256)
+        - event: UserCreated(address)
           handler: handleNewUser
-        - event: UserUpdated(address,bytes32,bytes32)
+        - event: UserUpdated(address)
           handler: handleUpdatedUser
-        - event: CommunityCreated(uint32,bytes32,bytes32,((bytes32,bytes32))[])
+        - event: CommunityCreated(address,uint32)
           handler: handleNewCommunity
-        - event: CommunityUpdated(uint32,bytes32)
+        - event: CommunityUpdated(address,uint32)
           handler: handleUpdatedCommunity
-        - event: CommunityFrozen(uint32)
+        - event: CommunityFrozen(address,uint32)
           handler: handleFrozenCommunity
-        - event: CommunityUnfrozen(uint32)
+        - event: CommunityUnfrozen(address,uint32)
           handler: handleUnfrozenCommunity
-        - event: TagCreated(uint32,uint32,bytes32,bytes32)
+        - event: TagCreated(address,uint8,uint32)
           handler: handleNewTag
         - event: PostCreated(address,uint32,uint256)
           handler: handleNewPost
@@ -51,11 +51,11 @@ dataSources:
           handler: handleEditedComment
         - event: CommentDeleted(address,uint256,uint16,uint8)
           handler: handleDeletedComment
-        # - event: StatusOfficialAnswerChanged(address,uint256,uint16)
-        #   handler: 
-        # - event: StatusBestReplyChanged(address,uint256,uint16)
-        #   handler: 
-        - event: ForumItemVoted(address,uint256,uint16,uint8,bool)
+        - event: StatusOfficialReplyChanged(address,uint256,uint16)
+          handler: handlerChangedStatusOfficialReply
+        - event: StatusBestReplyChanged(address,uint256,uint16)
+          handler: handlerChangedStatusBestReply
+        - event: ForumItemVoted(address,uint256,uint16,uint8,int8)
           handler: handlerForumItemVoted
 
       file: ./src/mapping.ts

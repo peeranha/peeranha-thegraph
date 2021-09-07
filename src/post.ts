@@ -4,7 +4,7 @@ import { Post, Reply, Comment, Community } from '../generated/schema'
 import { getPeeranha } from './utils'
 
 export function newPost(post: Post | null, postId: BigInt): void {
-  const peeranhaPost = getPeeranha().getPost(postId);
+  let peeranhaPost = getPeeranha().getPost(postId);
   if (peeranhaPost == null) return;
 
   post.communityId = peeranhaPost.communityId;
@@ -25,7 +25,7 @@ export function newPost(post: Post | null, postId: BigInt): void {
 }
 
 export function addDataToPost(post: Post | null, postId: BigInt): void {
-  const peeranhaPost = getPeeranha().getPost(postId);
+  let peeranhaPost = getPeeranha().getPost(postId);
   if (peeranhaPost == null) return;
   
   post.tags = peeranhaPost.tags;
@@ -85,42 +85,13 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt): 
 }
 
 export function addDataToReply(reply: Reply | null, postId: BigInt, replyId: BigInt): void {
-  const peeranhaReply = getPeeranha().getReply(postId, replyId.toI32());
+  let peeranhaReply = getPeeranha().getReply(postId, replyId.toI32());
   if (peeranhaReply == null) return;
 
   reply.ipfsHash = peeranhaReply.ipfsDoc.hash;
   reply.ipfsHash2 = peeranhaReply.ipfsDoc.hash2;
   
   getIpfsReplyData(reply);
-}
-
-export function newComment(comment: Comment | null, postId: BigInt, parentReplyId: BigInt, commentId: BigInt): void {
-  let peeranhaComment = getPeeranha().getComment(postId, parentReplyId.toI32(), commentId.toI32());
-  if (peeranhaComment == null) return;
-
-  comment.author = peeranhaComment.author;
-  comment.postTime = peeranhaComment.postTime;
-  comment.postId = postId;
-  comment.rating = peeranhaComment.rating;
-  comment.parentReplyId = parentReplyId.toI32();  
-  comment.isDeleted = false;
-
-  let post = Post.load(postId.toString())
-  if (post == null && parentReplyId == BigInt.fromI32(0)) {
-    post.commentCount++;
-  }
-
-  addDataToComment(comment, postId, parentReplyId, commentId);
-}
-
-export function addDataToComment(comment: Comment | null, postId: BigInt, parentReplyId: BigInt, commentId: BigInt): void {
-  const peeranhaComment = getPeeranha().getComment(postId, parentReplyId.toI32(), commentId.toI32());
-  if (peeranhaComment == null) return;
-
-  comment.ipfsHash = peeranhaComment.ipfsDoc.hash;
-  comment.ipfsHash2 = peeranhaComment.ipfsDoc.hash2;
-  
-  getIpfsCommentData(comment);
 }
 
 function getIpfsReplyData(reply: Reply | null): void {
@@ -144,6 +115,35 @@ function getIpfsReplyData(reply: Reply | null): void {
   }
 }
 
+export function newComment(comment: Comment | null, postId: BigInt, parentReplyId: BigInt, commentId: BigInt): void {
+  let peeranhaComment = getPeeranha().getComment(postId, parentReplyId.toI32(), commentId.toI32());
+  if (peeranhaComment == null) return;
+
+  comment.author = peeranhaComment.author;
+  comment.postTime = peeranhaComment.postTime;
+  comment.postId = postId;
+  comment.rating = peeranhaComment.rating;
+  comment.parentReplyId = parentReplyId.toI32();  
+  comment.isDeleted = false;
+
+  let post = Post.load(postId.toString())
+  if (post == null && parentReplyId == BigInt.fromI32(0)) {
+    post.commentCount++;
+  }
+
+  addDataToComment(comment, postId, parentReplyId, commentId);
+}
+
+export function addDataToComment(comment: Comment | null, postId: BigInt, parentReplyId: BigInt, commentId: BigInt): void {
+  let peeranhaComment = getPeeranha().getComment(postId, parentReplyId.toI32(), commentId.toI32());
+  if (peeranhaComment == null) return;
+
+  comment.ipfsHash = peeranhaComment.ipfsDoc.hash;
+  comment.ipfsHash2 = peeranhaComment.ipfsDoc.hash2;
+  
+  getIpfsCommentData(comment);
+}
+
 function getIpfsCommentData(comment: Comment | null): void {
   let hashstr = comment.ipfsHash.toHexString();
   let hashHex = "1220" + hashstr.slice(2);
@@ -163,4 +163,24 @@ function getIpfsCommentData(comment: Comment | null): void {
       }
     }
   }
+}
+
+
+export function voteComment(comment: Comment | null, postId: BigInt, parentReplyId: BigInt, commentId: BigInt): void {
+  let peeranhaComment = getPeeranha().getComment(postId, parentReplyId.toI32(), commentId.toI32());
+  if (peeranhaComment == null) return;
+
+  comment.author = peeranhaComment.author;
+  comment.postTime = peeranhaComment.postTime;
+  comment.postId = postId;
+  comment.rating = peeranhaComment.rating;
+  comment.parentReplyId = parentReplyId.toI32();  
+  comment.isDeleted = false;
+
+  let post = Post.load(postId.toString())
+  if (post == null && parentReplyId == BigInt.fromI32(0)) {
+    post.commentCount++;
+  }
+
+  addDataToComment(comment, postId, parentReplyId, commentId);
 }
