@@ -1,9 +1,102 @@
 type User @entity {
   id: ID!
+  rating: Int
+  displayName: String
+  company: String
+  position: String
+  location: String
+  about: String
+  avatar: String
+  creationTime: BigInt
   ipfsHash: Bytes!
   ipfsHash2: Bytes!
 }
 
+type Community @entity {
+  id: ID!
+  title: String
+  description: String
+  website: String
+  language: String
+  isFrozen: Boolean
+  creationTime: BigInt
+  postCount: Int
+  ipfsHash: Bytes!
+  ipfsHash2: Bytes!
+}
+
+type Tag @entity {
+  id: ID!
+  communityId: BigInt
+  title: String
+  description: String
+  ipfsHash: Bytes
+  ipfsHash2: Bytes
+}
+
+enum PostType {
+  ExpertPost
+  CommonPost
+  Tutorial
+}
+
 type Post @entity {
   id: ID!
+  tags: [Int!]
+  ipfsHash: Bytes
+  ipfsHash2: Bytes
+  postType: Int
+  
+  author: Bytes
+  rating: Int
+  postTime: BigInt
+  communityId: BigInt
+
+  title: String
+  content: String
+
+  commentCount: Int
+  replyCount: Int
+  isDeleted: Boolean
+
+  officialReply: Int
+  isFirstReply: Boolean
+  isQuickReply: Boolean
+  properties: [BigInt!]
+}
+
+type Reply @entity {
+  id: ID!
+  ipfsHash: Bytes
+  ipfsHash2: Bytes
+  author: Bytes
+  rating: Int
+  postTime: BigInt
+  postId: BigInt
+  parentReplyId: Int
+
+  content: String
+
+  commentCount: Int
+  isDeleted: Boolean
+
+  isFirstReply: Boolean
+  isQuickReply: Boolean
+  properties: [Bytes!]
+}
+
+type Comment @entity {
+  id: ID!
+  ipfsHash: Bytes
+  ipfsHash2: Bytes
+  author: Bytes
+  rating: Int
+  postTime: BigInt
+  postId: BigInt
+  parentReplyId: Int
+
+  content: String
+
+  isDeleted: Boolean
+  properties: [Bytes!]
 }

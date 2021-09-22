@@ -1,6 +1,4 @@
 specVersion: 0.0.2
-description: Subgraph for Peeranha
-repository: https://github.com/peeranha/peeranha-subgraph
 schema:
   file: ./schema.graphql
 dataSources:
@@ -8,19 +6,56 @@ dataSources:
     name: Peeranha
     network: goerli
     source:
-      address: '0xd635C2e0F2953032B92C451D433c8ab70Fab5CDc'
+      address: "0x279787A2A5E83DD23f9E5D2cEf1F4846308Ffc1E"
       abi: Peeranha
+      startBlock: 5409161
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - User
-        - Post
+        - Peeranha
       abis:
         - name: Peeranha
           file: ./abis/Peeranha.json
       eventHandlers:
-        - event: UserCreated(address,bytes32,bytes32)
+        - event: UserCreated(address,bytes32,bytes32,uint256)
           handler: handleNewUser
+        - event: UserUpdated(address,bytes32,bytes32)
+          handler: handleUpdatedUser
+        - event: CommunityCreated(uint32,bytes32,bytes32,((bytes32,bytes32))[])
+          handler: handleNewCommunity
+        - event: CommunityUpdated(uint32,bytes32)
+          handler: handleUpdatedCommunity
+        - event: CommunityFrozen(uint32)
+          handler: handleFrozenCommunity
+        - event: CommunityUnfrozen(uint32)
+          handler: handleUnfrozenCommunity
+        - event: TagCreated(uint32,uint32,bytes32,bytes32)
+          handler: handleNewTag
+        - event: PostCreated(address,uint32,uint256)
+          handler: handleNewPost
+        - event: PostEdited(address,uint256)
+          handler: handleEditedPost
+        - event: PostDeleted(address,uint256)
+          handler: handleDeletedPost
+        - event: ReplyCreated(address,uint256,uint16,uint16)
+          handler: handleNewReply
+        - event: ReplyEdited(address,uint256,uint16)
+          handler: handleEditedReply
+        - event: ReplyDeleted(address,uint256,uint16)
+          handler: handleDeletedReply
+        - event: CommentCreated(address,uint256,uint16,uint8)
+          handler: handleNewComment
+        - event: CommentEdited(address,uint256,uint16,uint8)
+          handler: handleEditedComment
+        - event: CommentDeleted(address,uint256,uint16,uint8)
+          handler: handleDeletedComment
+        # - event: StatusOfficialAnswerChanged(address,uint256,uint16)
+        #   handler: 
+        # - event: StatusBestReplyChanged(address,uint256,uint16)
+        #   handler: 
+        - event: ForumItemVoted(address,uint256,uint16,uint8,bool)
+          handler: handlerForumItemVoted
+
       file: ./src/mapping.ts

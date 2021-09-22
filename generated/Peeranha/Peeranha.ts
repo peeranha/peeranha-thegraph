@@ -10,32 +10,6 @@ import {
   BigInt
 } from "@graphprotocol/graph-ts";
 
-export class Approval extends ethereum.Event {
-  get params(): Approval__Params {
-    return new Approval__Params(this);
-  }
-}
-
-export class Approval__Params {
-  _event: Approval;
-
-  constructor(event: Approval) {
-    this._event = event;
-  }
-
-  get owner(): Address {
-    return this._event.parameters[0].value.toAddress();
-  }
-
-  get spender(): Address {
-    return this._event.parameters[1].value.toAddress();
-  }
-
-  get value(): BigInt {
-    return this._event.parameters[2].value.toBigInt();
-  }
-}
-
 export class Paused extends ethereum.Event {
   get params(): Paused__Params {
     return new Paused__Params(this);
@@ -132,32 +106,6 @@ export class RoleRevoked__Params {
   }
 }
 
-export class Transfer extends ethereum.Event {
-  get params(): Transfer__Params {
-    return new Transfer__Params(this);
-  }
-}
-
-export class Transfer__Params {
-  _event: Transfer;
-
-  constructor(event: Transfer) {
-    this._event = event;
-  }
-
-  get from(): Address {
-    return this._event.parameters[0].value.toAddress();
-  }
-
-  get to(): Address {
-    return this._event.parameters[1].value.toAddress();
-  }
-
-  get value(): BigInt {
-    return this._event.parameters[2].value.toBigInt();
-  }
-}
-
 export class Unpaused extends ethereum.Event {
   get params(): Unpaused__Params {
     return new Unpaused__Params(this);
@@ -200,6 +148,10 @@ export class UserCreated__Params {
   get ipfsHash2(): Bytes {
     return this._event.parameters[2].value.toBytes();
   }
+
+  get creationTime(): BigInt {
+    return this._event.parameters[3].value.toBigInt();
+  }
 }
 
 export class UserUpdated extends ethereum.Event {
@@ -225,6 +177,470 @@ export class UserUpdated__Params {
 
   get ipfsHash2(): Bytes {
     return this._event.parameters[2].value.toBytes();
+  }
+}
+
+export class CommentCreated extends ethereum.Event {
+  get params(): CommentCreated__Params {
+    return new CommentCreated__Params(this);
+  }
+}
+
+export class CommentCreated__Params {
+  _event: CommentCreated;
+
+  constructor(event: CommentCreated) {
+    this._event = event;
+  }
+
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get postId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get parentReplyId(): i32 {
+    return this._event.parameters[2].value.toI32();
+  }
+
+  get commentId(): i32 {
+    return this._event.parameters[3].value.toI32();
+  }
+}
+
+export class CommentDeleted extends ethereum.Event {
+  get params(): CommentDeleted__Params {
+    return new CommentDeleted__Params(this);
+  }
+}
+
+export class CommentDeleted__Params {
+  _event: CommentDeleted;
+
+  constructor(event: CommentDeleted) {
+    this._event = event;
+  }
+
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get postId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get parentReplyId(): i32 {
+    return this._event.parameters[2].value.toI32();
+  }
+
+  get commentId(): i32 {
+    return this._event.parameters[3].value.toI32();
+  }
+}
+
+export class CommentEdited extends ethereum.Event {
+  get params(): CommentEdited__Params {
+    return new CommentEdited__Params(this);
+  }
+}
+
+export class CommentEdited__Params {
+  _event: CommentEdited;
+
+  constructor(event: CommentEdited) {
+    this._event = event;
+  }
+
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get postId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get parentReplyId(): i32 {
+    return this._event.parameters[2].value.toI32();
+  }
+
+  get commentId(): i32 {
+    return this._event.parameters[3].value.toI32();
+  }
+}
+
+export class ForumItemVoted extends ethereum.Event {
+  get params(): ForumItemVoted__Params {
+    return new ForumItemVoted__Params(this);
+  }
+}
+
+export class ForumItemVoted__Params {
+  _event: ForumItemVoted;
+
+  constructor(event: ForumItemVoted) {
+    this._event = event;
+  }
+
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get postId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get replyId(): i32 {
+    return this._event.parameters[2].value.toI32();
+  }
+
+  get commentId(): i32 {
+    return this._event.parameters[3].value.toI32();
+  }
+
+  get isUpvote(): boolean {
+    return this._event.parameters[4].value.toBoolean();
+  }
+}
+
+export class PostCreated extends ethereum.Event {
+  get params(): PostCreated__Params {
+    return new PostCreated__Params(this);
+  }
+}
+
+export class PostCreated__Params {
+  _event: PostCreated;
+
+  constructor(event: PostCreated) {
+    this._event = event;
+  }
+
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get communityId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get postId(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
+  }
+}
+
+export class PostDeleted extends ethereum.Event {
+  get params(): PostDeleted__Params {
+    return new PostDeleted__Params(this);
+  }
+}
+
+export class PostDeleted__Params {
+  _event: PostDeleted;
+
+  constructor(event: PostDeleted) {
+    this._event = event;
+  }
+
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get postId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+}
+
+export class PostEdited extends ethereum.Event {
+  get params(): PostEdited__Params {
+    return new PostEdited__Params(this);
+  }
+}
+
+export class PostEdited__Params {
+  _event: PostEdited;
+
+  constructor(event: PostEdited) {
+    this._event = event;
+  }
+
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get postId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+}
+
+export class ReplyCreated extends ethereum.Event {
+  get params(): ReplyCreated__Params {
+    return new ReplyCreated__Params(this);
+  }
+}
+
+export class ReplyCreated__Params {
+  _event: ReplyCreated;
+
+  constructor(event: ReplyCreated) {
+    this._event = event;
+  }
+
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get postId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get parentReplyId(): i32 {
+    return this._event.parameters[2].value.toI32();
+  }
+
+  get replyId(): i32 {
+    return this._event.parameters[3].value.toI32();
+  }
+}
+
+export class ReplyDeleted extends ethereum.Event {
+  get params(): ReplyDeleted__Params {
+    return new ReplyDeleted__Params(this);
+  }
+}
+
+export class ReplyDeleted__Params {
+  _event: ReplyDeleted;
+
+  constructor(event: ReplyDeleted) {
+    this._event = event;
+  }
+
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get postId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get replyId(): i32 {
+    return this._event.parameters[2].value.toI32();
+  }
+}
+
+export class ReplyEdited extends ethereum.Event {
+  get params(): ReplyEdited__Params {
+    return new ReplyEdited__Params(this);
+  }
+}
+
+export class ReplyEdited__Params {
+  _event: ReplyEdited;
+
+  constructor(event: ReplyEdited) {
+    this._event = event;
+  }
+
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get postId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get replyId(): i32 {
+    return this._event.parameters[2].value.toI32();
+  }
+}
+
+export class StatusBestReplyChanged extends ethereum.Event {
+  get params(): StatusBestReplyChanged__Params {
+    return new StatusBestReplyChanged__Params(this);
+  }
+}
+
+export class StatusBestReplyChanged__Params {
+  _event: StatusBestReplyChanged;
+
+  constructor(event: StatusBestReplyChanged) {
+    this._event = event;
+  }
+
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get postId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get replyId(): i32 {
+    return this._event.parameters[2].value.toI32();
+  }
+}
+
+export class StatusOfficialReplyChanged extends ethereum.Event {
+  get params(): StatusOfficialReplyChanged__Params {
+    return new StatusOfficialReplyChanged__Params(this);
+  }
+}
+
+export class StatusOfficialReplyChanged__Params {
+  _event: StatusOfficialReplyChanged;
+
+  constructor(event: StatusOfficialReplyChanged) {
+    this._event = event;
+  }
+
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get postId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get replyId(): i32 {
+    return this._event.parameters[2].value.toI32();
+  }
+}
+
+export class CommunityCreated extends ethereum.Event {
+  get params(): CommunityCreated__Params {
+    return new CommunityCreated__Params(this);
+  }
+}
+
+export class CommunityCreated__Params {
+  _event: CommunityCreated;
+
+  constructor(event: CommunityCreated) {
+    this._event = event;
+  }
+
+  get id(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get ipfsHash(): Bytes {
+    return this._event.parameters[1].value.toBytes();
+  }
+
+  get ipfsHash2(): Bytes {
+    return this._event.parameters[2].value.toBytes();
+  }
+
+  get tags(): Array<CommunityCreatedTagsStruct> {
+    return this._event.parameters[3].value.toTupleArray<
+      CommunityCreatedTagsStruct
+    >();
+  }
+}
+
+export class CommunityCreatedTagsStruct extends ethereum.Tuple {
+  get ipfsDoc(): CommunityCreatedTagsIpfsDocStruct {
+    return this[0].toTuple() as CommunityCreatedTagsIpfsDocStruct;
+  }
+}
+
+export class CommunityCreatedTagsIpfsDocStruct extends ethereum.Tuple {
+  get hash(): Bytes {
+    return this[0].toBytes();
+  }
+
+  get hash2(): Bytes {
+    return this[1].toBytes();
+  }
+}
+
+export class CommunityFrozen extends ethereum.Event {
+  get params(): CommunityFrozen__Params {
+    return new CommunityFrozen__Params(this);
+  }
+}
+
+export class CommunityFrozen__Params {
+  _event: CommunityFrozen;
+
+  constructor(event: CommunityFrozen) {
+    this._event = event;
+  }
+
+  get commintyId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+}
+
+export class CommunityUnfrozen extends ethereum.Event {
+  get params(): CommunityUnfrozen__Params {
+    return new CommunityUnfrozen__Params(this);
+  }
+}
+
+export class CommunityUnfrozen__Params {
+  _event: CommunityUnfrozen;
+
+  constructor(event: CommunityUnfrozen) {
+    this._event = event;
+  }
+
+  get commintyId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+}
+
+export class CommunityUpdated extends ethereum.Event {
+  get params(): CommunityUpdated__Params {
+    return new CommunityUpdated__Params(this);
+  }
+}
+
+export class CommunityUpdated__Params {
+  _event: CommunityUpdated;
+
+  constructor(event: CommunityUpdated) {
+    this._event = event;
+  }
+
+  get id(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get ipfsHash(): Bytes {
+    return this._event.parameters[1].value.toBytes();
+  }
+}
+
+export class TagCreated extends ethereum.Event {
+  get params(): TagCreated__Params {
+    return new TagCreated__Params(this);
+  }
+}
+
+export class TagCreated__Params {
+  _event: TagCreated;
+
+  constructor(event: TagCreated) {
+    this._event = event;
+  }
+
+  get communityId(): BigInt {
+    return this._event.parameters[0].value.toBigInt();
+  }
+
+  get tagId(): BigInt {
+    return this._event.parameters[1].value.toBigInt();
+  }
+
+  get ipfsHash(): Bytes {
+    return this._event.parameters[2].value.toBytes();
+  }
+
+  get ipfsHash2(): Bytes {
+    return this._event.parameters[3].value.toBytes();
   }
 }
 
@@ -265,11 +681,29 @@ export class Peeranha__getCommentResultValue0IpfsDocStruct extends ethereum.Tupl
 }
 
 export class Peeranha__getCommunityResultValue0Struct extends ethereum.Tuple {
-  get ipfsHash(): Bytes {
+  get ipfsDoc(): Peeranha__getCommunityResultValue0IpfsDocStruct {
+    return this[0].toTuple() as Peeranha__getCommunityResultValue0IpfsDocStruct;
+  }
+
+  get tagsCount(): i32 {
+    return this[1].toI32();
+  }
+
+  get timeCreate(): BigInt {
+    return this[2].toBigInt();
+  }
+
+  get isFrozen(): boolean {
+    return this[3].toBoolean();
+  }
+}
+
+export class Peeranha__getCommunityResultValue0IpfsDocStruct extends ethereum.Tuple {
+  get hash(): Bytes {
     return this[0].toBytes();
   }
 
-  get ipfsHash2(): Bytes {
+  get hash2(): Bytes {
     return this[1].toBytes();
   }
 }
@@ -283,7 +717,7 @@ export class Peeranha__getPostResultValue0Struct extends ethereum.Tuple {
     return this[1].toTuple() as Peeranha__getPostResultValue0IpfsDocStruct;
   }
 
-  get typePost(): i32 {
+  get postType(): i32 {
     return this[2].toI32();
   }
 
@@ -303,20 +737,28 @@ export class Peeranha__getPostResultValue0Struct extends ethereum.Tuple {
     return this[6].toBigInt();
   }
 
-  get propertyCount(): i32 {
+  get officialReply(): i32 {
     return this[7].toI32();
   }
 
-  get commentCount(): i32 {
+  get bestReply(): i32 {
     return this[8].toI32();
   }
 
-  get replyCount(): i32 {
+  get propertyCount(): i32 {
     return this[9].toI32();
   }
 
+  get commentCount(): i32 {
+    return this[10].toI32();
+  }
+
+  get replyCount(): i32 {
+    return this[11].toI32();
+  }
+
   get isDeleted(): boolean {
-    return this[10].toBoolean();
+    return this[12].toBoolean();
   }
 }
 
@@ -347,7 +789,7 @@ export class Peeranha__getReplyResultValue0Struct extends ethereum.Tuple {
     return this[3].toBigInt();
   }
 
-  get replyCount(): i32 {
+  get parentReplyId(): i32 {
     return this[4].toI32();
   }
 
@@ -359,12 +801,16 @@ export class Peeranha__getReplyResultValue0Struct extends ethereum.Tuple {
     return this[6].toI32();
   }
 
-  get officialReply(): boolean {
+  get isFirstReply(): boolean {
     return this[7].toBoolean();
   }
 
-  get isDeleted(): boolean {
+  get isQuickReply(): boolean {
     return this[8].toBoolean();
+  }
+
+  get isDeleted(): boolean {
+    return this[9].toBoolean();
   }
 }
 
@@ -379,31 +825,73 @@ export class Peeranha__getReplyResultValue0IpfsDocStruct extends ethereum.Tuple 
 }
 
 export class Peeranha__getTagsResultValue0Struct extends ethereum.Tuple {
-  get ipfsHash(): Bytes {
+  get ipfsDoc(): Peeranha__getTagsResultValue0IpfsDocStruct {
+    return this[0].toTuple() as Peeranha__getTagsResultValue0IpfsDocStruct;
+  }
+}
+
+export class Peeranha__getTagsResultValue0IpfsDocStruct extends ethereum.Tuple {
+  get hash(): Bytes {
     return this[0].toBytes();
   }
 
-  get ipfsHash2(): Bytes {
+  get hash2(): Bytes {
     return this[1].toBytes();
   }
 }
 
 export class Peeranha__getUserByAddressResultValue0Struct extends ethereum.Tuple {
-  get ipfsHash(): Bytes {
+  get ipfsDoc(): Peeranha__getUserByAddressResultValue0IpfsDocStruct {
+    return this[0].toTuple() as Peeranha__getUserByAddressResultValue0IpfsDocStruct;
+  }
+
+  get rating(): i32 {
+    return this[1].toI32();
+  }
+
+  get creationTime(): BigInt {
+    return this[2].toBigInt();
+  }
+
+  get roles(): Array<Bytes> {
+    return this[3].toBytesArray();
+  }
+}
+
+export class Peeranha__getUserByAddressResultValue0IpfsDocStruct extends ethereum.Tuple {
+  get hash(): Bytes {
     return this[0].toBytes();
   }
 
-  get ipfsHash2(): Bytes {
+  get hash2(): Bytes {
     return this[1].toBytes();
   }
 }
 
 export class Peeranha__getUserByIndexResultValue0Struct extends ethereum.Tuple {
-  get ipfsHash(): Bytes {
+  get ipfsDoc(): Peeranha__getUserByIndexResultValue0IpfsDocStruct {
+    return this[0].toTuple() as Peeranha__getUserByIndexResultValue0IpfsDocStruct;
+  }
+
+  get rating(): i32 {
+    return this[1].toI32();
+  }
+
+  get creationTime(): BigInt {
+    return this[2].toBigInt();
+  }
+
+  get roles(): Array<Bytes> {
+    return this[3].toBytesArray();
+  }
+}
+
+export class Peeranha__getUserByIndexResultValue0IpfsDocStruct extends ethereum.Tuple {
+  get hash(): Bytes {
     return this[0].toBytes();
   }
 
-  get ipfsHash2(): Bytes {
+  get hash2(): Bytes {
     return this[1].toBytes();
   }
 }
@@ -497,157 +985,17 @@ export class Peeranha extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBytes());
   }
 
-  TOTAL_SUPPLY(): BigInt {
-    let result = super.call("TOTAL_SUPPLY", "TOTAL_SUPPLY():(uint256)", []);
-
-    return result[0].toBigInt();
-  }
-
-  try_TOTAL_SUPPLY(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("TOTAL_SUPPLY", "TOTAL_SUPPLY():(uint256)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  allowance(owner: Address, spender: Address): BigInt {
-    let result = super.call(
-      "allowance",
-      "allowance(address,address):(uint256)",
-      [ethereum.Value.fromAddress(owner), ethereum.Value.fromAddress(spender)]
-    );
-
-    return result[0].toBigInt();
-  }
-
-  try_allowance(owner: Address, spender: Address): ethereum.CallResult<BigInt> {
-    let result = super.tryCall(
-      "allowance",
-      "allowance(address,address):(uint256)",
-      [ethereum.Value.fromAddress(owner), ethereum.Value.fromAddress(spender)]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  approve(spender: Address, amount: BigInt): boolean {
-    let result = super.call("approve", "approve(address,uint256):(bool)", [
-      ethereum.Value.fromAddress(spender),
-      ethereum.Value.fromUnsignedBigInt(amount)
-    ]);
-
-    return result[0].toBoolean();
-  }
-
-  try_approve(spender: Address, amount: BigInt): ethereum.CallResult<boolean> {
-    let result = super.tryCall("approve", "approve(address,uint256):(bool)", [
-      ethereum.Value.fromAddress(spender),
-      ethereum.Value.fromUnsignedBigInt(amount)
-    ]);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBoolean());
-  }
-
-  balanceOf(account: Address): BigInt {
-    let result = super.call("balanceOf", "balanceOf(address):(uint256)", [
-      ethereum.Value.fromAddress(account)
-    ]);
-
-    return result[0].toBigInt();
-  }
-
-  try_balanceOf(account: Address): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("balanceOf", "balanceOf(address):(uint256)", [
-      ethereum.Value.fromAddress(account)
-    ]);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  cap(): BigInt {
-    let result = super.call("cap", "cap():(uint256)", []);
-
-    return result[0].toBigInt();
-  }
-
-  try_cap(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("cap", "cap():(uint256)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  decimals(): i32 {
-    let result = super.call("decimals", "decimals():(uint8)", []);
-
-    return result[0].toI32();
-  }
-
-  try_decimals(): ethereum.CallResult<i32> {
-    let result = super.tryCall("decimals", "decimals():(uint8)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toI32());
-  }
-
-  decreaseAllowance(spender: Address, subtractedValue: BigInt): boolean {
-    let result = super.call(
-      "decreaseAllowance",
-      "decreaseAllowance(address,uint256):(bool)",
-      [
-        ethereum.Value.fromAddress(spender),
-        ethereum.Value.fromUnsignedBigInt(subtractedValue)
-      ]
-    );
-
-    return result[0].toBoolean();
-  }
-
-  try_decreaseAllowance(
-    spender: Address,
-    subtractedValue: BigInt
-  ): ethereum.CallResult<boolean> {
-    let result = super.tryCall(
-      "decreaseAllowance",
-      "decreaseAllowance(address,uint256):(bool)",
-      [
-        ethereum.Value.fromAddress(spender),
-        ethereum.Value.fromUnsignedBigInt(subtractedValue)
-      ]
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBoolean());
-  }
-
   getComment(
     postId: BigInt,
-    path: Array<i32>,
+    parentReplyId: i32,
     commentId: i32
   ): Peeranha__getCommentResultValue0Struct {
     let result = super.call(
       "getComment",
-      "getComment(uint256,uint16[],uint8):(((bytes32,bytes32),address,int32,uint32,uint8,bool))",
+      "getComment(uint256,uint16,uint8):(((bytes32,bytes32),address,int32,uint32,uint8,bool))",
       [
         ethereum.Value.fromUnsignedBigInt(postId),
-        ethereum.Value.fromI32Array(path),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(parentReplyId)),
         ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(commentId))
       ]
     );
@@ -657,15 +1005,15 @@ export class Peeranha extends ethereum.SmartContract {
 
   try_getComment(
     postId: BigInt,
-    path: Array<i32>,
+    parentReplyId: i32,
     commentId: i32
   ): ethereum.CallResult<Peeranha__getCommentResultValue0Struct> {
     let result = super.tryCall(
       "getComment",
-      "getComment(uint256,uint16[],uint8):(((bytes32,bytes32),address,int32,uint32,uint8,bool))",
+      "getComment(uint256,uint16,uint8):(((bytes32,bytes32),address,int32,uint32,uint8,bool))",
       [
         ethereum.Value.fromUnsignedBigInt(postId),
-        ethereum.Value.fromI32Array(path),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(parentReplyId)),
         ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(commentId))
       ]
     );
@@ -704,7 +1052,7 @@ export class Peeranha extends ethereum.SmartContract {
   getCommunity(communityId: BigInt): Peeranha__getCommunityResultValue0Struct {
     let result = super.call(
       "getCommunity",
-      "getCommunity(uint32):((bytes32,bytes32))",
+      "getCommunity(uint32):(((bytes32,bytes32),uint8,uint32,bool))",
       [ethereum.Value.fromUnsignedBigInt(communityId)]
     );
 
@@ -716,7 +1064,7 @@ export class Peeranha extends ethereum.SmartContract {
   ): ethereum.CallResult<Peeranha__getCommunityResultValue0Struct> {
     let result = super.tryCall(
       "getCommunity",
-      "getCommunity(uint32):((bytes32,bytes32))",
+      "getCommunity(uint32):(((bytes32,bytes32),uint8,uint32,bool))",
       [ethereum.Value.fromUnsignedBigInt(communityId)]
     );
     if (result.reverted) {
@@ -731,7 +1079,7 @@ export class Peeranha extends ethereum.SmartContract {
   getPost(postId: BigInt): Peeranha__getPostResultValue0Struct {
     let result = super.call(
       "getPost",
-      "getPost(uint256):((uint8[],(bytes32,bytes32),uint8,address,int32,uint32,uint32,uint8,uint8,uint16,bool))",
+      "getPost(uint256):((uint8[],(bytes32,bytes32),uint8,address,int32,uint32,uint32,uint16,uint16,uint8,uint8,uint16,bool))",
       [ethereum.Value.fromUnsignedBigInt(postId)]
     );
 
@@ -743,7 +1091,7 @@ export class Peeranha extends ethereum.SmartContract {
   ): ethereum.CallResult<Peeranha__getPostResultValue0Struct> {
     let result = super.tryCall(
       "getPost",
-      "getPost(uint256):((uint8[],(bytes32,bytes32),uint8,address,int32,uint32,uint32,uint8,uint8,uint16,bool))",
+      "getPost(uint256):((uint8[],(bytes32,bytes32),uint8,address,int32,uint32,uint32,uint16,uint16,uint8,uint8,uint16,bool))",
       [ethereum.Value.fromUnsignedBigInt(postId)]
     );
     if (result.reverted) {
@@ -755,17 +1103,12 @@ export class Peeranha extends ethereum.SmartContract {
     );
   }
 
-  getReply(
-    postId: BigInt,
-    path: Array<i32>,
-    replyId: i32
-  ): Peeranha__getReplyResultValue0Struct {
+  getReply(postId: BigInt, replyId: i32): Peeranha__getReplyResultValue0Struct {
     let result = super.call(
       "getReply",
-      "getReply(uint256,uint16[],uint16):(((bytes32,bytes32),address,int32,uint32,uint16,uint8,uint8,bool,bool))",
+      "getReply(uint256,uint16):(((bytes32,bytes32),address,int32,uint32,uint16,uint8,uint8,bool,bool,bool))",
       [
         ethereum.Value.fromUnsignedBigInt(postId),
-        ethereum.Value.fromI32Array(path),
         ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(replyId))
       ]
     );
@@ -775,15 +1118,13 @@ export class Peeranha extends ethereum.SmartContract {
 
   try_getReply(
     postId: BigInt,
-    path: Array<i32>,
     replyId: i32
   ): ethereum.CallResult<Peeranha__getReplyResultValue0Struct> {
     let result = super.tryCall(
       "getReply",
-      "getReply(uint256,uint16[],uint16):(((bytes32,bytes32),address,int32,uint32,uint16,uint8,uint8,bool,bool))",
+      "getReply(uint256,uint16):(((bytes32,bytes32),address,int32,uint32,uint16,uint8,uint8,bool,bool,bool))",
       [
         ethereum.Value.fromUnsignedBigInt(postId),
-        ethereum.Value.fromI32Array(path),
         ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(replyId))
       ]
     );
@@ -872,7 +1213,7 @@ export class Peeranha extends ethereum.SmartContract {
   getTags(communityId: BigInt): Array<Peeranha__getTagsResultValue0Struct> {
     let result = super.call(
       "getTags",
-      "getTags(uint32):((bytes32,bytes32)[])",
+      "getTags(uint32):(((bytes32,bytes32))[])",
       [ethereum.Value.fromUnsignedBigInt(communityId)]
     );
 
@@ -884,7 +1225,7 @@ export class Peeranha extends ethereum.SmartContract {
   ): ethereum.CallResult<Array<Peeranha__getTagsResultValue0Struct>> {
     let result = super.tryCall(
       "getTags",
-      "getTags(uint32):((bytes32,bytes32)[])",
+      "getTags(uint32):(((bytes32,bytes32))[])",
       [ethereum.Value.fromUnsignedBigInt(communityId)]
     );
     if (result.reverted) {
@@ -920,7 +1261,7 @@ export class Peeranha extends ethereum.SmartContract {
   ): Peeranha__getUserByAddressResultValue0Struct {
     let result = super.call(
       "getUserByAddress",
-      "getUserByAddress(address):((bytes32,bytes32))",
+      "getUserByAddress(address):(((bytes32,bytes32),int32,uint256,bytes32[]))",
       [ethereum.Value.fromAddress(addr)]
     );
 
@@ -932,7 +1273,7 @@ export class Peeranha extends ethereum.SmartContract {
   ): ethereum.CallResult<Peeranha__getUserByAddressResultValue0Struct> {
     let result = super.tryCall(
       "getUserByAddress",
-      "getUserByAddress(address):((bytes32,bytes32))",
+      "getUserByAddress(address):(((bytes32,bytes32),int32,uint256,bytes32[]))",
       [ethereum.Value.fromAddress(addr)]
     );
     if (result.reverted) {
@@ -947,7 +1288,7 @@ export class Peeranha extends ethereum.SmartContract {
   getUserByIndex(index: BigInt): Peeranha__getUserByIndexResultValue0Struct {
     let result = super.call(
       "getUserByIndex",
-      "getUserByIndex(uint256):((bytes32,bytes32))",
+      "getUserByIndex(uint256):(((bytes32,bytes32),int32,uint256,bytes32[]))",
       [ethereum.Value.fromUnsignedBigInt(index)]
     );
 
@@ -959,7 +1300,7 @@ export class Peeranha extends ethereum.SmartContract {
   ): ethereum.CallResult<Peeranha__getUserByIndexResultValue0Struct> {
     let result = super.tryCall(
       "getUserByIndex",
-      "getUserByIndex(uint256):((bytes32,bytes32))",
+      "getUserByIndex(uint256):(((bytes32,bytes32),int32,uint256,bytes32[]))",
       [ethereum.Value.fromUnsignedBigInt(index)]
     );
     if (result.reverted) {
@@ -969,6 +1310,29 @@ export class Peeranha extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(
       value[0].toTuple() as Peeranha__getUserByIndexResultValue0Struct
     );
+  }
+
+  getUserPermissions(addr: Address): Array<Bytes> {
+    let result = super.call(
+      "getUserPermissions",
+      "getUserPermissions(address):(bytes32[])",
+      [ethereum.Value.fromAddress(addr)]
+    );
+
+    return result[0].toBytesArray();
+  }
+
+  try_getUserPermissions(addr: Address): ethereum.CallResult<Array<Bytes>> {
+    let result = super.tryCall(
+      "getUserPermissions",
+      "getUserPermissions(address):(bytes32[])",
+      [ethereum.Value.fromAddress(addr)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBytesArray());
   }
 
   getUsersCount(): BigInt {
@@ -1011,51 +1375,23 @@ export class Peeranha extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBoolean());
   }
 
-  increaseAllowance(spender: Address, addedValue: BigInt): boolean {
-    let result = super.call(
-      "increaseAllowance",
-      "increaseAllowance(address,uint256):(bool)",
-      [
-        ethereum.Value.fromAddress(spender),
-        ethereum.Value.fromUnsignedBigInt(addedValue)
-      ]
-    );
+  isUserExists(addr: Address): boolean {
+    let result = super.call("isUserExists", "isUserExists(address):(bool)", [
+      ethereum.Value.fromAddress(addr)
+    ]);
 
     return result[0].toBoolean();
   }
 
-  try_increaseAllowance(
-    spender: Address,
-    addedValue: BigInt
-  ): ethereum.CallResult<boolean> {
-    let result = super.tryCall(
-      "increaseAllowance",
-      "increaseAllowance(address,uint256):(bool)",
-      [
-        ethereum.Value.fromAddress(spender),
-        ethereum.Value.fromUnsignedBigInt(addedValue)
-      ]
-    );
+  try_isUserExists(addr: Address): ethereum.CallResult<boolean> {
+    let result = super.tryCall("isUserExists", "isUserExists(address):(bool)", [
+      ethereum.Value.fromAddress(addr)
+    ]);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBoolean());
-  }
-
-  name(): string {
-    let result = super.call("name", "name():(string)", []);
-
-    return result[0].toString();
-  }
-
-  try_name(): ethereum.CallResult<string> {
-    let result = super.tryCall("name", "name():(string)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toString());
   }
 
   paused(): boolean {
@@ -1066,95 +1402,6 @@ export class Peeranha extends ethereum.SmartContract {
 
   try_paused(): ethereum.CallResult<boolean> {
     let result = super.tryCall("paused", "paused():(bool)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBoolean());
-  }
-
-  symbol(): string {
-    let result = super.call("symbol", "symbol():(string)", []);
-
-    return result[0].toString();
-  }
-
-  try_symbol(): ethereum.CallResult<string> {
-    let result = super.tryCall("symbol", "symbol():(string)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toString());
-  }
-
-  totalSupply(): BigInt {
-    let result = super.call("totalSupply", "totalSupply():(uint256)", []);
-
-    return result[0].toBigInt();
-  }
-
-  try_totalSupply(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("totalSupply", "totalSupply():(uint256)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  transfer(recipient: Address, amount: BigInt): boolean {
-    let result = super.call("transfer", "transfer(address,uint256):(bool)", [
-      ethereum.Value.fromAddress(recipient),
-      ethereum.Value.fromUnsignedBigInt(amount)
-    ]);
-
-    return result[0].toBoolean();
-  }
-
-  try_transfer(
-    recipient: Address,
-    amount: BigInt
-  ): ethereum.CallResult<boolean> {
-    let result = super.tryCall("transfer", "transfer(address,uint256):(bool)", [
-      ethereum.Value.fromAddress(recipient),
-      ethereum.Value.fromUnsignedBigInt(amount)
-    ]);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBoolean());
-  }
-
-  transferFrom(sender: Address, recipient: Address, amount: BigInt): boolean {
-    let result = super.call(
-      "transferFrom",
-      "transferFrom(address,address,uint256):(bool)",
-      [
-        ethereum.Value.fromAddress(sender),
-        ethereum.Value.fromAddress(recipient),
-        ethereum.Value.fromUnsignedBigInt(amount)
-      ]
-    );
-
-    return result[0].toBoolean();
-  }
-
-  try_transferFrom(
-    sender: Address,
-    recipient: Address,
-    amount: BigInt
-  ): ethereum.CallResult<boolean> {
-    let result = super.tryCall(
-      "transferFrom",
-      "transferFrom(address,address,uint256):(bool)",
-      [
-        ethereum.Value.fromAddress(sender),
-        ethereum.Value.fromAddress(recipient),
-        ethereum.Value.fromUnsignedBigInt(amount)
-      ]
-    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -1223,58 +1470,20 @@ export class _revokeRoleCall__Outputs {
   }
 }
 
-export class ApproveCall extends ethereum.Call {
-  get inputs(): ApproveCall__Inputs {
-    return new ApproveCall__Inputs(this);
+export class ChangeStatusBestReplyCall extends ethereum.Call {
+  get inputs(): ChangeStatusBestReplyCall__Inputs {
+    return new ChangeStatusBestReplyCall__Inputs(this);
   }
 
-  get outputs(): ApproveCall__Outputs {
-    return new ApproveCall__Outputs(this);
-  }
-}
-
-export class ApproveCall__Inputs {
-  _call: ApproveCall;
-
-  constructor(call: ApproveCall) {
-    this._call = call;
-  }
-
-  get spender(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get amount(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
+  get outputs(): ChangeStatusBestReplyCall__Outputs {
+    return new ChangeStatusBestReplyCall__Outputs(this);
   }
 }
 
-export class ApproveCall__Outputs {
-  _call: ApproveCall;
+export class ChangeStatusBestReplyCall__Inputs {
+  _call: ChangeStatusBestReplyCall;
 
-  constructor(call: ApproveCall) {
-    this._call = call;
-  }
-
-  get value0(): boolean {
-    return this._call.outputValues[0].value.toBoolean();
-  }
-}
-
-export class ChangeStatusOfficialAnswerCall extends ethereum.Call {
-  get inputs(): ChangeStatusOfficialAnswerCall__Inputs {
-    return new ChangeStatusOfficialAnswerCall__Inputs(this);
-  }
-
-  get outputs(): ChangeStatusOfficialAnswerCall__Outputs {
-    return new ChangeStatusOfficialAnswerCall__Outputs(this);
-  }
-}
-
-export class ChangeStatusOfficialAnswerCall__Inputs {
-  _call: ChangeStatusOfficialAnswerCall;
-
-  constructor(call: ChangeStatusOfficialAnswerCall) {
+  constructor(call: ChangeStatusBestReplyCall) {
     this._call = call;
   }
 
@@ -1282,23 +1491,49 @@ export class ChangeStatusOfficialAnswerCall__Inputs {
     return this._call.inputValues[0].value.toBigInt();
   }
 
-  get path(): Array<i32> {
-    return this._call.inputValues[1].value.toI32Array();
-  }
-
   get replyId(): i32 {
-    return this._call.inputValues[2].value.toI32();
-  }
-
-  get officialReply(): boolean {
-    return this._call.inputValues[3].value.toBoolean();
+    return this._call.inputValues[1].value.toI32();
   }
 }
 
-export class ChangeStatusOfficialAnswerCall__Outputs {
-  _call: ChangeStatusOfficialAnswerCall;
+export class ChangeStatusBestReplyCall__Outputs {
+  _call: ChangeStatusBestReplyCall;
 
-  constructor(call: ChangeStatusOfficialAnswerCall) {
+  constructor(call: ChangeStatusBestReplyCall) {
+    this._call = call;
+  }
+}
+
+export class ChangeStatusOfficialReplyCall extends ethereum.Call {
+  get inputs(): ChangeStatusOfficialReplyCall__Inputs {
+    return new ChangeStatusOfficialReplyCall__Inputs(this);
+  }
+
+  get outputs(): ChangeStatusOfficialReplyCall__Outputs {
+    return new ChangeStatusOfficialReplyCall__Outputs(this);
+  }
+}
+
+export class ChangeStatusOfficialReplyCall__Inputs {
+  _call: ChangeStatusOfficialReplyCall;
+
+  constructor(call: ChangeStatusOfficialReplyCall) {
+    this._call = call;
+  }
+
+  get postId(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+
+  get replyId(): i32 {
+    return this._call.inputValues[1].value.toI32();
+  }
+}
+
+export class ChangeStatusOfficialReplyCall__Outputs {
+  _call: ChangeStatusOfficialReplyCall;
+
+  constructor(call: ChangeStatusOfficialReplyCall) {
     this._call = call;
   }
 }
@@ -1324,8 +1559,8 @@ export class CreateCommentCall__Inputs {
     return this._call.inputValues[0].value.toBigInt();
   }
 
-  get path(): Array<i32> {
-    return this._call.inputValues[1].value.toI32Array();
+  get parentReplyId(): i32 {
+    return this._call.inputValues[1].value.toI32();
   }
 
   get ipfsHash(): Bytes {
@@ -1358,16 +1593,12 @@ export class CreateCommunityCall__Inputs {
     this._call = call;
   }
 
-  get communityId(): BigInt {
-    return this._call.inputValues[0].value.toBigInt();
-  }
-
   get ipfsHash(): Bytes {
-    return this._call.inputValues[1].value.toBytes();
+    return this._call.inputValues[0].value.toBytes();
   }
 
   get tags(): Array<CreateCommunityCallTagsStruct> {
-    return this._call.inputValues[2].value.toTupleArray<
+    return this._call.inputValues[1].value.toTupleArray<
       CreateCommunityCallTagsStruct
     >();
   }
@@ -1382,11 +1613,17 @@ export class CreateCommunityCall__Outputs {
 }
 
 export class CreateCommunityCallTagsStruct extends ethereum.Tuple {
-  get ipfsHash(): Bytes {
+  get ipfsDoc(): CreateCommunityCallTagsIpfsDocStruct {
+    return this[0].toTuple() as CreateCommunityCallTagsIpfsDocStruct;
+  }
+}
+
+export class CreateCommunityCallTagsIpfsDocStruct extends ethereum.Tuple {
+  get hash(): Bytes {
     return this[0].toBytes();
   }
 
-  get ipfsHash2(): Bytes {
+  get hash2(): Bytes {
     return this[1].toBytes();
   }
 }
@@ -1416,8 +1653,12 @@ export class CreatePostCall__Inputs {
     return this._call.inputValues[1].value.toBytes();
   }
 
+  get postType(): i32 {
+    return this._call.inputValues[2].value.toI32();
+  }
+
   get tags(): Array<i32> {
-    return this._call.inputValues[2].value.toI32Array();
+    return this._call.inputValues[3].value.toI32Array();
   }
 }
 
@@ -1450,15 +1691,15 @@ export class CreateReplyCall__Inputs {
     return this._call.inputValues[0].value.toBigInt();
   }
 
-  get path(): Array<i32> {
-    return this._call.inputValues[1].value.toI32Array();
+  get parentReplyId(): i32 {
+    return this._call.inputValues[1].value.toI32();
   }
 
   get ipfsHash(): Bytes {
     return this._call.inputValues[2].value.toBytes();
   }
 
-  get officialReply(): boolean {
+  get isOfficialReply(): boolean {
     return this._call.inputValues[3].value.toBoolean();
   }
 }
@@ -1492,12 +1733,8 @@ export class CreateTagCall__Inputs {
     return this._call.inputValues[0].value.toBigInt();
   }
 
-  get tagId(): i32 {
-    return this._call.inputValues[1].value.toI32();
-  }
-
   get ipfsHash(): Bytes {
-    return this._call.inputValues[2].value.toBytes();
+    return this._call.inputValues[1].value.toBytes();
   }
 }
 
@@ -1539,44 +1776,6 @@ export class CreateUserCall__Outputs {
   }
 }
 
-export class DecreaseAllowanceCall extends ethereum.Call {
-  get inputs(): DecreaseAllowanceCall__Inputs {
-    return new DecreaseAllowanceCall__Inputs(this);
-  }
-
-  get outputs(): DecreaseAllowanceCall__Outputs {
-    return new DecreaseAllowanceCall__Outputs(this);
-  }
-}
-
-export class DecreaseAllowanceCall__Inputs {
-  _call: DecreaseAllowanceCall;
-
-  constructor(call: DecreaseAllowanceCall) {
-    this._call = call;
-  }
-
-  get spender(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get subtractedValue(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
-  }
-}
-
-export class DecreaseAllowanceCall__Outputs {
-  _call: DecreaseAllowanceCall;
-
-  constructor(call: DecreaseAllowanceCall) {
-    this._call = call;
-  }
-
-  get value0(): boolean {
-    return this._call.outputValues[0].value.toBoolean();
-  }
-}
-
 export class DeleteCommentCall extends ethereum.Call {
   get inputs(): DeleteCommentCall__Inputs {
     return new DeleteCommentCall__Inputs(this);
@@ -1598,8 +1797,8 @@ export class DeleteCommentCall__Inputs {
     return this._call.inputValues[0].value.toBigInt();
   }
 
-  get path(): Array<i32> {
-    return this._call.inputValues[1].value.toI32Array();
+  get parentReplyId(): i32 {
+    return this._call.inputValues[1].value.toI32();
   }
 
   get commentId(): i32 {
@@ -1666,12 +1865,8 @@ export class DeleteReplyCall__Inputs {
     return this._call.inputValues[0].value.toBigInt();
   }
 
-  get path(): Array<i32> {
-    return this._call.inputValues[1].value.toI32Array();
-  }
-
   get replyId(): i32 {
-    return this._call.inputValues[2].value.toI32();
+    return this._call.inputValues[1].value.toI32();
   }
 }
 
@@ -1704,8 +1899,8 @@ export class EditCommentCall__Inputs {
     return this._call.inputValues[0].value.toBigInt();
   }
 
-  get path(): Array<i32> {
-    return this._call.inputValues[1].value.toI32Array();
+  get parentReplyId(): i32 {
+    return this._call.inputValues[1].value.toI32();
   }
 
   get commentId(): i32 {
@@ -1788,16 +1983,12 @@ export class EditReplyCall__Inputs {
     return this._call.inputValues[0].value.toBigInt();
   }
 
-  get path(): Array<i32> {
-    return this._call.inputValues[1].value.toI32Array();
-  }
-
   get replyId(): i32 {
-    return this._call.inputValues[2].value.toI32();
+    return this._call.inputValues[1].value.toI32();
   }
 
   get ipfsHash(): Bytes {
-    return this._call.inputValues[3].value.toBytes();
+    return this._call.inputValues[2].value.toBytes();
   }
 }
 
@@ -1941,44 +2132,6 @@ export class GrantRoleCall__Outputs {
   }
 }
 
-export class IncreaseAllowanceCall extends ethereum.Call {
-  get inputs(): IncreaseAllowanceCall__Inputs {
-    return new IncreaseAllowanceCall__Inputs(this);
-  }
-
-  get outputs(): IncreaseAllowanceCall__Outputs {
-    return new IncreaseAllowanceCall__Outputs(this);
-  }
-}
-
-export class IncreaseAllowanceCall__Inputs {
-  _call: IncreaseAllowanceCall;
-
-  constructor(call: IncreaseAllowanceCall) {
-    this._call = call;
-  }
-
-  get spender(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get addedValue(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
-  }
-}
-
-export class IncreaseAllowanceCall__Outputs {
-  _call: IncreaseAllowanceCall;
-
-  constructor(call: IncreaseAllowanceCall) {
-    this._call = call;
-  }
-
-  get value0(): boolean {
-    return this._call.outputValues[0].value.toBoolean();
-  }
-}
-
 export class InitializeCall extends ethereum.Call {
   get inputs(): InitializeCall__Inputs {
     return new InitializeCall__Inputs(this);
@@ -1994,14 +2147,6 @@ export class InitializeCall__Inputs {
 
   constructor(call: InitializeCall) {
     this._call = call;
-  }
-
-  get name(): string {
-    return this._call.inputValues[0].value.toString();
-  }
-
-  get symbol(): string {
-    return this._call.inputValues[1].value.toString();
   }
 }
 
@@ -2175,86 +2320,6 @@ export class RevokeRoleCall__Outputs {
   }
 }
 
-export class TransferCall extends ethereum.Call {
-  get inputs(): TransferCall__Inputs {
-    return new TransferCall__Inputs(this);
-  }
-
-  get outputs(): TransferCall__Outputs {
-    return new TransferCall__Outputs(this);
-  }
-}
-
-export class TransferCall__Inputs {
-  _call: TransferCall;
-
-  constructor(call: TransferCall) {
-    this._call = call;
-  }
-
-  get recipient(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get amount(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
-  }
-}
-
-export class TransferCall__Outputs {
-  _call: TransferCall;
-
-  constructor(call: TransferCall) {
-    this._call = call;
-  }
-
-  get value0(): boolean {
-    return this._call.outputValues[0].value.toBoolean();
-  }
-}
-
-export class TransferFromCall extends ethereum.Call {
-  get inputs(): TransferFromCall__Inputs {
-    return new TransferFromCall__Inputs(this);
-  }
-
-  get outputs(): TransferFromCall__Outputs {
-    return new TransferFromCall__Outputs(this);
-  }
-}
-
-export class TransferFromCall__Inputs {
-  _call: TransferFromCall;
-
-  constructor(call: TransferFromCall) {
-    this._call = call;
-  }
-
-  get sender(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get recipient(): Address {
-    return this._call.inputValues[1].value.toAddress();
-  }
-
-  get amount(): BigInt {
-    return this._call.inputValues[2].value.toBigInt();
-  }
-}
-
-export class TransferFromCall__Outputs {
-  _call: TransferFromCall;
-
-  constructor(call: TransferFromCall) {
-    this._call = call;
-  }
-
-  get value0(): boolean {
-    return this._call.outputValues[0].value.toBoolean();
-  }
-}
-
 export class UnfreezeCommunityCall extends ethereum.Call {
   get inputs(): UnfreezeCommunityCall__Inputs {
     return new UnfreezeCommunityCall__Inputs(this);
@@ -2396,20 +2461,16 @@ export class VoteItemCall__Inputs {
     return this._call.inputValues[0].value.toBigInt();
   }
 
-  get path(): Array<i32> {
-    return this._call.inputValues[1].value.toI32Array();
-  }
-
   get replyId(): i32 {
-    return this._call.inputValues[2].value.toI32();
+    return this._call.inputValues[1].value.toI32();
   }
 
   get commentId(): i32 {
-    return this._call.inputValues[3].value.toI32();
+    return this._call.inputValues[2].value.toI32();
   }
 
   get isUpvote(): boolean {
-    return this._call.inputValues[4].value.toBoolean();
+    return this._call.inputValues[3].value.toBoolean();
   }
 }
 
