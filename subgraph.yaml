@@ -6,9 +6,9 @@ dataSources:
     name: Peeranha
     network: goerli
     source:
-      address: "0x279787A2A5E83DD23f9E5D2cEf1F4846308Ffc1E"
+      address: "0x5B23C5D40dD7Ff404cDf8E920ED4080367e3876C"
       abi: Peeranha
-      startBlock: 5409161
+      startBlock: 5540952 
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4

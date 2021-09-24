@@ -10,7 +10,8 @@ export function newCommunity(community: Community | null, communityId: BigInt): 
   community.creationTime = peeranhaCommunity.timeCreate;
   community.isFrozen = peeranhaCommunity.isFrozen;
   community.postCount = 0;
-
+  addDataToCommunity(community, communityId);
+  
   let peeranhaTags = getPeeranha().getTags(communityId);
   if (peeranhaTags.length == 0) return;
 
@@ -20,8 +21,6 @@ export function newCommunity(community: Community | null, communityId: BigInt): 
     newTag(tag, communityId, BigInt.fromI32(i))
     tag.save();
   }
-
-   addDataToCommunity(community, communityId);
 }
 
 export function addDataToCommunity(community: Community | null, communityId: BigInt): void {
@@ -46,9 +45,9 @@ function getIpfsCommunityData(community: Community | null): void {
   
     if(!ipfsData.isNull()) {
       let ipfsObj = ipfsData.toObject()
-      let title = ipfsObj.get('title');
-      if (!title.isNull()) {
-        community.title = title.toString();
+      let name = ipfsObj.get('title');
+      if (!name.isNull()) {
+        community.name = name.toString();
       }
   
       let description = ipfsObj.get('description');
@@ -65,6 +64,11 @@ function getIpfsCommunityData(community: Community | null): void {
       if (!language.isNull()) {
         community.language = language.toString();
       }
+
+      // let avatar = ipfsObj.get('avatar');
+      // if (!avatar.isNull()) {
+      //   community.avatar = avatar.toString();
+      // }
     }
   }
 }
@@ -96,9 +100,9 @@ function getIpfsTagData(tag: Tag | null): void {
     if(!ipfsData.isNull()) {
       let ipfsObj = ipfsData.toObject()
     
-      let title = ipfsObj.get('title');
-      if (!title.isNull()) {
-        tag.title = title.toString();
+      let name = ipfsObj.get('name');
+      if (!name.isNull()) {
+        tag.name = name.toString();
       }
   
       let description = ipfsObj.get('description');

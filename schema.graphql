@@ -8,27 +8,28 @@ type User @entity {
   about: String
   avatar: String
   creationTime: BigInt
-  ipfsHash: Bytes!
-  ipfsHash2: Bytes!
+  ipfsHash: Bytes
+  ipfsHash2: Bytes
 }
 
 type Community @entity {
   id: ID!
-  title: String
+  name: String
   description: String
   website: String
   language: String
+  avatar: String
   isFrozen: Boolean
   creationTime: BigInt
   postCount: Int
-  ipfsHash: Bytes!
-  ipfsHash2: Bytes!
+  ipfsHash: Bytes
+  ipfsHash2: Bytes
 }
 
 type Tag @entity {
   id: ID!
   communityId: BigInt
-  title: String
+  name: String
   description: String
   ipfsHash: Bytes
   ipfsHash2: Bytes

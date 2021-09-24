@@ -170,22 +170,38 @@ export class User extends Entity {
     }
   }
 
-  get ipfsHash(): Bytes {
+  get ipfsHash(): Bytes | null {
     let value = this.get("ipfsHash");
-    return value.toBytes();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
   }
 
-  set ipfsHash(value: Bytes) {
-    this.set("ipfsHash", Value.fromBytes(value));
+  set ipfsHash(value: Bytes | null) {
+    if (value === null) {
+      this.unset("ipfsHash");
+    } else {
+      this.set("ipfsHash", Value.fromBytes(value as Bytes));
+    }
   }
 
-  get ipfsHash2(): Bytes {
+  get ipfsHash2(): Bytes | null {
     let value = this.get("ipfsHash2");
-    return value.toBytes();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
   }
 
-  set ipfsHash2(value: Bytes) {
-    this.set("ipfsHash2", Value.fromBytes(value));
+  set ipfsHash2(value: Bytes | null) {
+    if (value === null) {
+      this.unset("ipfsHash2");
+    } else {
+      this.set("ipfsHash2", Value.fromBytes(value as Bytes));
+    }
   }
 }
 
@@ -219,8 +235,8 @@ export class Community extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get title(): string | null {
-    let value = this.get("title");
+  get name(): string | null {
+    let value = this.get("name");
     if (value === null || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -228,11 +244,11 @@ export class Community extends Entity {
     }
   }
 
-  set title(value: string | null) {
+  set name(value: string | null) {
     if (value === null) {
-      this.unset("title");
+      this.unset("name");
     } else {
-      this.set("title", Value.fromString(value as string));
+      this.set("name", Value.fromString(value as string));
     }
   }
 
@@ -287,6 +303,23 @@ export class Community extends Entity {
     }
   }
 
+  get avatar(): string | null {
+    let value = this.get("avatar");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set avatar(value: string | null) {
+    if (value === null) {
+      this.unset("avatar");
+    } else {
+      this.set("avatar", Value.fromString(value as string));
+    }
+  }
+
   get isFrozen(): boolean {
     let value = this.get("isFrozen");
     return value.toBoolean();
@@ -313,6 +346,15 @@ export class Community extends Entity {
     }
   }
 
+  get tagsCount(): i32 {
+    let value = this.get("tagsCount");
+    return value.toI32();
+  }
+
+  set tagsCount(value: i32) {
+    this.set("tagsCount", Value.fromI32(value));
+  }
+
   get postCount(): i32 {
     let value = this.get("postCount");
     return value.toI32();
@@ -322,22 +364,38 @@ export class Community extends Entity {
     this.set("postCount", Value.fromI32(value));
   }
 
-  get ipfsHash(): Bytes {
+  get ipfsHash(): Bytes | null {
     let value = this.get("ipfsHash");
-    return value.toBytes();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
   }
 
-  set ipfsHash(value: Bytes) {
-    this.set("ipfsHash", Value.fromBytes(value));
+  set ipfsHash(value: Bytes | null) {
+    if (value === null) {
+      this.unset("ipfsHash");
+    } else {
+      this.set("ipfsHash", Value.fromBytes(value as Bytes));
+    }
   }
 
-  get ipfsHash2(): Bytes {
+  get ipfsHash2(): Bytes | null {
     let value = this.get("ipfsHash2");
-    return value.toBytes();
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBytes();
+    }
   }
 
-  set ipfsHash2(value: Bytes) {
-    this.set("ipfsHash2", Value.fromBytes(value));
+  set ipfsHash2(value: Bytes | null) {
+    if (value === null) {
+      this.unset("ipfsHash2");
+    } else {
+      this.set("ipfsHash2", Value.fromBytes(value as Bytes));
+    }
   }
 }
 
@@ -388,8 +446,8 @@ export class Tag extends Entity {
     }
   }
 
-  get title(): string | null {
-    let value = this.get("title");
+  get name(): string | null {
+    let value = this.get("name");
     if (value === null || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -397,11 +455,11 @@ export class Tag extends Entity {
     }
   }
 
-  set title(value: string | null) {
+  set name(value: string | null) {
     if (value === null) {
-      this.unset("title");
+      this.unset("name");
     } else {
-      this.set("title", Value.fromString(value as string));
+      this.set("name", Value.fromString(value as string));
     }
   }
 
