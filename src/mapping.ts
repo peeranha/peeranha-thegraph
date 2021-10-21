@@ -85,16 +85,17 @@ export function handleUnfrozenCommunity(event: CommunityUnfrozen): void {
 }
 
 export function handleNewTag(event: TagCreated): void {
-  let community = Community.load(event.params.communityId.toString()) //communityId -> tagId
-  if (community != null) {
-    let tag = new Tag(event.params.communityId.toString() + "-" + BigInt.fromI32(event.params.tagId).toString());
-    tag.communityId = event.params.communityId;
-  
-    newTag(tag, event.params.communityId, event.params.communityId);
-    tag.save(); 
-  } else {
+  let community = Community.load(event.params.communityId.toString())
+  if (community == null) {
     newCommunity(community, event.params.communityId);
+    community.save();
   }
+
+  let tag = new Tag(event.params.communityId.toString() + "-" + BigInt.fromI32(event.params.tagId).toString());
+  tag.communityId = event.params.communityId;
+  
+  newTag(tag, event.params.communityId, BigInt.fromI32(event.params.tagId));
+  tag.save(); 
 }
 
 export function handleNewPost(event: PostCreated): void {

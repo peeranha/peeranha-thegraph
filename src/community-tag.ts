@@ -15,7 +15,7 @@ export function newCommunity(community: Community | null, communityId: BigInt): 
   let peeranhaTags = getPeeranha().getTags(communityId);
   if (peeranhaTags.length == 0) return;
 
-  for (let i = 0; i < peeranhaTags.length; i++) {
+  for (let i = 1; i <= peeranhaTags.length; i++) {
     let tag = new Tag(communityId.toString() + "-" + i.toString());
     tag.communityId = communityId;
     newTag(tag, communityId, BigInt.fromI32(i))
@@ -45,7 +45,7 @@ function getIpfsCommunityData(community: Community | null): void {
   
     if(!ipfsData.isNull()) {
       let ipfsObj = ipfsData.toObject()
-      let name = ipfsObj.get('title');
+      let name = ipfsObj.get('name');
       if (!name.isNull()) {
         community.name = name.toString();
       }
@@ -65,10 +65,10 @@ function getIpfsCommunityData(community: Community | null): void {
         community.language = language.toString();
       }
 
-      // let avatar = ipfsObj.get('avatar');
-      // if (!avatar.isNull()) {
-      //   community.avatar = avatar.toString();
-      // }
+      let avatar = ipfsObj.get('avatar');
+      if (!avatar.isNull()) {
+        community.avatar = avatar.toString();
+      }
     }
   }
 }

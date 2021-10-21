@@ -346,15 +346,6 @@ export class Community extends Entity {
     }
   }
 
-  get tagsCount(): i32 {
-    let value = this.get("tagsCount");
-    return value.toI32();
-  }
-
-  set tagsCount(value: i32) {
-    this.set("tagsCount", Value.fromI32(value));
-  }
-
   get postCount(): i32 {
     let value = this.get("postCount");
     return value.toI32();

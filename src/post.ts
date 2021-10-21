@@ -19,6 +19,7 @@ export function newPost(post: Post | null, postId: BigInt): void {
   let community = Community.load(peeranhaPost.communityId.toString())
   if (community != null) {
     community.postCount++;
+    community.save();
   }
 
   addDataToPost(post, postId);
@@ -73,12 +74,13 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt): 
   reply.parentReplyId = peeranhaReply.parentReplyId;
   reply.commentCount = peeranhaReply.commentCount;
   reply.isFirstReply = peeranhaReply.isFirstReply;
-  reply.isFirstReply = peeranhaReply.isFirstReply;
+  reply.isQuickReply = peeranhaReply.isQuickReply;
   reply.isDeleted = false;
 
   let post = Post.load(postId.toString())
-  if (post == null && peeranhaReply.parentReplyId == 0) {
+  if (post != null && peeranhaReply.parentReplyId == 0) {
     post.replyCount++;
+    post.save();
   }
 
   addDataToReply(reply, postId, replyId);

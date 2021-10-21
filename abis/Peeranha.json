@@ -9,6 +9,24 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "userAddr",
+        "type": "address"
+      },
+      {
+        "internalType": "int32",
+        "name": "rating",
+        "type": "int32"
+      }
+    ],
+    "name": "addUserRating",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "postId",
         "type": "uint256"
@@ -588,6 +606,30 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint16",
+        "name": "rewardPeriod",
+        "type": "uint16"
+      }
+    ],
+    "name": "getRatingToReward",
+    "outputs": [
+      {
+        "internalType": "int32",
+        "name": "",
+        "type": "int32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "postId",
         "type": "uint256"
@@ -808,14 +850,29 @@
             "type": "int32"
           },
           {
+            "internalType": "int32",
+            "name": "payOutRating",
+            "type": "int32"
+          },
+          {
             "internalType": "uint256",
             "name": "creationTime",
             "type": "uint256"
           },
           {
+            "internalType": "bytes32[]",
+            "name": "roles",
+            "type": "bytes32[]"
+          },
+          {
             "internalType": "uint32[]",
             "name": "followedCommunities",
             "type": "uint32[]"
+          },
+          {
+            "internalType": "uint16[]",
+            "name": "rewardPeriods",
+            "type": "uint16[]"
           }
         ],
         "internalType": "struct UserLib.User",
@@ -861,14 +918,29 @@
             "type": "int32"
           },
           {
+            "internalType": "int32",
+            "name": "payOutRating",
+            "type": "int32"
+          },
+          {
             "internalType": "uint256",
             "name": "creationTime",
             "type": "uint256"
           },
           {
+            "internalType": "bytes32[]",
+            "name": "roles",
+            "type": "bytes32[]"
+          },
+          {
             "internalType": "uint32[]",
             "name": "followedCommunities",
             "type": "uint32[]"
+          },
+          {
+            "internalType": "uint16[]",
+            "name": "rewardPeriods",
+            "type": "uint16[]"
           }
         ],
         "internalType": "struct UserLib.User",
@@ -893,6 +965,42 @@
         "internalType": "bytes32[]",
         "name": "",
         "type": "bytes32[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint16",
+        "name": "period",
+        "type": "uint16"
+      }
+    ],
+    "name": "getUserRewardPeriod",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "int32",
+            "name": "rating",
+            "type": "int32"
+          },
+          {
+            "internalType": "int32",
+            "name": "ratingToReward",
+            "type": "int32"
+          }
+        ],
+        "internalType": "struct RewardLib.PeriodRating",
+        "name": "",
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",
