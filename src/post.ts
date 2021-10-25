@@ -1,6 +1,6 @@
 import { ByteArray } from '@graphprotocol/graph-ts'
 import { json, Bytes, ipfs, BigInt } from '@graphprotocol/graph-ts'
-import { Post, Reply, Comment, Community } from '../generated/schema'
+import { Post, Reply, Comment, Community, Tag } from '../generated/schema'
 import { getPeeranha } from './utils'
 
 export function newPost(post: Post | null, postId: BigInt): void {
@@ -28,12 +28,39 @@ export function newPost(post: Post | null, postId: BigInt): void {
 export function addDataToPost(post: Post | null, postId: BigInt): void {
   let peeranhaPost = getPeeranha().getPost(postId);
   if (peeranhaPost == null) return;
-  
+
+  let postTagsBuf = peeranhaPost.tags;
+  for (let i = 0; i < peeranhaPost.tags.length; i++) {
+    let newTag = postTagsBuf.pop();
+
+    if(!post.tags.includes(newTag)) {
+      let tag = Tag.load(peeranhaPost.communityId.toString() + "-" + newTag.toString());
+      if (tag != null) {
+        tag.postCount++;
+        tag.save();
+      }
+    }
+  }
+
+  if(peeranhaPost.tags.length != 0) {
+    let postTagsBuf = post.tags;
+    for (let i = 0; i < post.tags.length; i++) {
+      let oldTag = postTagsBuf.pop();
+
+      if(!peeranhaPost.tags.includes(oldTag)) {
+        let tag = Tag.load(peeranhaPost.communityId.toString() + "-" + oldTag.toString());
+        if (tag != null) {
+          tag.postCount--;
+          tag.save();
+        }
+      }
+    }
+  }
+
   post.tags = peeranhaPost.tags;
   post.ipfsHash = peeranhaPost.ipfsDoc.hash;
   post.ipfsHash2 = peeranhaPost.ipfsDoc.hash2;
   post.postType = peeranhaPost.postType;
-  post.tags = peeranhaPost.tags;
 
   getIpfsPostData(post);
 }

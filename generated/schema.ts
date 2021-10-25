@@ -471,6 +471,15 @@ export class Tag extends Entity {
     }
   }
 
+  get postCount(): i32 {
+    let value = this.get("postCount");
+    return value.toI32();
+  }
+
+  set postCount(value: i32) {
+    this.set("postCount", Value.fromI32(value));
+  }
+
   get ipfsHash(): Bytes | null {
     let value = this.get("ipfsHash");
     if (value === null || value.kind == ValueKind.NULL) {

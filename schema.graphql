@@ -31,6 +31,7 @@ type Tag @entity {
   communityId: BigInt
   name: String
   description: String
+  postCount: Int
   ipfsHash: Bytes
   ipfsHash2: Bytes
 }
