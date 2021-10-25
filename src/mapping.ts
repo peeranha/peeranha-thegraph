@@ -1,4 +1,4 @@
-import { BigInt } from '@graphprotocol/graph-ts'
+import { Address, BigInt, Bytes } from '@graphprotocol/graph-ts'
 import { UserCreated, UserUpdated,
   CommunityCreated, CommunityUpdated, CommunityFrozen, CommunityUnfrozen,
   TagCreated,
@@ -15,7 +15,7 @@ import { newPost, addDataToPost,
   newReply, addDataToReply, 
   newComment, addDataToComment } from './post'
 import { newCommunity, addDataToCommunity, newTag } from './community-tag'
-import { newUser, addDataToUser } from './user'
+import { newUser, addDataToUser, updateUserRating } from './user'
   
 
 
@@ -122,7 +122,17 @@ export function handleDeletedPost(event: PostDeleted): void {
   if (post == null) return;
 
   post.isDeleted = true;
-  post.save(); 
+  post.save();
+  updateUserRating(post.author as Address);
+
+  for (let i = 1; i <= post.replyCount; i++) {
+    let reply = Reply.load(event.params.postId.toString() + "-" + i.toString());
+    if (
+    (reply != null && !reply.isDeleted) && 
+    (reply.isFirstReply || reply.isQuickReply || reply.rating > 0)) {
+      updateUserRating(reply.author as Address);
+    }
+  }
 }
 
 export function handleNewReply(event: ReplyCreated): void {
@@ -153,7 +163,9 @@ export function handleDeletedReply(event: ReplyDeleted): void {
   if (reply == null) return;
 
   reply.isDeleted = true;
-  reply.save(); 
+  reply.save();
+
+  updateUserRating(reply.author as Address);
 }
 
 export function handleNewComment(event: CommentCreated): void {
@@ -247,6 +259,7 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
       reply.isBestReply = false;
     }
 
+    updateUserRating(reply.author as Address);
     reply.save(); 
   }
 
@@ -257,6 +270,7 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
     newReply(reply, event.params.postId, replyId);
   } 
   reply.isBestReply = true;
+  updateUserRating(reply.author as Address);
   reply.save(); 
 }
 
@@ -290,6 +304,7 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    // вы�
     }
 
     reply.save();
+    updateUserRating(reply.author as Address);
   } else {
     let post = Post.load(event.params.postId.toString())
     if (post == null) {
@@ -302,5 +317,6 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    // вы�
     }
 
     post.save();
+    updateUserRating(post.author as Address);
   }
 }

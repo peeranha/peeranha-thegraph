@@ -67,3 +67,14 @@ export function getIpfsUserData(user: User | null): void {
     }
   }
 }
+
+export function updateUserRating(userAddress: Address): void {
+  let peeranhaUser = getPeeranha().getUserByAddress(userAddress);
+  if (peeranhaUser == null) return;
+
+  let user = User.load(userAddress.toHex());
+  if (user != null) {
+    user.rating = peeranhaUser.rating;
+    user.save();
+  }
+}

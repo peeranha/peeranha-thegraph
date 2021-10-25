@@ -1,7 +1,8 @@
 import { ByteArray } from '@graphprotocol/graph-ts'
 import { json, Bytes, ipfs, BigInt } from '@graphprotocol/graph-ts'
-import { Post, Reply, Comment, Community, Tag } from '../generated/schema'
+import { Post, Reply, Comment, Community, Tag, User } from '../generated/schema'
 import { getPeeranha } from './utils'
+import { updateUserRating } from './user'
 
 export function newPost(post: Post | null, postId: BigInt): void {
   let peeranhaPost = getPeeranha().getPost(postId);
@@ -108,6 +109,10 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt): 
   if (post != null && peeranhaReply.parentReplyId == 0) {
     post.replyCount++;
     post.save();
+  }
+
+  if (peeranhaReply.isFirstReply || peeranhaReply.isQuickReply) {
+    updateUserRating(peeranhaReply.author);
   }
 
   addDataToReply(reply, postId, replyId);
