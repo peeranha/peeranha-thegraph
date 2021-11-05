@@ -15,6 +15,7 @@ export function newPost(post: Post | null, postId: BigInt): void {
   post.commentCount = peeranhaPost.commentCount;
   post.replyCount = peeranhaPost.replyCount;
   post.officialReply = peeranhaPost.officialReply;
+  post.bestReply = peeranhaPost.bestReply;
   post.isDeleted = peeranhaPost.isDeleted;
 
   let community = Community.load(peeranhaPost.communityId.toString())
@@ -160,9 +161,18 @@ export function newComment(comment: Comment | null, postId: BigInt, parentReplyI
   comment.parentReplyId = parentReplyId.toI32();  
   comment.isDeleted = false;
 
-  let post = Post.load(postId.toString())
-  if (post == null && parentReplyId == BigInt.fromI32(0)) {
-    post.commentCount++;
+  if (parentReplyId == BigInt.fromI32(0)) {
+    let post = Post.load(postId.toString());
+    if (post != null ) {    // init post
+      post.commentCount++;
+      post.save();
+    }
+  } else {
+    let reply = Reply.load(postId.toString() + "-" + parentReplyId.toString());
+    if (reply != null ) {     // init post
+      reply.commentCount++;
+      reply.save();
+    }
   }
 
   addDataToComment(comment, postId, parentReplyId, commentId);

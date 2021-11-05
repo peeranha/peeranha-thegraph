@@ -271,7 +271,7 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
   } 
   reply.isBestReply = true;
   updateUserRating(reply.author as Address);
-  reply.save(); 
+  reply.save();
 }
 
 export function handlerForumItemVoted(event: ForumItemVoted): void {    // вынести в этдельную function with edit
