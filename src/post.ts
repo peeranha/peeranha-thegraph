@@ -226,5 +226,5 @@ export function voteComment(comment: Comment | null, postId: BigInt, parentReply
     post.commentCount++;
   }
 
-  addDataToComment(comment, postId, parentReplyId, commentId); 
+  addDataToComment(comment, postId, parentReplyId, commentId);
 }
