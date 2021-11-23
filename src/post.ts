@@ -9,7 +9,7 @@ export function newPost(post: Post | null, postId: BigInt): void {
   if (peeranhaPost == null) return;
 
   post.communityId = peeranhaPost.communityId;
-  post.author = peeranhaPost.author;
+  post.author = peeranhaPost.author.toHex();
   post.rating = peeranhaPost.rating;
   post.postTime = peeranhaPost.postTime
   post.commentCount = peeranhaPost.commentCount;
@@ -96,7 +96,7 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt): 
   let peeranhaReply = getPeeranha().getReply(postId, replyId.toI32());
   if (peeranhaReply == null) return;
 
-  reply.author = peeranhaReply.author;
+  reply.author = peeranhaReply.author.toHex();
   reply.postTime = peeranhaReply.postTime;
   reply.rating = peeranhaReply.rating;
   reply.postId = postId;
@@ -154,7 +154,7 @@ export function newComment(comment: Comment | null, postId: BigInt, parentReplyI
   let peeranhaComment = getPeeranha().getComment(postId, parentReplyId.toI32(), commentId.toI32());
   if (peeranhaComment == null) return;
 
-  comment.author = peeranhaComment.author;
+  comment.author = peeranhaComment.author.toHex();
   comment.postTime = peeranhaComment.postTime;
   comment.postId = postId;
   comment.rating = peeranhaComment.rating;
@@ -214,7 +214,7 @@ export function voteComment(comment: Comment | null, postId: BigInt, parentReply
   let peeranhaComment = getPeeranha().getComment(postId, parentReplyId.toI32(), commentId.toI32());
   if (peeranhaComment == null) return;
 
-  comment.author = peeranhaComment.author;
+  comment.author = peeranhaComment.author.toHex();
   comment.postTime = peeranhaComment.postTime;
   comment.postId = postId;
   comment.rating = peeranhaComment.rating;
