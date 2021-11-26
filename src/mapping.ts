@@ -274,7 +274,7 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
   reply.save();
 }
 
-export function handlerForumItemVoted(event: ForumItemVoted): void {    // вынести в этдельную function with edit
+export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move this in another function with edit
   if (event.params.commentId != 0) {
     let commentId = BigInt.fromI32(event.params.commentId);
     let replyId = BigInt.fromI32(event.params.replyId);
