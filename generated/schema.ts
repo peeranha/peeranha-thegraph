@@ -605,21 +605,13 @@ export class Post extends Entity {
     this.set("postType", Value.fromI32(value));
   }
 
-  get author(): Bytes | null {
+  get author(): string {
     let value = this.get("author");
-    if (value === null || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBytes();
-    }
+    return value.toString();
   }
 
-  set author(value: Bytes | null) {
-    if (value === null) {
-      this.unset("author");
-    } else {
-      this.set("author", Value.fromBytes(value as Bytes));
-    }
+  set author(value: string) {
+    this.set("author", Value.fromString(value));
   }
 
   get rating(): i32 {
@@ -778,6 +770,40 @@ export class Post extends Entity {
       this.set("properties", Value.fromBigIntArray(value as Array<BigInt>));
     }
   }
+
+  get replies(): Array<string> | null {
+    let value = this.get("replies");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set replies(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("replies");
+    } else {
+      this.set("replies", Value.fromStringArray(value as Array<string>));
+    }
+  }
+
+  get comments(): Array<string> | null {
+    let value = this.get("comments");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set comments(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("comments");
+    } else {
+      this.set("comments", Value.fromStringArray(value as Array<string>));
+    }
+  }
 }
 
 export class Reply extends Entity {
@@ -844,21 +870,13 @@ export class Reply extends Entity {
     }
   }
 
-  get author(): Bytes | null {
+  get author(): string {
     let value = this.get("author");
-    if (value === null || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBytes();
-    }
+    return value.toString();
   }
 
-  set author(value: Bytes | null) {
-    if (value === null) {
-      this.unset("author");
-    } else {
-      this.set("author", Value.fromBytes(value as Bytes));
-    }
+  set author(value: string) {
+    this.set("author", Value.fromString(value));
   }
 
   get rating(): i32 {
@@ -1000,6 +1018,23 @@ export class Reply extends Entity {
       this.set("properties", Value.fromBytesArray(value as Array<Bytes>));
     }
   }
+
+  get comments(): Array<string> | null {
+    let value = this.get("comments");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set comments(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("comments");
+    } else {
+      this.set("comments", Value.fromStringArray(value as Array<string>));
+    }
+  }
 }
 
 export class Comment extends Entity {
@@ -1066,21 +1101,13 @@ export class Comment extends Entity {
     }
   }
 
-  get author(): Bytes | null {
+  get author(): string {
     let value = this.get("author");
-    if (value === null || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBytes();
-    }
+    return value.toString();
   }
 
-  set author(value: Bytes | null) {
-    if (value === null) {
-      this.unset("author");
-    } else {
-      this.set("author", Value.fromBytes(value as Bytes));
-    }
+  set author(value: string) {
+    this.set("author", Value.fromString(value));
   }
 
   get rating(): i32 {

@@ -17,6 +17,8 @@ export function newPost(post: Post | null, postId: BigInt): void {
   post.officialReply = peeranhaPost.officialReply;
   post.bestReply = peeranhaPost.bestReply;
   post.isDeleted = peeranhaPost.isDeleted;
+  post.replies = [];
+  post.comments = [];
 
   let community = Community.load(peeranhaPost.communityId.toString())
   if (community != null) {
@@ -105,11 +107,19 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt): 
   reply.isFirstReply = peeranhaReply.isFirstReply;
   reply.isQuickReply = peeranhaReply.isQuickReply;
   reply.isDeleted = false;
+  reply.comments = [];
 
-  let post = Post.load(postId.toString())
-  if (post != null && peeranhaReply.parentReplyId == 0) {
-    post.replyCount++;
-    post.save();
+  if (peeranhaReply.parentReplyId == 0) {
+    let post = Post.load(postId.toString())
+    if (post != null) {
+      post.replyCount++;
+
+      let replies = post.replies
+      replies.push(postId.toString() + "-" + replyId.toString())
+      post.replies = replies
+
+      post.save();
+    }
   }
 
   if (peeranhaReply.isFirstReply || peeranhaReply.isQuickReply) {
@@ -161,16 +171,27 @@ export function newComment(comment: Comment | null, postId: BigInt, parentReplyI
   comment.parentReplyId = parentReplyId.toI32();  
   comment.isDeleted = false;
 
+  const commentFullId = postId.toString() + "-" + parentReplyId.toString() +  "-" + commentId.toString();
   if (parentReplyId == BigInt.fromI32(0)) {
     let post = Post.load(postId.toString());
     if (post != null ) {    // init post
       post.commentCount++;
+
+      let comments = post.comments
+      comments.push(commentFullId)
+      post.comments = comments
+
       post.save();
     }
   } else {
     let reply = Reply.load(postId.toString() + "-" + parentReplyId.toString());
     if (reply != null ) {     // init post
       reply.commentCount++;
+
+      let comments = reply.comments
+      comments.push(commentFullId)
+      reply.comments = comments
+
       reply.save();
     }
   }
