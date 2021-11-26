@@ -123,14 +123,14 @@ export function handleDeletedPost(event: PostDeleted): void {
 
   post.isDeleted = true;
   post.save();
-  updateUserRating(post.author as Address);
+  updateUserRating(Address.fromString(post.author));
 
   for (let i = 1; i <= post.replyCount; i++) {
     let reply = Reply.load(event.params.postId.toString() + "-" + i.toString());
     if (
     (reply != null && !reply.isDeleted) && 
     (reply.isFirstReply || reply.isQuickReply || reply.rating > 0)) {
-      updateUserRating(reply.author as Address);
+      updateUserRating(Address.fromString(reply.author));
     }
   }
 }
@@ -165,7 +165,7 @@ export function handleDeletedReply(event: ReplyDeleted): void {
   reply.isDeleted = true;
   reply.save();
 
-  updateUserRating(reply.author as Address);
+  updateUserRating(Address.fromString(reply.author));
 }
 
 export function handleNewComment(event: CommentCreated): void {
@@ -259,7 +259,7 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
       reply.isBestReply = false;
     }
 
-    updateUserRating(reply.author as Address);
+    updateUserRating(Address.fromString(reply.author));
     reply.save(); 
   }
 
@@ -270,7 +270,7 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
     newReply(reply, event.params.postId, replyId);
   } 
   reply.isBestReply = true;
-  updateUserRating(reply.author as Address);
+  updateUserRating(Address.fromString(reply.author));
   reply.save();
 }
 
@@ -304,7 +304,7 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
     }
 
     reply.save();
-    updateUserRating(reply.author as Address);
+    updateUserRating(Address.fromString(reply.author));
   } else {
     let post = Post.load(event.params.postId.toString())
     if (post == null) {
@@ -317,6 +317,6 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
     }
 
     post.save();
-    updateUserRating(post.author as Address);
+    updateUserRating(Address.fromString(post.author));
   }
 }

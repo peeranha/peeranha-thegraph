@@ -42,6 +42,14 @@ enum PostType {
   Tutorial
 }
 
+type _Schema_
+@fulltext(
+  name: "postSearch"
+  language: en
+  algorithm: rank
+  include: [{ entity: "Post", fields: [{ name: "title" }, { name: "content" }] }]
+)
+
 type Post @entity {
   id: ID!
   tags: [Int!]
@@ -49,7 +57,7 @@ type Post @entity {
   ipfsHash2: Bytes
   postType: Int
   
-  author: Bytes
+  author: User!
   rating: Int
   postTime: BigInt
   communityId: BigInt
@@ -66,13 +74,15 @@ type Post @entity {
   isFirstReply: Boolean
   isQuickReply: Boolean
   properties: [BigInt!]
+  replies: [Reply!]
+  comments: [Comment!]
 }
 
 type Reply @entity {
   id: ID!
   ipfsHash: Bytes
   ipfsHash2: Bytes
-  author: Bytes
+  author: User!
   rating: Int
   postTime: BigInt
   postId: BigInt
@@ -88,13 +98,14 @@ type Reply @entity {
   isFirstReply: Boolean
   isQuickReply: Boolean
   properties: [Bytes!]
+  comments: [Comment!]
 }
 
 type Comment @entity {
   id: ID!
   ipfsHash: Bytes
   ipfsHash2: Bytes
-  author: Bytes
+  author: User!
   rating: Int
   postTime: BigInt
   postId: BigInt
