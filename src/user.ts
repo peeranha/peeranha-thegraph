@@ -4,7 +4,7 @@ import { User } from '../generated/schema'
 import { getPeeranha } from './utils'
 
 export function newUser(user: User | null, userAddress: Address): void {
-  const peeranhaUser = getPeeranha().getUserByAddress(userAddress);
+  let peeranhaUser = getPeeranha().getUserByAddress(userAddress);
   if (peeranhaUser == null) return;
 
   user.creationTime = peeranhaUser.creationTime;
@@ -12,7 +12,7 @@ export function newUser(user: User | null, userAddress: Address): void {
 }
 
 export function addDataToUser(user: User | null, userAddress: Address): void {
-  const peeranhaUser = getPeeranha().getUserByAddress(userAddress);
+  let peeranhaUser = getPeeranha().getUserByAddress(userAddress);
   if (peeranhaUser == null) return;
 
   user.rating = peeranhaUser.rating;
@@ -65,5 +65,16 @@ export function getIpfsUserData(user: User | null): void {
         user.avatar = avatar.toString();
       }
     }
+  }
+}
+
+export function updateUserRating(userAddress: Address): void {
+  let peeranhaUser = getPeeranha().getUserByAddress(userAddress);
+  if (peeranhaUser == null) return;
+
+  let user = User.load(userAddress.toHex());
+  if (user != null) {
+    user.rating = peeranhaUser.rating;
+    user.save();
   }
 }

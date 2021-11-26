@@ -3,5 +3,5 @@ import { Peeranha } from '../generated/Peeranha/Peeranha'
 
 
 export function getPeeranha(): Peeranha {
-  return Peeranha.bind(Address.fromString("0x279787A2A5E83DD23f9E5D2cEf1F4846308Ffc1E"));
+  return Peeranha.bind(Address.fromString("0x8156DDef53905b3c837a97D51D30750293021e50"));
 }

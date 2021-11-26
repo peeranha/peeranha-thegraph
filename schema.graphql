@@ -8,28 +8,30 @@ type User @entity {
   about: String
   avatar: String
   creationTime: BigInt
-  ipfsHash: Bytes!
-  ipfsHash2: Bytes!
+  ipfsHash: Bytes
+  ipfsHash2: Bytes
 }
 
 type Community @entity {
   id: ID!
-  title: String
+  name: String
   description: String
   website: String
   language: String
+  avatar: String
   isFrozen: Boolean
   creationTime: BigInt
   postCount: Int
-  ipfsHash: Bytes!
-  ipfsHash2: Bytes!
+  ipfsHash: Bytes
+  ipfsHash2: Bytes
 }
 
 type Tag @entity {
   id: ID!
   communityId: BigInt
-  title: String
+  name: String
   description: String
+  postCount: Int
   ipfsHash: Bytes
   ipfsHash2: Bytes
 }
@@ -60,6 +62,7 @@ type Post @entity {
   isDeleted: Boolean
 
   officialReply: Int
+  bestReply: Int
   isFirstReply: Boolean
   isQuickReply: Boolean
   properties: [BigInt!]
@@ -80,6 +83,8 @@ type Reply @entity {
   commentCount: Int
   isDeleted: Boolean
 
+  isOfficialReply: Boolean
+  isBestReply: Boolean
   isFirstReply: Boolean
   isQuickReply: Boolean
   properties: [Bytes!]

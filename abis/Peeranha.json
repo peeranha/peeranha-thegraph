@@ -1,158 +1,5 @@
 [
   {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "Paused",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "previousAdminRole",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "newAdminRole",
-        "type": "bytes32"
-      }
-    ],
-    "name": "RoleAdminChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "sender",
-        "type": "address"
-      }
-    ],
-    "name": "RoleGranted",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "sender",
-        "type": "address"
-      }
-    ],
-    "name": "RoleRevoked",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "Unpaused",
-    "type": "event"
-  },
-  {
-    "inputs": [],
-    "name": "COMMUNITY_ADMIN_ROLE",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "COMMUNITY_MODERATOR_ROLE",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "DEFAULT_ADMIN_ROLE",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "PAUSER_ROLE",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "__Peeranha_init",
     "outputs": [],
@@ -162,17 +9,17 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
+        "internalType": "address",
+        "name": "userAddr",
+        "type": "address"
       },
       {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
+        "internalType": "int32",
+        "name": "rating",
+        "type": "int32"
       }
     ],
-    "name": "_revokeRole",
+    "name": "addUserRating",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -501,6 +348,19 @@
         "type": "uint32"
       }
     ],
+    "name": "followCommunity",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      }
+    ],
     "name": "freezeCommunity",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -746,6 +606,30 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint16",
+        "name": "rewardPeriod",
+        "type": "uint16"
+      }
+    ],
+    "name": "getRatingToReward",
+    "outputs": [
+      {
+        "internalType": "int32",
+        "name": "",
+        "type": "int32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "postId",
         "type": "uint256"
@@ -834,60 +718,41 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
-      }
-    ],
-    "name": "getRoleAdmin",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
       },
       {
-        "internalType": "uint256",
-        "name": "index",
-        "type": "uint256"
+        "internalType": "uint8",
+        "name": "tagId",
+        "type": "uint8"
       }
     ],
-    "name": "getRoleMember",
+    "name": "getTag",
     "outputs": [
       {
-        "internalType": "address",
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "bytes32",
+                "name": "hash",
+                "type": "bytes32"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "hash2",
+                "type": "bytes32"
+              }
+            ],
+            "internalType": "struct IpfsLib.IpfsHash",
+            "name": "ipfsDoc",
+            "type": "tuple"
+          }
+        ],
+        "internalType": "struct CommunityLib.Tag",
         "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
-      }
-    ],
-    "name": "getRoleMemberCount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",
@@ -985,6 +850,11 @@
             "type": "int32"
           },
           {
+            "internalType": "int32",
+            "name": "payOutRating",
+            "type": "int32"
+          },
+          {
             "internalType": "uint256",
             "name": "creationTime",
             "type": "uint256"
@@ -993,6 +863,16 @@
             "internalType": "bytes32[]",
             "name": "roles",
             "type": "bytes32[]"
+          },
+          {
+            "internalType": "uint32[]",
+            "name": "followedCommunities",
+            "type": "uint32[]"
+          },
+          {
+            "internalType": "uint16[]",
+            "name": "rewardPeriods",
+            "type": "uint16[]"
           }
         ],
         "internalType": "struct UserLib.User",
@@ -1038,6 +918,11 @@
             "type": "int32"
           },
           {
+            "internalType": "int32",
+            "name": "payOutRating",
+            "type": "int32"
+          },
+          {
             "internalType": "uint256",
             "name": "creationTime",
             "type": "uint256"
@@ -1046,6 +931,16 @@
             "internalType": "bytes32[]",
             "name": "roles",
             "type": "bytes32[]"
+          },
+          {
+            "internalType": "uint32[]",
+            "name": "followedCommunities",
+            "type": "uint32[]"
+          },
+          {
+            "internalType": "uint16[]",
+            "name": "rewardPeriods",
+            "type": "uint16[]"
           }
         ],
         "internalType": "struct UserLib.User",
@@ -1076,6 +971,42 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint16",
+        "name": "period",
+        "type": "uint16"
+      }
+    ],
+    "name": "getUserRewardPeriod",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "int32",
+            "name": "rating",
+            "type": "int32"
+          },
+          {
+            "internalType": "int32",
+            "name": "ratingToReward",
+            "type": "int32"
+          }
+        ],
+        "internalType": "struct RewardLib.PeriodRating",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "getUsersCount",
     "outputs": [
@@ -1086,6 +1017,19 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "giveAdminPermission",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -1125,48 +1069,6 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "grantRole",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
-      }
-    ],
-    "name": "hasRole",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "initialize",
     "outputs": [],
@@ -1193,39 +1095,14 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "pause",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "paused",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
-      },
-      {
         "internalType": "address",
-        "name": "account",
+        "name": "user",
         "type": "address"
       }
     ],
-    "name": "renounceRole",
+    "name": "revokeAdminPermission",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1269,17 +1146,12 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "address",
-        "name": "account",
-        "type": "address"
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
       }
     ],
-    "name": "revokeRole",
+    "name": "unfollowCommunity",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1293,13 +1165,6 @@
       }
     ],
     "name": "unfreezeCommunity",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "unpause",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1376,24 +1241,12 @@
       },
       {
         "indexed": false,
-        "internalType": "bytes32",
-        "name": "ipfsHash",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "ipfsHash2",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "creationTime",
-        "type": "uint256"
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
       }
     ],
-    "name": "UserCreated",
+    "name": "FollowedCommunity",
     "type": "event"
   },
   {
@@ -1407,22 +1260,42 @@
       },
       {
         "indexed": false,
-        "internalType": "bytes32",
-        "name": "ipfsHash",
-        "type": "bytes32"
-      },
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      }
+    ],
+    "name": "UnfollowedCommunity",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
       {
         "indexed": false,
-        "internalType": "bytes32",
-        "name": "ipfsHash2",
-        "type": "bytes32"
+        "internalType": "address",
+        "name": "userAddress",
+        "type": "address"
+      }
+    ],
+    "name": "UserCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "userAddress",
+        "type": "address"
       }
     ],
     "name": "UserUpdated",
     "type": "event"
   },
-
-
+  
+  
   {
     "anonymous": false,
     "inputs": [
@@ -1545,9 +1418,9 @@
       },
       {
         "indexed": false,
-        "internalType": "bool",
-        "name": "isUpvote",
-        "type": "bool"
+        "internalType": "int8",
+        "name": "voteDirection",
+        "type": "int8"
       }
     ],
     "name": "ForumItemVoted",
@@ -1754,46 +1627,15 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "uint32",
         "name": "id",
         "type": "uint32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "ipfsHash",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "ipfsHash2",
-        "type": "bytes32"
-      },
-      {
-        "components": [
-          {
-            "components": [
-              {
-                "internalType": "bytes32",
-                "name": "hash",
-                "type": "bytes32"
-              },
-              {
-                "internalType": "bytes32",
-                "name": "hash2",
-                "type": "bytes32"
-              }
-            ],
-            "internalType": "struct IpfsLib.IpfsHash",
-            "name": "ipfsDoc",
-            "type": "tuple"
-          }
-        ],
-        "indexed": false,
-        "internalType": "struct CommunityLib.Tag[]",
-        "name": "tags",
-        "type": "tuple[]"
       }
     ],
     "name": "CommunityCreated",
@@ -1804,8 +1646,14 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "uint32",
-        "name": "commintyId",
+        "name": "communityId",
         "type": "uint32"
       }
     ],
@@ -1817,8 +1665,14 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "uint32",
-        "name": "commintyId",
+        "name": "communityId",
         "type": "uint32"
       }
     ],
@@ -1830,15 +1684,15 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint32",
-        "name": "id",
-        "type": "uint32"
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
       },
       {
         "indexed": false,
-        "internalType": "bytes32",
-        "name": "ipfsHash",
-        "type": "bytes32"
+        "internalType": "uint32",
+        "name": "id",
+        "type": "uint32"
       }
     ],
     "name": "CommunityUpdated",
@@ -1849,30 +1703,139 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "tagId",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
         "internalType": "uint32",
         "name": "communityId",
         "type": "uint32"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint32",
-        "name": "tagId",
-        "type": "uint32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "ipfsHash",
-        "type": "bytes32"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes32",
-        "name": "ipfsHash2",
-        "type": "bytes32"
       }
     ],
     "name": "TagCreated",
     "type": "event"
+  },
+
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "previousAdminRole",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "newAdminRole",
+        "type": "bytes32"
+      }
+    ],
+    "name": "RoleAdminChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      }
+    ],
+    "name": "RoleGranted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      }
+    ],
+    "name": "RoleRevoked",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "COMMUNITY_ADMIN_ROLE",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "COMMUNITY_MODERATOR_ROLE",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "DEFAULT_ADMIN_ROLE",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   }
 ]
