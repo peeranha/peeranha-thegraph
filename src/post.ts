@@ -176,7 +176,6 @@ export function newComment(comment: Comment | null, postId: BigInt, parentReplyI
     let post = Post.load(postId.toString());
     if (post != null ) {    // init post
       post.commentCount++;
-
       let comments = post.comments
       comments.push(commentFullId)
       post.comments = comments
@@ -187,7 +186,6 @@ export function newComment(comment: Comment | null, postId: BigInt, parentReplyI
     let reply = Reply.load(postId.toString() + "-" + parentReplyId.toString());
     if (reply != null ) {     // init post
       reply.commentCount++;
-
       let comments = reply.comments
       comments.push(commentFullId)
       reply.comments = comments
