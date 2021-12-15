@@ -3,7 +3,7 @@ import { json, Bytes, ipfs, BigInt } from '@graphprotocol/graph-ts'
 import { Community, Tag } from '../generated/schema'
 import { getPeeranha } from './utils'
 
-export function newCommunity(community: Community | null, communityId: BigInt): void {
+export function newCommunity(community: Community, communityId: BigInt): void {
   let peeranhaCommunity = getPeeranha().getCommunity(communityId);
   if (peeranhaCommunity == null) return;
 
@@ -23,7 +23,7 @@ export function newCommunity(community: Community | null, communityId: BigInt): 
   }
 }
 
-export function addDataToCommunity(community: Community | null, communityId: BigInt): void {
+export function addDataToCommunity(community: Community, communityId: BigInt): void {
   let peeranhaCommunity = getPeeranha().getCommunity(communityId);
   if (peeranhaCommunity == null) return;
   
@@ -33,51 +33,52 @@ export function addDataToCommunity(community: Community | null, communityId: Big
   getIpfsCommunityData(community);
 }
 
-function getIpfsCommunityData(community: Community | null): void {  
-  let hashstr = community.ipfsHash.toHexString();
+function getIpfsCommunityData(community: Community): void {  
+  let communityipfs = community.ipfsHash as ByteArray;
+  let hashstr = communityipfs.toHexString();
   let hashHex = "1220" + hashstr.slice(2);
   let ipfsBytes = ByteArray.fromHexString(hashHex);
   let ipfsHashBase58 = ipfsBytes.toBase58();
   let result = ipfs.cat(ipfsHashBase58) as Bytes;
   
-  if (result != null) {
+  if (result) {
     let ipfsData = json.fromBytes(result);
   
-    if(!ipfsData.isNull()) {
+    if(ipfsData) {
       let ipfsObj = ipfsData.toObject()
       let name = ipfsObj.get('name');
-      if (!name.isNull()) {
+      if (name) {
         community.name = name.toString();
       }
   
       let description = ipfsObj.get('description');
-      if (!description.isNull()) {
+      if (description) {
         community.description = description.toString();
       }
   
       let website = ipfsObj.get('website');
-      if (!website.isNull()) {
+      if (website) {
         community.website = website.toString();
       }
   
       let language = ipfsObj.get('language');
-      if (!language.isNull()) {
+      if (language) {
         community.language = language.toString();
       }
 
       let avatar = ipfsObj.get('avatar');
-      if (!avatar.isNull()) {
+      if (avatar) {
         community.avatar = avatar.toString();
       }
     }
   }
 }
 
-export function newTag(tag: Tag | null, communityId: BigInt, tagId: BigInt): void {
+export function newTag(tag: Tag, communityId: BigInt, tagId: BigInt): void {
   addDataToTag(tag, communityId, tagId);
 }
 
-export function addDataToTag(tag: Tag | null, communityId: BigInt, tagId: BigInt): void {
+export function addDataToTag(tag: Tag, communityId: BigInt, tagId: BigInt): void {
   let peeranhaTag = getPeeranha().getTag(communityId, tagId.toI32());
   if (peeranhaTag == null) return;
   
@@ -88,26 +89,27 @@ export function addDataToTag(tag: Tag | null, communityId: BigInt, tagId: BigInt
   getIpfsTagData(tag);
 }
 
-function getIpfsTagData(tag: Tag | null): void { 
-  let hashstr = tag.ipfsHash.toHexString();
+function getIpfsTagData(tag: Tag): void {
+  let tagipfs = tag.ipfsHash as ByteArray;
+  let hashstr = tagipfs.toHexString();
   let hashHex = "1220" + hashstr.slice(2);
   let ipfsBytes = ByteArray.fromHexString(hashHex);
   let ipfsHashBase58 = ipfsBytes.toBase58();
   let result = ipfs.cat(ipfsHashBase58) as Bytes;
   
-  if (result != null) {
+  if (result) {
     let ipfsData = json.fromBytes(result);
   
-    if(!ipfsData.isNull()) {
+    if(ipfsData) {
       let ipfsObj = ipfsData.toObject()
     
       let name = ipfsObj.get('name');
-      if (!name.isNull()) {
+      if (name) {
         tag.name = name.toString();
       }
   
       let description = ipfsObj.get('description');
-      if (!description.isNull()) {
+      if (description) {
         tag.description = description.toString();
       }
     }

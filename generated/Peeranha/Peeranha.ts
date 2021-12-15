@@ -612,7 +612,9 @@ export class RoleRevoked__Params {
 
 export class Peeranha__getCommentResultValue0Struct extends ethereum.Tuple {
   get ipfsDoc(): Peeranha__getCommentResultValue0IpfsDocStruct {
-    return this[0].toTuple() as Peeranha__getCommentResultValue0IpfsDocStruct;
+    return changetype<Peeranha__getCommentResultValue0IpfsDocStruct>(
+      this[0].toTuple()
+    );
   }
 
   get author(): Address {
@@ -648,7 +650,9 @@ export class Peeranha__getCommentResultValue0IpfsDocStruct extends ethereum.Tupl
 
 export class Peeranha__getCommunityResultValue0Struct extends ethereum.Tuple {
   get ipfsDoc(): Peeranha__getCommunityResultValue0IpfsDocStruct {
-    return this[0].toTuple() as Peeranha__getCommunityResultValue0IpfsDocStruct;
+    return changetype<Peeranha__getCommunityResultValue0IpfsDocStruct>(
+      this[0].toTuple()
+    );
   }
 
   get tagsCount(): i32 {
@@ -680,7 +684,9 @@ export class Peeranha__getPostResultValue0Struct extends ethereum.Tuple {
   }
 
   get ipfsDoc(): Peeranha__getPostResultValue0IpfsDocStruct {
-    return this[1].toTuple() as Peeranha__getPostResultValue0IpfsDocStruct;
+    return changetype<Peeranha__getPostResultValue0IpfsDocStruct>(
+      this[1].toTuple()
+    );
   }
 
   get postType(): i32 {
@@ -740,7 +746,9 @@ export class Peeranha__getPostResultValue0IpfsDocStruct extends ethereum.Tuple {
 
 export class Peeranha__getReplyResultValue0Struct extends ethereum.Tuple {
   get ipfsDoc(): Peeranha__getReplyResultValue0IpfsDocStruct {
-    return this[0].toTuple() as Peeranha__getReplyResultValue0IpfsDocStruct;
+    return changetype<Peeranha__getReplyResultValue0IpfsDocStruct>(
+      this[0].toTuple()
+    );
   }
 
   get author(): Address {
@@ -792,7 +800,9 @@ export class Peeranha__getReplyResultValue0IpfsDocStruct extends ethereum.Tuple 
 
 export class Peeranha__getTagResultValue0Struct extends ethereum.Tuple {
   get ipfsDoc(): Peeranha__getTagResultValue0IpfsDocStruct {
-    return this[0].toTuple() as Peeranha__getTagResultValue0IpfsDocStruct;
+    return changetype<Peeranha__getTagResultValue0IpfsDocStruct>(
+      this[0].toTuple()
+    );
   }
 }
 
@@ -808,7 +818,9 @@ export class Peeranha__getTagResultValue0IpfsDocStruct extends ethereum.Tuple {
 
 export class Peeranha__getTagsResultValue0Struct extends ethereum.Tuple {
   get ipfsDoc(): Peeranha__getTagsResultValue0IpfsDocStruct {
-    return this[0].toTuple() as Peeranha__getTagsResultValue0IpfsDocStruct;
+    return changetype<Peeranha__getTagsResultValue0IpfsDocStruct>(
+      this[0].toTuple()
+    );
   }
 }
 
@@ -824,7 +836,9 @@ export class Peeranha__getTagsResultValue0IpfsDocStruct extends ethereum.Tuple {
 
 export class Peeranha__getUserByAddressResultValue0Struct extends ethereum.Tuple {
   get ipfsDoc(): Peeranha__getUserByAddressResultValue0IpfsDocStruct {
-    return this[0].toTuple() as Peeranha__getUserByAddressResultValue0IpfsDocStruct;
+    return changetype<Peeranha__getUserByAddressResultValue0IpfsDocStruct>(
+      this[0].toTuple()
+    );
   }
 
   get rating(): i32 {
@@ -864,7 +878,9 @@ export class Peeranha__getUserByAddressResultValue0IpfsDocStruct extends ethereu
 
 export class Peeranha__getUserByIndexResultValue0Struct extends ethereum.Tuple {
   get ipfsDoc(): Peeranha__getUserByIndexResultValue0IpfsDocStruct {
-    return this[0].toTuple() as Peeranha__getUserByIndexResultValue0IpfsDocStruct;
+    return changetype<Peeranha__getUserByIndexResultValue0IpfsDocStruct>(
+      this[0].toTuple()
+    );
   }
 
   get rating(): i32 {
@@ -932,7 +948,9 @@ export class Peeranha extends ethereum.SmartContract {
       ]
     );
 
-    return result[0].toTuple() as Peeranha__getCommentResultValue0Struct;
+    return changetype<Peeranha__getCommentResultValue0Struct>(
+      result[0].toTuple()
+    );
   }
 
   try_getComment(
@@ -954,7 +972,7 @@ export class Peeranha extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(
-      value[0].toTuple() as Peeranha__getCommentResultValue0Struct
+      changetype<Peeranha__getCommentResultValue0Struct>(value[0].toTuple())
     );
   }
 
@@ -988,7 +1006,9 @@ export class Peeranha extends ethereum.SmartContract {
       [ethereum.Value.fromUnsignedBigInt(communityId)]
     );
 
-    return result[0].toTuple() as Peeranha__getCommunityResultValue0Struct;
+    return changetype<Peeranha__getCommunityResultValue0Struct>(
+      result[0].toTuple()
+    );
   }
 
   try_getCommunity(
@@ -1004,7 +1024,7 @@ export class Peeranha extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(
-      value[0].toTuple() as Peeranha__getCommunityResultValue0Struct
+      changetype<Peeranha__getCommunityResultValue0Struct>(value[0].toTuple())
     );
   }
 
@@ -1015,7 +1035,7 @@ export class Peeranha extends ethereum.SmartContract {
       [ethereum.Value.fromUnsignedBigInt(postId)]
     );
 
-    return result[0].toTuple() as Peeranha__getPostResultValue0Struct;
+    return changetype<Peeranha__getPostResultValue0Struct>(result[0].toTuple());
   }
 
   try_getPost(
@@ -1031,7 +1051,7 @@ export class Peeranha extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(
-      value[0].toTuple() as Peeranha__getPostResultValue0Struct
+      changetype<Peeranha__getPostResultValue0Struct>(value[0].toTuple())
     );
   }
 
@@ -1077,7 +1097,9 @@ export class Peeranha extends ethereum.SmartContract {
       ]
     );
 
-    return result[0].toTuple() as Peeranha__getReplyResultValue0Struct;
+    return changetype<Peeranha__getReplyResultValue0Struct>(
+      result[0].toTuple()
+    );
   }
 
   try_getReply(
@@ -1097,7 +1119,7 @@ export class Peeranha extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(
-      value[0].toTuple() as Peeranha__getReplyResultValue0Struct
+      changetype<Peeranha__getReplyResultValue0Struct>(value[0].toTuple())
     );
   }
 
@@ -1111,7 +1133,7 @@ export class Peeranha extends ethereum.SmartContract {
       ]
     );
 
-    return result[0].toTuple() as Peeranha__getTagResultValue0Struct;
+    return changetype<Peeranha__getTagResultValue0Struct>(result[0].toTuple());
   }
 
   try_getTag(
@@ -1131,7 +1153,7 @@ export class Peeranha extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(
-      value[0].toTuple() as Peeranha__getTagResultValue0Struct
+      changetype<Peeranha__getTagResultValue0Struct>(value[0].toTuple())
     );
   }
 
@@ -1190,7 +1212,9 @@ export class Peeranha extends ethereum.SmartContract {
       [ethereum.Value.fromAddress(addr)]
     );
 
-    return result[0].toTuple() as Peeranha__getUserByAddressResultValue0Struct;
+    return changetype<Peeranha__getUserByAddressResultValue0Struct>(
+      result[0].toTuple()
+    );
   }
 
   try_getUserByAddress(
@@ -1206,7 +1230,9 @@ export class Peeranha extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(
-      value[0].toTuple() as Peeranha__getUserByAddressResultValue0Struct
+      changetype<Peeranha__getUserByAddressResultValue0Struct>(
+        value[0].toTuple()
+      )
     );
   }
 
@@ -1217,7 +1243,9 @@ export class Peeranha extends ethereum.SmartContract {
       [ethereum.Value.fromUnsignedBigInt(index)]
     );
 
-    return result[0].toTuple() as Peeranha__getUserByIndexResultValue0Struct;
+    return changetype<Peeranha__getUserByIndexResultValue0Struct>(
+      result[0].toTuple()
+    );
   }
 
   try_getUserByIndex(
@@ -1233,7 +1261,7 @@ export class Peeranha extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(
-      value[0].toTuple() as Peeranha__getUserByIndexResultValue0Struct
+      changetype<Peeranha__getUserByIndexResultValue0Struct>(value[0].toTuple())
     );
   }
 
@@ -1273,7 +1301,9 @@ export class Peeranha extends ethereum.SmartContract {
       ]
     );
 
-    return result[0].toTuple() as Peeranha__getUserRewardPeriodResultValue0Struct;
+    return changetype<Peeranha__getUserRewardPeriodResultValue0Struct>(
+      result[0].toTuple()
+    );
   }
 
   try_getUserRewardPeriod(
@@ -1293,7 +1323,9 @@ export class Peeranha extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(
-      value[0].toTuple() as Peeranha__getUserRewardPeriodResultValue0Struct
+      changetype<Peeranha__getUserRewardPeriodResultValue0Struct>(
+        value[0].toTuple()
+      )
     );
   }
 
@@ -1609,7 +1641,7 @@ export class CreateCommunityCall__Outputs {
 
 export class CreateCommunityCallTagsStruct extends ethereum.Tuple {
   get ipfsDoc(): CreateCommunityCallTagsIpfsDocStruct {
-    return this[0].toTuple() as CreateCommunityCallTagsIpfsDocStruct;
+    return changetype<CreateCommunityCallTagsIpfsDocStruct>(this[0].toTuple());
   }
 }
 
