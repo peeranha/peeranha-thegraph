@@ -1,4 +1,4 @@
-import { Address, BigInt, Bytes } from '@graphprotocol/graph-ts'
+import { Address, BigInt, Bytes, log } from '@graphprotocol/graph-ts'
 import { UserCreated, UserUpdated,
   CommunityCreated, CommunityUpdated, CommunityFrozen, CommunityUnfrozen,
   TagCreated,
@@ -85,8 +85,8 @@ export function handleUnfrozenCommunity(event: CommunityUnfrozen): void {
 }
 
 export function handleNewTag(event: TagCreated): void {
-  let community = Community.load(event.params.communityId.toString())
-  if (community == null) {
+  let community = Community.load(event.params.communityId.toString()) as Community;
+  if (!community) {
     newCommunity(community, event.params.communityId);
     community.save();
   }
@@ -216,9 +216,9 @@ export function handlerChangedStatusOfficialReply(event: StatusOfficialReplyChan
   
   if (previousOfficialReply) {
     let replyId = BigInt.fromI32(previousOfficialReply);
-    let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
+    let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString()) as Reply;
 
-    if (reply == null) {
+    if (!reply) {
       newReply(reply, event.params.postId, replyId);
     } else {
       reply.isOfficialReply = false;
@@ -228,9 +228,9 @@ export function handlerChangedStatusOfficialReply(event: StatusOfficialReplyChan
   }
 
   let replyId = BigInt.fromI32(event.params.replyId);
-  let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
+  let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString()) as Reply;
 
-  if (reply == null) {
+  if (!reply) {
     newReply(reply, event.params.postId, replyId);
   } 
   reply.isOfficialReply = true;
@@ -240,7 +240,7 @@ export function handlerChangedStatusOfficialReply(event: StatusOfficialReplyChan
 export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): void {
   let post = Post.load(event.params.postId.toString())
   let previousBestReply = 0;
-  if (post == null) {
+  if (!post) {
     post = new Post(event.params.postId.toString())
     newPost(post, event.params.postId);
   } else {
@@ -251,9 +251,9 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
   
   if (previousBestReply) {
     let replyId = BigInt.fromI32(previousBestReply);
-    let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
+    let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString()) as Reply;
 
-    if (reply == null) {
+    if (!reply) {
       newReply(reply, event.params.postId, replyId);
     } else {
       reply.isBestReply = false;
@@ -264,9 +264,9 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
   }
 
   let replyId = BigInt.fromI32(event.params.replyId);
-  let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
+  let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString()) as Reply;
 
-  if (reply == null) {
+  if (!reply) {
     newReply(reply, event.params.postId, replyId);
   } 
   reply.isBestReply = true;
@@ -280,12 +280,12 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
     let replyId = BigInt.fromI32(event.params.replyId);
     let comment = Comment.load(event.params.postId.toString() + "-" + replyId.toString() + "-" +  commentId.toString());
 
-    if (comment == null) {
+    if (!comment) {
       comment = new Comment(event.params.postId.toString() + "-" + replyId.toString() + "-" +  commentId.toString());
       newComment(comment, event.params.postId, replyId, commentId);
     } else {
       let peeranhaComment = getPeeranha().getComment(event.params.postId, replyId.toI32(), commentId.toI32());
-      if (peeranhaComment == null) return;
+      if (!peeranhaComment) return;
       comment.rating = peeranhaComment.rating;
     }
     
@@ -294,12 +294,12 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
     let replyId = BigInt.fromI32(event.params.replyId);
     let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
 
-    if (reply == null) {
+    if (!reply) {
       reply = new Reply(event.params.postId.toString() + "-" + replyId.toString());
       newReply(reply, event.params.postId, replyId);
     } else {
       let peeranhaReply = getPeeranha().getReply(event.params.postId, replyId.toI32());
-      if (peeranhaReply == null) return;
+      if (!peeranhaReply) return;
       reply.rating = peeranhaReply.rating;
     }
 
@@ -307,12 +307,12 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
     updateUserRating(Address.fromString(reply.author));
   } else {
     let post = Post.load(event.params.postId.toString())
-    if (post == null) {
+    if (!post) {
       post = new Post(event.params.postId.toString())
       newPost(post, event.params.postId);
     } else {
       let peeranhaPost = getPeeranha().getPost(event.params.postId);
-      if (peeranhaPost == null) return;
+      if (!peeranhaPost) return;
       post.rating = peeranhaPost.rating;
     }
 
