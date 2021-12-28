@@ -15,8 +15,6 @@ export class User extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
-
-    this.set("rating", Value.fromI32(0));
   }
 
   save(): void {
@@ -212,9 +210,6 @@ export class Community extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
-
-    this.set("isFrozen", Value.fromBoolean(false));
-    this.set("postCount", Value.fromI32(0));
   }
 
   save(): void {
@@ -402,8 +397,6 @@ export class Tag extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
-
-    this.set("postCount", Value.fromI32(0));
   }
 
   save(): void {
@@ -532,16 +525,7 @@ export class Post extends Entity {
     super();
     this.set("id", Value.fromString(id));
 
-    this.set("postType", Value.fromI32(0));
     this.set("author", Value.fromString(""));
-    this.set("rating", Value.fromI32(0));
-    this.set("commentCount", Value.fromI32(0));
-    this.set("replyCount", Value.fromI32(0));
-    this.set("isDeleted", Value.fromBoolean(false));
-    this.set("officialReply", Value.fromI32(0));
-    this.set("bestReply", Value.fromI32(0));
-    this.set("isFirstReply", Value.fromBoolean(false));
-    this.set("isQuickReply", Value.fromBoolean(false));
   }
 
   save(): void {
@@ -837,14 +821,6 @@ export class Reply extends Entity {
     this.set("id", Value.fromString(id));
 
     this.set("author", Value.fromString(""));
-    this.set("rating", Value.fromI32(0));
-    this.set("parentReplyId", Value.fromI32(0));
-    this.set("commentCount", Value.fromI32(0));
-    this.set("isDeleted", Value.fromBoolean(false));
-    this.set("isOfficialReply", Value.fromBoolean(false));
-    this.set("isBestReply", Value.fromBoolean(false));
-    this.set("isFirstReply", Value.fromBoolean(false));
-    this.set("isQuickReply", Value.fromBoolean(false));
   }
 
   save(): void {
@@ -1080,9 +1056,6 @@ export class Comment extends Entity {
     this.set("id", Value.fromString(id));
 
     this.set("author", Value.fromString(""));
-    this.set("rating", Value.fromI32(0));
-    this.set("parentReplyId", Value.fromI32(0));
-    this.set("isDeleted", Value.fromBoolean(false));
   }
 
   save(): void {

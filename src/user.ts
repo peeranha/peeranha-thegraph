@@ -1,4 +1,4 @@
-import { ByteArray, Address, BigInt } from '@graphprotocol/graph-ts'
+import { ByteArray, Address } from '@graphprotocol/graph-ts'
 import { json, Bytes, ipfs } from '@graphprotocol/graph-ts'
 import { User } from '../generated/schema'
 import { getPeeranha } from './utils'
@@ -40,7 +40,7 @@ export function getIpfsUserData(user: User): void {
       if (displayName) {
         user.displayName = displayName.toString();
       }
-      
+
       let company = ipfsObj.get('company');
       if (company) {
         user.company = company.toString();
