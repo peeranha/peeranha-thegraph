@@ -6,9 +6,9 @@ dataSources:
     name: Peeranha
     network: goerli
     source:
-      address: "0x8156DDef53905b3c837a97D51D30750293021e50"
+      address: "0x30Ee2Ef530f3a052167928D9239528010900b4e6"
       abi: Peeranha
-      startBlock: 5701415 
+      startBlock: 6116022 
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -23,6 +23,10 @@ dataSources:
           handler: handleNewUser
         - event: UserUpdated(address)
           handler: handleUpdatedUser
+        - event: FollowedCommunity(address,uint32)
+          handler: handlerFollowCommunity
+        - event: UnfollowedCommunity(address,uint32)
+          handler: handlerUnfollowCommunity
         - event: CommunityCreated(address,uint32)
           handler: handleNewCommunity
         - event: CommunityUpdated(address,uint32)

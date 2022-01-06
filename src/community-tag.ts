@@ -10,11 +10,15 @@ export function newCommunity(community: Community | null, communityId: BigInt): 
   community.creationTime = peeranhaCommunity.timeCreate;
   community.isFrozen = peeranhaCommunity.isFrozen;
   community.postCount = 0;
+  community.deletedPostCount = 0;
+  community.replyCount = 0;
+  community.followingUsers = 0;
   addDataToCommunity(community, communityId);
   
   let peeranhaTags = getPeeranha().getTags(communityId);
   if (peeranhaTags.length == 0) return;
 
+  community.tagsCount = peeranhaTags.length;
   for (let i = 1; i <= peeranhaTags.length; i++) {
     let tag = new Tag(communityId.toString() + "-" + i.toString());
     tag.communityId = communityId;
@@ -74,6 +78,8 @@ function getIpfsCommunityData(community: Community | null): void {
 }
 
 export function newTag(tag: Tag | null, communityId: BigInt, tagId: BigInt): void {
+  tag.communityId = communityId;
+  
   addDataToTag(tag, communityId, tagId);
 }
 
@@ -112,4 +118,15 @@ function getIpfsTagData(tag: Tag | null): void {
       }
     }
   }
+}
+
+export function getCommunity(communityId: BigInt | null): Community | null {
+  let community = Community.load(communityId.toString())
+  if (community == null) {
+    let communityIdI32 = communityId.toI32();                     ///
+    let newCommunityId: BigInt = new BigInt(communityIdI32);      /// -_-
+    
+    newCommunity(community, newCommunityId);
+  }
+  return community
 }

@@ -32,6 +32,24 @@
         "type": "uint256"
       },
       {
+        "internalType": "enum PostLib.PostType",
+        "name": "postType",
+        "type": "uint8"
+      }
+    ],
+    "name": "changePostType",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
         "internalType": "uint16",
         "name": "replyId",
         "type": "uint16"
@@ -56,6 +74,34 @@
       }
     ],
     "name": "changeStatusOfficialReply",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint64",
+        "name": "maxCount",
+        "type": "uint64"
+      },
+      {
+        "internalType": "int64",
+        "name": "lowerBound",
+        "type": "int64"
+      },
+      {
+        "internalType": "string",
+        "name": "achievementURI",
+        "type": "string"
+      },
+      {
+        "internalType": "enum AchievementCommonLib.AchievementsType",
+        "name": "achievementsType",
+        "type": "uint8"
+      }
+    ],
+    "name": "configureNewAchievement",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -297,11 +343,6 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint32",
-        "name": "communityId",
-        "type": "uint32"
-      },
-      {
         "internalType": "bytes32",
         "name": "ipfsHash",
         "type": "bytes32"
@@ -364,6 +405,47 @@
     "name": "freezeCommunity",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint64",
+        "name": "achievementId",
+        "type": "uint64"
+      }
+    ],
+    "name": "getAchievementConfig",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "factCount",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint64",
+            "name": "maxCount",
+            "type": "uint64"
+          },
+          {
+            "internalType": "int64",
+            "name": "lowerBound",
+            "type": "int64"
+          },
+          {
+            "internalType": "enum AchievementCommonLib.AchievementsType",
+            "name": "achievementsType",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct AchievementLib.AchievementConfig",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -518,28 +600,6 @@
       {
         "components": [
           {
-            "internalType": "uint8[]",
-            "name": "tags",
-            "type": "uint8[]"
-          },
-          {
-            "components": [
-              {
-                "internalType": "bytes32",
-                "name": "hash",
-                "type": "bytes32"
-              },
-              {
-                "internalType": "bytes32",
-                "name": "hash2",
-                "type": "bytes32"
-              }
-            ],
-            "internalType": "struct IpfsLib.IpfsHash",
-            "name": "ipfsDoc",
-            "type": "tuple"
-          },
-          {
             "internalType": "enum PostLib.PostType",
             "name": "postType",
             "type": "uint8"
@@ -590,9 +650,36 @@
             "type": "uint16"
           },
           {
+            "internalType": "uint16",
+            "name": "deletedReplyCount",
+            "type": "uint16"
+          },
+          {
             "internalType": "bool",
             "name": "isDeleted",
             "type": "bool"
+          },
+          {
+            "internalType": "uint8[]",
+            "name": "tags",
+            "type": "uint8[]"
+          },
+          {
+            "components": [
+              {
+                "internalType": "bytes32",
+                "name": "hash",
+                "type": "bytes32"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "hash2",
+                "type": "bytes32"
+              }
+            ],
+            "internalType": "struct IpfsLib.IpfsHash",
+            "name": "ipfsDoc",
+            "type": "tuple"
           }
         ],
         "internalType": "struct PostLib.Post",
@@ -710,6 +797,40 @@
         "internalType": "struct PostLib.Reply",
         "name": "",
         "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint16",
+        "name": "replyId",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint8",
+        "name": "commentId",
+        "type": "uint8"
+      }
+    ],
+    "name": "getStatusHistory",
+    "outputs": [
+      {
+        "internalType": "int256",
+        "name": "",
+        "type": "int256"
       }
     ],
     "stateMutability": "view",
@@ -845,6 +966,11 @@
             "type": "tuple"
           },
           {
+            "internalType": "uint256",
+            "name": "creationTime",
+            "type": "uint256"
+          },
+          {
             "internalType": "int32",
             "name": "rating",
             "type": "int32"
@@ -855,14 +981,14 @@
             "type": "int32"
           },
           {
-            "internalType": "uint256",
-            "name": "creationTime",
-            "type": "uint256"
+            "internalType": "uint16",
+            "name": "energy",
+            "type": "uint16"
           },
           {
-            "internalType": "bytes32[]",
-            "name": "roles",
-            "type": "bytes32[]"
+            "internalType": "uint32",
+            "name": "lastUpdatePeriod",
+            "type": "uint32"
           },
           {
             "internalType": "uint32[]",
@@ -873,6 +999,11 @@
             "internalType": "uint16[]",
             "name": "rewardPeriods",
             "type": "uint16[]"
+          },
+          {
+            "internalType": "bytes32[]",
+            "name": "roles",
+            "type": "bytes32[]"
           }
         ],
         "internalType": "struct UserLib.User",
@@ -913,6 +1044,11 @@
             "type": "tuple"
           },
           {
+            "internalType": "uint256",
+            "name": "creationTime",
+            "type": "uint256"
+          },
+          {
             "internalType": "int32",
             "name": "rating",
             "type": "int32"
@@ -923,14 +1059,14 @@
             "type": "int32"
           },
           {
-            "internalType": "uint256",
-            "name": "creationTime",
-            "type": "uint256"
+            "internalType": "uint16",
+            "name": "energy",
+            "type": "uint16"
           },
           {
-            "internalType": "bytes32[]",
-            "name": "roles",
-            "type": "bytes32[]"
+            "internalType": "uint32",
+            "name": "lastUpdatePeriod",
+            "type": "uint32"
           },
           {
             "internalType": "uint32[]",
@@ -941,6 +1077,11 @@
             "internalType": "uint16[]",
             "name": "rewardPeriods",
             "type": "uint16[]"
+          },
+          {
+            "internalType": "bytes32[]",
+            "name": "roles",
+            "type": "bytes32[]"
           }
         ],
         "internalType": "struct UserLib.User",
@@ -1022,6 +1163,35 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint16",
+        "name": "replyId",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint8",
+        "name": "commentId",
+        "type": "uint8"
+      }
+    ],
+    "name": "getVotedUsers",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "",
+        "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "user",
         "type": "address"
@@ -1069,7 +1239,13 @@
     "type": "function"
   },
   {
-    "inputs": [],
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "peeranhaNFTContractAddress",
+        "type": "address"
+      }
+    ],
     "name": "initialize",
     "outputs": [],
     "stateMutability": "nonpayable",
@@ -1146,6 +1322,24 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "userAddr",
+        "type": "address"
+      },
+      {
+        "internalType": "uint16",
+        "name": "energy",
+        "type": "uint16"
+      }
+    ],
+    "name": "setEnergy",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint32",
         "name": "communityId",
         "type": "uint32"
@@ -1183,6 +1377,29 @@
       }
     ],
     "name": "updateCommunity",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      },
+      {
+        "internalType": "uint8",
+        "name": "tagId",
+        "type": "uint8"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "ipfsHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "updateTag",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1228,8 +1445,7 @@
     "stateMutability": "nonpayable",
     "type": "function"
   },
-
-
+  
   {
     "anonymous": false,
     "inputs": [
@@ -1295,7 +1511,31 @@
     "type": "event"
   },
   
-  
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum PostLib.PostType",
+        "name": "newPostType",
+        "type": "uint8"
+      }
+    ],
+    "name": "ChangePostType",
+    "type": "event"
+  },
   {
     "anonymous": false,
     "inputs": [
@@ -1620,6 +1860,67 @@
     "name": "StatusOfficialReplyChanged",
     "type": "event"
   },
+  {
+    "inputs": [
+      {
+        "internalType": "enum PostLib.PostType",
+        "name": "postType",
+        "type": "uint8"
+      }
+    ],
+    "name": "getTypesRating",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "int32",
+            "name": "upvotedPost",
+            "type": "int32"
+          },
+          {
+            "internalType": "int32",
+            "name": "downvotedPost",
+            "type": "int32"
+          },
+          {
+            "internalType": "int32",
+            "name": "upvotedReply",
+            "type": "int32"
+          },
+          {
+            "internalType": "int32",
+            "name": "downvotedReply",
+            "type": "int32"
+          },
+          {
+            "internalType": "int32",
+            "name": "firstReply",
+            "type": "int32"
+          },
+          {
+            "internalType": "int32",
+            "name": "quickReply",
+            "type": "int32"
+          },
+          {
+            "internalType": "int32",
+            "name": "acceptReply",
+            "type": "int32"
+          },
+          {
+            "internalType": "int32",
+            "name": "acceptedReply",
+            "type": "int32"
+          }
+        ],
+        "internalType": "struct VoteLib.StructRating",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
 
 
   {
@@ -1721,6 +2022,31 @@
       }
     ],
     "name": "TagCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "tagId",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      }
+    ],
+    "name": "TagUpdated",
     "type": "event"
   },
 

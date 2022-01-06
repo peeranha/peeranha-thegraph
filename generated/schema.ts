@@ -68,6 +68,24 @@ export class User extends Entity {
     }
   }
 
+  get postCount(): i32 {
+    let value = this.get("postCount");
+    return value.toI32();
+  }
+
+  set postCount(value: i32) {
+    this.set("postCount", Value.fromI32(value));
+  }
+
+  get replyCount(): i32 {
+    let value = this.get("replyCount");
+    return value.toI32();
+  }
+
+  set replyCount(value: i32) {
+    this.set("replyCount", Value.fromI32(value));
+  }
+
   get company(): string | null {
     let value = this.get("company");
     if (value === null || value.kind == ValueKind.NULL) {
@@ -201,6 +219,26 @@ export class User extends Entity {
       this.unset("ipfsHash2");
     } else {
       this.set("ipfsHash2", Value.fromBytes(value as Bytes));
+    }
+  }
+
+  get followedCommunities(): Array<string> | null {
+    let value = this.get("followedCommunities");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set followedCommunities(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("followedCommunities");
+    } else {
+      this.set(
+        "followedCommunities",
+        Value.fromStringArray(value as Array<string>)
+      );
     }
   }
 }
@@ -353,6 +391,42 @@ export class Community extends Entity {
 
   set postCount(value: i32) {
     this.set("postCount", Value.fromI32(value));
+  }
+
+  get deletedPostCount(): i32 {
+    let value = this.get("deletedPostCount");
+    return value.toI32();
+  }
+
+  set deletedPostCount(value: i32) {
+    this.set("deletedPostCount", Value.fromI32(value));
+  }
+
+  get replyCount(): i32 {
+    let value = this.get("replyCount");
+    return value.toI32();
+  }
+
+  set replyCount(value: i32) {
+    this.set("replyCount", Value.fromI32(value));
+  }
+
+  get tagsCount(): i32 {
+    let value = this.get("tagsCount");
+    return value.toI32();
+  }
+
+  set tagsCount(value: i32) {
+    this.set("tagsCount", Value.fromI32(value));
+  }
+
+  get followingUsers(): i32 {
+    let value = this.get("followingUsers");
+    return value.toI32();
+  }
+
+  set followingUsers(value: i32) {
+    this.set("followingUsers", Value.fromI32(value));
   }
 
   get ipfsHash(): Bytes | null {

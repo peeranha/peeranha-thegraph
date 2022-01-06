@@ -8,6 +8,9 @@ export function newUser(user: User | null, userAddress: Address): void {
   if (peeranhaUser == null) return;
 
   user.creationTime = peeranhaUser.creationTime;
+  user.postCount = 0;
+  user.replyCount = 0;
+  user.followedCommunities = [];
   addDataToUser(user, userAddress);
 }
 
@@ -77,4 +80,17 @@ export function updateUserRating(userAddress: Address): void {
     user.rating = peeranhaUser.rating;
     user.save();
   }
+}
+
+export function getUser(userAddress: Address): User | null {
+  let user = User.load(userAddress.toHex());
+
+  if (user == null) {
+    // let communityIdI32 = communityId.toI32();                     ///
+    // let newCommunityId: BigInt = new BigInt(communityIdI32);      /// -_-
+    
+    newUser(user, userAddress);
+  }
+
+  return user
 }

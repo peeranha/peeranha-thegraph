@@ -2,6 +2,8 @@ type User @entity {
   id: ID!
   rating: Int
   displayName: String
+  postCount: Int
+  replyCount: Int
   company: String
   position: String
   location: String
@@ -10,6 +12,7 @@ type User @entity {
   creationTime: BigInt
   ipfsHash: Bytes
   ipfsHash2: Bytes
+  followedCommunities: [Community!]
 }
 
 type Community @entity {
@@ -22,6 +25,10 @@ type Community @entity {
   isFrozen: Boolean
   creationTime: BigInt
   postCount: Int
+  deletedPostCount: Int
+  replyCount: Int
+  tagsCount: Int
+  followingUsers: Int
   ipfsHash: Bytes
   ipfsHash2: Bytes
 }

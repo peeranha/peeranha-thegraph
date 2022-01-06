@@ -1,5 +1,5 @@
 import { Address, BigInt, Bytes } from '@graphprotocol/graph-ts'
-import { UserCreated, UserUpdated,
+import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity,
   CommunityCreated, CommunityUpdated, CommunityFrozen, CommunityUnfrozen,
   TagCreated,
   PostCreated, PostEdited, PostDeleted,
@@ -11,10 +11,10 @@ import { UserCreated, UserUpdated,
 import { User, Community, Tag, Post, Reply, Comment } from '../generated/schema'
 
 import { getPeeranha } from './utils'
-import { newPost, addDataToPost,
-  newReply, addDataToReply, 
+import { newPost, addDataToPost, deletePost,
+  newReply, addDataToReply, deleteReply,
   newComment, addDataToComment } from './post'
-import { newCommunity, addDataToCommunity, newTag } from './community-tag'
+import { newCommunity, addDataToCommunity, newTag, getCommunity } from './community-tag'
 import { newUser, addDataToUser, updateUserRating } from './user'
   
 
@@ -39,12 +39,31 @@ export function handleUpdatedUser(event: UserUpdated): void {
   user.save();
 }
 
+export function handlerFollowCommunity(event: FollowedCommunity): void {
+  // let user = new User(event.params.userAddress.toHex());
+  
+  // let followedCommunities = user.followedCommunities
+  // followedCommunities.push("1")
+  // followedCommunities.push("2")
+  // user.followedCommunities = followedCommunities
+
+  // user.save();
+}
+
+export function handlerUnfollowCommunity(event: UnfollowedCommunity): void {
+  // let user = new User(event.params.userAddress.toHex());
+  
+  // let followedCommunities = user.followedCommunities
+  // followedCommunities.push("1")
+  // followedCommunities.push("2")
+  // user.followedCommunities = followedCommunities
+
+  // user.save();
+}
+
 export function handleNewCommunity(event: CommunityCreated): void {
   let communityiD = event.params.id; 
   let community = new Community(communityiD.toString());
-
-  let peeranhaCommunity = getPeeranha().getCommunity(communityiD);
-  if (peeranhaCommunity == null) return;
 
   newCommunity(community, communityiD);
   community.save(); 
@@ -85,14 +104,10 @@ export function handleUnfrozenCommunity(event: CommunityUnfrozen): void {
 }
 
 export function handleNewTag(event: TagCreated): void {
-  let community = Community.load(event.params.communityId.toString())
-  if (community == null) {
-    newCommunity(community, event.params.communityId);
-    community.save();
-  }
-
+  let community = getCommunity(event.params.communityId);
+  community.tagsCount++;
+  community.save();
   let tag = new Tag(event.params.communityId.toString() + "-" + BigInt.fromI32(event.params.tagId).toString());
-  tag.communityId = event.params.communityId;
   
   newTag(tag, event.params.communityId, BigInt.fromI32(event.params.tagId));
   tag.save(); 
@@ -102,7 +117,8 @@ export function handleNewPost(event: PostCreated): void {
   let post = new Post(event.params.postId.toString());
 
   newPost(post, event.params.postId);
-  post.save(); 
+  post.save();
+
 }
 
 export function handleEditedPost(event: PostEdited): void {
@@ -121,18 +137,8 @@ export function handleDeletedPost(event: PostDeleted): void {
   let post = Post.load(event.params.postId.toString());
   if (post == null) return;
 
-  post.isDeleted = true;
+  deletePost(post, event.params.postId);
   post.save();
-  updateUserRating(Address.fromString(post.author));
-
-  for (let i = 1; i <= post.replyCount; i++) {
-    let reply = Reply.load(event.params.postId.toString() + "-" + i.toString());
-    if (
-    (reply != null && !reply.isDeleted) && 
-    (reply.isFirstReply || reply.isQuickReply || reply.rating > 0)) {
-      updateUserRating(Address.fromString(reply.author));
-    }
-  }
 }
 
 export function handleNewReply(event: ReplyCreated): void {
@@ -162,10 +168,8 @@ export function handleDeletedReply(event: ReplyDeleted): void {
   let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString());
   if (reply == null) return;
 
-  reply.isDeleted = true;
+  deleteReply(reply, event.params.postId);
   reply.save();
-
-  updateUserRating(Address.fromString(reply.author));
 }
 
 export function handleNewComment(event: CommentCreated): void {
@@ -250,28 +254,31 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
   post.save();
   
   if (previousBestReply) {
-    let replyId = BigInt.fromI32(previousBestReply);
+    let previousReplyId = BigInt.fromI32(previousBestReply);
+    let previousReply = Reply.load(event.params.postId.toString() + "-" + previousReplyId.toString())
+
+    if (previousReply == null) {
+      newReply(previousReply, event.params.postId, previousReplyId);
+    } else {
+      previousReply.isBestReply = false;
+    }
+
+    updateUserRating(Address.fromString(previousReply.author));
+    previousReply.save(); 
+  }
+
+  if (event.params.replyId != 0) {    // fix  (if reply does not exist -> getReply() call erray)
+    let replyId = BigInt.fromI32(event.params.replyId);
     let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
 
     if (reply == null) {
       newReply(reply, event.params.postId, replyId);
-    } else {
-      reply.isBestReply = false;
     }
 
+    reply.isBestReply = true;
     updateUserRating(Address.fromString(reply.author));
-    reply.save(); 
+    reply.save();
   }
-
-  let replyId = BigInt.fromI32(event.params.replyId);
-  let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
-
-  if (reply == null) {
-    newReply(reply, event.params.postId, replyId);
-  } 
-  reply.isBestReply = true;
-  updateUserRating(Address.fromString(reply.author));
-  reply.save();
 }
 
 export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move this in another function with edit

@@ -1,8 +1,10 @@
 import { ByteArray } from '@graphprotocol/graph-ts'
-import { json, Bytes, ipfs, BigInt } from '@graphprotocol/graph-ts'
+import { json, Bytes, ipfs, BigInt, Address } from '@graphprotocol/graph-ts'
 import { Post, Reply, Comment, Community, Tag, User } from '../generated/schema'
 import { getPeeranha } from './utils'
-import { updateUserRating } from './user'
+import { updateUserRating, getUser } from './user'
+import { newCommunity, getCommunity } from './community-tag'
+
 
 export function newPost(post: Post | null, postId: BigInt): void {
   let peeranhaPost = getPeeranha().getPost(postId);
@@ -16,15 +18,17 @@ export function newPost(post: Post | null, postId: BigInt): void {
   post.replyCount = peeranhaPost.replyCount;
   post.officialReply = peeranhaPost.officialReply;
   post.bestReply = peeranhaPost.bestReply;
-  post.isDeleted = peeranhaPost.isDeleted;
+  post.isDeleted = false;
   post.replies = [];
   post.comments = [];
 
-  let community = Community.load(peeranhaPost.communityId.toString())
-  if (community != null) {
-    community.postCount++;
-    community.save();
-  }
+  let community = getCommunity(post.communityId);
+  community.postCount++;
+  community.save();
+
+  let user = getUser(peeranhaPost.author);
+  user.postCount++;
+  user.save();
 
   addDataToPost(post, postId);
 }
@@ -94,6 +98,36 @@ function getIpfsPostData(post: Post | null): void {
   }
 }
 
+export function deletePost(post: Post | null, postId: BigInt): void {
+  post.isDeleted = true;
+
+  updateUserRating(Address.fromString(post.author));
+
+  let community = getCommunity(post.communityId);
+
+  for (let i = 1; i <= post.replyCount; i++) {
+    let reply = Reply.load(postId.toString() + "-" + i.toString());
+    if (
+    (reply != null && !reply.isDeleted) && 
+    (reply.isFirstReply || reply.isQuickReply || reply.rating > 0)) {
+      updateUserRating(Address.fromString(reply.author));
+      
+      let userReply = getUser(Address.fromString(reply.author));
+      userReply.postCount--;
+      userReply.save();
+      
+      community.replyCount--;
+    }
+  }
+  community.deletedPostCount++;
+  community.postCount--;
+  community.save();
+
+  let userPost = getUser(Address.fromString(post.author));
+  userPost.postCount--;
+  userPost.save();
+}
+
 export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt): void {
   let peeranhaReply = getPeeranha().getReply(postId, replyId.toI32());
   if (peeranhaReply == null) return;
@@ -119,8 +153,16 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt): 
       post.replies = replies
 
       post.save();
+
+      let community = getCommunity(post.communityId);
+      community.replyCount++;
+      community.save();
     }
   }
+
+  let user = getUser(Address.fromString(reply.author));
+  user.replyCount++;
+  user.save();
 
   if (peeranhaReply.isFirstReply || peeranhaReply.isQuickReply) {
     updateUserRating(peeranhaReply.author);
@@ -158,6 +200,25 @@ function getIpfsReplyData(reply: Reply | null): void {
       }
     }
   }
+}
+
+export function deleteReply(reply: Reply | null, postId: BigInt): void {
+  reply.isDeleted = true;
+
+  updateUserRating(Address.fromString(reply.author));
+
+  if (reply.parentReplyId == 0) {
+    let post = Post.load(postId.toString())
+    if (post != null) {
+      let community = getCommunity(post.communityId);
+      community.replyCount--;
+      community.save();
+    }
+  }
+
+  let user = getUser(Address.fromString(reply.author));
+  user.replyCount--;
+  user.save();
 }
 
 export function newComment(comment: Comment | null, postId: BigInt, parentReplyId: BigInt, commentId: BigInt): void {
