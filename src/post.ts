@@ -123,6 +123,18 @@ export function deletePost(post: Post | null, postId: BigInt): void {
   community.postCount--;
   community.save();
 
+  // for (let i = 0; i < post.tags.length; i++) {
+  //   let tags = post.tags;
+  //   let tagID = tags[i];
+  //   let tag = Tag.load(post.communityId.toString() + "-" + tagID.toString());
+  //   if (tag != null) {
+  //     tag.deletedPostCount++;
+  //     tag.postCount--;
+  //     tag.save();
+  //   }
+  // }
+  
+
   let userPost = getUser(Address.fromString(post.author));
   userPost.postCount--;
   userPost.save();

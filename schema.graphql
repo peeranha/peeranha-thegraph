@@ -39,6 +39,7 @@ type Tag @entity {
   name: String
   description: String
   postCount: Int
+  deletedPostCount: Int
   ipfsHash: Bytes
   ipfsHash2: Bytes
 }
