@@ -312,6 +312,7 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
 
     reply.save();
     updateUserRating(Address.fromString(reply.author));
+    updateUserRating(event.params.user);
   } else {
     let post = Post.load(event.params.postId.toString())
     if (post == null) {
@@ -325,5 +326,6 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
 
     post.save();
     updateUserRating(Address.fromString(post.author));
+    updateUserRating(event.params.user);
   }
 }
