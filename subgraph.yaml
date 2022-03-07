@@ -63,3 +63,27 @@ dataSources:
           handler: handlerForumItemVoted
 
       file: ./src/mapping.ts
+
+  - kind: ethereum/contract
+    name: PeeranhaNFT
+    network: goerli
+    source:
+      address: "0x924F27e9f4A908F179298449A0b07aB5E3042d87"
+      abi: PeeranhaNFT
+      startBlock: 6461248
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - PeeranhaNFT
+      abis:
+        - name: PeeranhaNFT
+          file: ./abis/PeeranhaNFT.json
+      eventHandlers:
+        - event: ConfigureNewAchievementNFT(uint64)
+          handler: handleConfigureNewAchievement
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransferAchievement
+
+      file: ./src/mapping.ts

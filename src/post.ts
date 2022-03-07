@@ -62,9 +62,9 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
           tag.save();
         }
       }
-    }
+   }
   }
-
+  
   post.tags = peeranhaPost.tags;
   post.ipfsHash = peeranhaPost.ipfsDoc.hash;
   post.ipfsHash2 = peeranhaPost.ipfsDoc.hash2;

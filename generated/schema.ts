@@ -241,6 +241,23 @@ export class User extends Entity {
       );
     }
   }
+
+  get achivements(): Array<string> | null {
+    let value = this.get("achivements");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set achivements(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("achivements");
+    } else {
+      this.set("achivements", Value.fromStringArray(value as Array<string>));
+    }
+  }
 }
 
 export class Community extends Entity {
@@ -1286,5 +1303,96 @@ export class Comment extends Entity {
     } else {
       this.set("properties", Value.fromBytesArray(value as Array<Bytes>));
     }
+  }
+}
+
+export class Achivement extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Achivement entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Achivement entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Achivement", id.toString(), this);
+  }
+
+  static load(id: string): Achivement | null {
+    return store.get("Achivement", id) as Achivement | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get factCount(): BigInt | null {
+    let value = this.get("factCount");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set factCount(value: BigInt | null) {
+    if (value === null) {
+      this.unset("factCount");
+    } else {
+      this.set("factCount", Value.fromBigInt(value as BigInt));
+    }
+  }
+
+  get maxCount(): BigInt | null {
+    let value = this.get("maxCount");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set maxCount(value: BigInt | null) {
+    if (value === null) {
+      this.unset("maxCount");
+    } else {
+      this.set("maxCount", Value.fromBigInt(value as BigInt));
+    }
+  }
+
+  get achievementURI(): string | null {
+    let value = this.get("achievementURI");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set achievementURI(value: string | null) {
+    if (value === null) {
+      this.unset("achievementURI");
+    } else {
+      this.set("achievementURI", Value.fromString(value as string));
+    }
+  }
+
+  get achievementsType(): i32 {
+    let value = this.get("achievementsType");
+    return value.toI32();
+  }
+
+  set achievementsType(value: i32) {
+    this.set("achievementsType", Value.fromI32(value));
   }
 }

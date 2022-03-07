@@ -1,4 +1,4 @@
-import { Address, BigInt, Bytes } from '@graphprotocol/graph-ts'
+import { Address, BigInt, Bytes, log } from '@graphprotocol/graph-ts'
 import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity,
   CommunityCreated, CommunityUpdated, CommunityFrozen, CommunityUnfrozen,
   TagCreated,
@@ -8,7 +8,7 @@ import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity,
   ForumItemVoted,
   StatusOfficialReplyChanged, StatusBestReplyChanged
 } from '../generated/Peeranha/Peeranha'
-import { User, Community, Tag, Post, Reply, Comment } from '../generated/schema'
+import { User, Community, Tag, Post, Reply, Comment, Achivement } from '../generated/schema'
 
 import { getPeeranha } from './utils'
 import { newPost, addDataToPost, deletePost,
@@ -16,7 +16,19 @@ import { newPost, addDataToPost, deletePost,
   newComment, addDataToComment } from './post'
 import { newCommunity, addDataToCommunity, newTag, getCommunity } from './community-tag'
 import { newUser, addDataToUser, updateUserRating } from './user'
+import { giveAchievement, newAchievement } from './achievement'
+import { ConfigureNewAchievementNFT, Transfer } from '../generated/PeeranhaNFT/PeeranhaNFT'
   
+export function handleConfigureNewAchievement(event: ConfigureNewAchievementNFT): void {
+  let achievement = new Achivement(event.params.achievementId.toString());
+  newAchievement(achievement, event.params.achievementId);
+
+  achievement.save();  
+}
+
+export function handleTransferAchievement(event: Transfer): void {
+  giveAchievement(event.params.tokenId.toString(), event.params.to);
+}
 
 
 export function handleNewUser(event: UserCreated): void {
