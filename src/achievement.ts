@@ -1,6 +1,6 @@
 import { Achivement } from "../generated/schema";
-import { Address, BigInt, log } from '@graphprotocol/graph-ts'
-import { getPeeranha, getPeeranhaNFT } from "./utils";
+import { Address, BigInt } from '@graphprotocol/graph-ts'
+import { getPeeranhaNFT } from "./utils";
 import { getUser } from "./user";
 
 export function newAchievement(achievement: Achivement, achievementId: BigInt): void {
@@ -21,6 +21,6 @@ export function giveAchievement(achievementId: string, userAddress: Address): vo
     let achivements = user.achivements
     achivements.push(achievementId);
     user.achivements = achivements;
-    
+
     user.save();
 }
