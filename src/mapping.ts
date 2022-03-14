@@ -1,4 +1,4 @@
-import { Address, BigInt } from '@graphprotocol/graph-ts'
+import { Address, BigInt, log } from '@graphprotocol/graph-ts'
 import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity,
   CommunityCreated, CommunityUpdated, CommunityFrozen, CommunityUnfrozen,
   TagCreated,
@@ -8,7 +8,7 @@ import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity,
   ForumItemVoted,
   StatusOfficialReplyChanged, StatusBestReplyChanged
 } from '../generated/Peeranha/Peeranha'
-import { User, Community, Tag, Post, Reply, Comment, Achivement } from '../generated/schema'
+import { User, Community, Tag, Post, Reply, Comment, Achievement } from '../generated/schema'
 
 import { getPeeranha } from './utils'
 import { newPost, addDataToPost, deletePost,
@@ -16,18 +16,33 @@ import { newPost, addDataToPost, deletePost,
   newComment, addDataToComment } from './post'
 import { newCommunity, addDataToCommunity, newTag, getCommunity } from './community-tag'
 import { newUser, addDataToUser, updateUserRating } from './user'
-import { giveAchievement, newAchievement } from './achievement'
+import { addDataToAchievement, giveAchievement, newAchievement } from './achievement'
 import { ConfigureNewAchievementNFT, Transfer } from '../generated/PeeranhaNFT/PeeranhaNFT'
+
+const POOL_NFT = 1000000;
   
 export function handleConfigureNewAchievement(event: ConfigureNewAchievementNFT): void {
-  let achievement = new Achivement(event.params.achievementId.toString());
+  if (event.params.achievementId < BigInt.fromI32(13)) {
+    return;
+  }
+  let achievement = new Achievement(event.params.achievementId.toString());
   newAchievement(achievement, event.params.achievementId);
 
   achievement.save();  
 }
 
 export function handleTransferAchievement(event: Transfer): void {
-  giveAchievement(event.params.tokenId.toString(), event.params.to);
+  let id : BigInt = (event.params.tokenId / BigInt.fromI32(POOL_NFT)) + BigInt.fromI32(1);
+  log.error('User: {}, ID txx: {}, Achievement Id txx: {}', [event.params.to.toHex(), event.params.tokenId.toString(), id.toString()])
+  let achievement = Achievement.load(id.toString());
+
+  if (achievement != null) {
+    addDataToAchievement(achievement, id);
+
+    giveAchievement(id, event.params.to);
+
+    achievement.save();  
+  }
 }
 
 

@@ -244,7 +244,7 @@ export function newComment(comment: Comment | null, postId: BigInt, parentReplyI
   comment.parentReplyId = parentReplyId.toI32();  
   comment.isDeleted = false;
 
-  const commentFullId = postId.toString() + "-" + parentReplyId.toString() +  "-" + commentId.toString();
+  let commentFullId = postId.toString() + "-" + parentReplyId.toString() +  "-" + commentId.toString();
   if (parentReplyId == BigInt.fromI32(0)) {
     let post = Post.load(postId.toString());
     if (post != null ) {    // init post

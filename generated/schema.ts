@@ -242,8 +242,8 @@ export class User extends Entity {
     }
   }
 
-  get achivements(): Array<string> | null {
-    let value = this.get("achivements");
+  get achievements(): Array<string> | null {
+    let value = this.get("achievements");
     if (value === null || value.kind == ValueKind.NULL) {
       return null;
     } else {
@@ -251,11 +251,11 @@ export class User extends Entity {
     }
   }
 
-  set achivements(value: Array<string> | null) {
+  set achievements(value: Array<string> | null) {
     if (value === null) {
-      this.unset("achivements");
+      this.unset("achievements");
     } else {
-      this.set("achivements", Value.fromStringArray(value as Array<string>));
+      this.set("achievements", Value.fromStringArray(value as Array<string>));
     }
   }
 }
@@ -1306,7 +1306,7 @@ export class Comment extends Entity {
   }
 }
 
-export class Achivement extends Entity {
+export class Achievement extends Entity {
   constructor(id: string) {
     super();
     this.set("id", Value.fromString(id));
@@ -1314,17 +1314,17 @@ export class Achivement extends Entity {
 
   save(): void {
     let id = this.get("id");
-    assert(id !== null, "Cannot save Achivement entity without an ID");
+    assert(id !== null, "Cannot save Achievement entity without an ID");
     assert(
       id.kind == ValueKind.STRING,
-      "Cannot save Achivement entity with non-string ID. " +
+      "Cannot save Achievement entity with non-string ID. " +
         'Considering using .toHex() to convert the "id" to a string.'
     );
-    store.set("Achivement", id.toString(), this);
+    store.set("Achievement", id.toString(), this);
   }
 
-  static load(id: string): Achivement | null {
-    return store.get("Achivement", id) as Achivement | null;
+  static load(id: string): Achievement | null {
+    return store.get("Achievement", id) as Achievement | null;
   }
 
   get id(): string {
@@ -1394,5 +1394,73 @@ export class Achivement extends Entity {
 
   set achievementsType(value: i32) {
     this.set("achievementsType", Value.fromI32(value));
+  }
+
+  get name(): string | null {
+    let value = this.get("name");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set name(value: string | null) {
+    if (value === null) {
+      this.unset("name");
+    } else {
+      this.set("name", Value.fromString(value as string));
+    }
+  }
+
+  get description(): string | null {
+    let value = this.get("description");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set description(value: string | null) {
+    if (value === null) {
+      this.unset("description");
+    } else {
+      this.set("description", Value.fromString(value as string));
+    }
+  }
+
+  get image(): string | null {
+    let value = this.get("image");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set image(value: string | null) {
+    if (value === null) {
+      this.unset("image");
+    } else {
+      this.set("image", Value.fromString(value as string));
+    }
+  }
+
+  get attributes(): string | null {
+    let value = this.get("attributes");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set attributes(value: string | null) {
+    if (value === null) {
+      this.unset("attributes");
+    } else {
+      this.set("attributes", Value.fromString(value as string));
+    }
   }
 }

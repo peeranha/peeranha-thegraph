@@ -13,7 +13,7 @@ type User @entity {
   ipfsHash: Bytes
   ipfsHash2: Bytes
   followedCommunities: [Community!]
-  achivements: [Achivement!]
+  achievements: [Achievement!]
 }
 
 type Community @entity {
@@ -126,10 +126,14 @@ type Comment @entity {
   properties: [Bytes!]
 }
 
-type Achivement @entity {
+type Achievement @entity {
   id: ID!
   factCount: BigInt
   maxCount: BigInt
   achievementURI: String
   achievementsType: Int
+  name: String
+  description: String
+  image: String
+  attributes: String
 }

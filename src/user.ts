@@ -11,7 +11,7 @@ export function newUser(user: User | null, userAddress: Address): void {
   user.postCount = 0;
   user.replyCount = 0;
   user.followedCommunities = [];
-  user.achivements = [];
+  user.achievements = [];
   addDataToUser(user, userAddress);
 }
 
