@@ -47,6 +47,26 @@ export function handleTransferAchievement(event: Transfer): void {
 
 
 export function handleNewUser(event: UserCreated): void {
+  if (event.params.userAddress.toHex() == "0xeed58801f34f32695fc43f1b61c74cb7cea70ee0") {
+    return;
+  }
+  // if (event.params.userAddress.toHex() == "0xed4626046dd913ae11fb4b04b4bd1caec5867645") {
+  //   return;
+  // }
+  // if (event.params.userAddress.toHex() == "0xf1fef67cdeb0d2af32f125ab8ffc85ab2cec0881") {
+  //   return;
+  // }
+  // if (event.params.userAddress.toHex() == "0x094a767eec1aa031953a6f5946ee07c9afe469c8") {
+  //   return;
+  // }
+  if (event.params.userAddress.toHex() == "0x47c7f69e98451a27e6515b5b85d7ea1562a8e903") {
+    return;
+  }
+  if (event.params.userAddress.toHex() == "0xdb3dec65f2dfd5bd93f60738f6b0876125c43c2e") {
+    return;
+  }
+  let a = event.params.userAddress.toHex() === "0xf1fef67cdeb0d2af32f125ab8ffc85ab2cec0881" ? "true" : "false";
+  log.error("userIdFFF {} ffff {}", [event.params.userAddress.toHex(), a])
   let user = new User(event.params.userAddress.toHex());
   newUser(user, event.params.userAddress);
 
@@ -54,6 +74,25 @@ export function handleNewUser(event: UserCreated): void {
 }
 
 export function handleUpdatedUser(event: UserUpdated): void {
+  if (event.params.userAddress.toHex() == "0xeed58801f34f32695fc43f1b61c74cb7cea70ee0") {
+    return;
+  }
+  // if (event.params.userAddress.toHex() == "0xed4626046dd913ae11fb4b04b4bd1caec5867645") {
+  //   return;
+  // }
+  // if (event.params.userAddress.toHex() == "0xf1fef67cdeb0d2af32f125ab8ffc85ab2cec0881") {
+  //   return;
+  // }
+  // if (event.params.userAddress.toHex() == "0x094a767eec1aa031953a6f5946ee07c9afe469c8") {
+  //   return;
+  // }
+  if (event.params.userAddress.toHex() == "0x47c7f69e98451a27e6515b5b85d7ea1562a8e903") {
+    return;
+  }
+  if (event.params.userAddress.toHex() == "0xdb3dec65f2dfd5bd93f60738f6b0876125c43c2e") {
+    return;
+  }
+  log.error("userIdFFF {}", [event.params.userAddress.toHex()])
   let id = event.params.userAddress.toHex()
   let user = User.load(id)
   if (user == null) {

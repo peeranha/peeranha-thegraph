@@ -1,6 +1,5 @@
 type User @entity {
   id: ID!
-  rating: Int
   displayName: String
   postCount: Int
   replyCount: Int

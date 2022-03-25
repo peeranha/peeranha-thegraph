@@ -1,4 +1,4 @@
-import { ByteArray, Address } from '@graphprotocol/graph-ts'
+import { ByteArray, Address, log } from '@graphprotocol/graph-ts'
 import { json, Bytes, ipfs } from '@graphprotocol/graph-ts'
 import { User } from '../generated/schema'
 import { getPeeranha } from './utils'
@@ -19,7 +19,7 @@ export function addDataToUser(user: User | null, userAddress: Address): void {
   let peeranhaUser = getPeeranha().getUserByAddress(userAddress);
   if (peeranhaUser == null) return;
 
-  user.rating = peeranhaUser.rating;
+  // user.rating = peeranhaUser.rating;
   user.ipfsHash = peeranhaUser.ipfsDoc.hash;
   user.ipfsHash2 = peeranhaUser.ipfsDoc.hash2;
 
@@ -73,14 +73,14 @@ export function getIpfsUserData(user: User | null): void {
 }
 
 export function updateUserRating(userAddress: Address): void {
-  let peeranhaUser = getPeeranha().getUserByAddress(userAddress);
-  if (peeranhaUser == null) return;
+  // let peeranhaUser = getPeeranha().getUserByAddress(userAddress);
+  // if (peeranhaUser == null) return;
 
-  let user = User.load(userAddress.toHex());
-  if (user != null) {
-    user.rating = peeranhaUser.rating;
-    user.save();
-  }
+  // let user = User.load(userAddress.toHex());
+  // if (user != null) {
+  //   // user.rating = peeranhaUser.rating;
+  //   user.save();
+  // }
 }
 
 export function getUser(userAddress: Address): User | null {

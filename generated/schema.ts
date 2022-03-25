@@ -42,15 +42,6 @@ export class User extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get rating(): i32 {
-    let value = this.get("rating");
-    return value.toI32();
-  }
-
-  set rating(value: i32) {
-    this.set("rating", Value.fromI32(value));
-  }
-
   get displayName(): string | null {
     let value = this.get("displayName");
     if (value === null || value.kind == ValueKind.NULL) {

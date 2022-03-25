@@ -4,9 +4,9 @@ import { PeeranhaNFT } from '../generated/PeeranhaNFT/PeeranhaNFT'
 
 
 export function getPeeranha(): Peeranha {
-  return Peeranha.bind(Address.fromString("0x30Ee2Ef530f3a052167928D9239528010900b4e6"));
+  return Peeranha.bind(Address.fromString("0x70474A16BcD20c5A204974A2CaF875d4169F40F9"));
 }
 
 export function getPeeranhaNFT(): PeeranhaNFT {
-  return PeeranhaNFT.bind(Address.fromString("0x924F27e9f4A908F179298449A0b07aB5E3042d87"));
+  return PeeranhaNFT.bind(Address.fromString("0xcd73A3f09B3FB4e7C27C9379ce5737269bbEb8D9"));
 }
