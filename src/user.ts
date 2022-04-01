@@ -19,23 +19,8 @@ export function newUser(user: User | null, userAddress: Address): void {
 
 export function addDataToUser(user: User | null, userAddress: Address): void {
   let peeranhaUser = getPeeranha().getUserByAddress(userAddress);
-  // let communitiesCount = getPeeranha().getCommunitiesCount();
-  // let ratings = user.ratings;
   if (peeranhaUser == null) return;
-
-  // for (let communityId = 1; communityId <= communitiesCount.toI32(); communityId++) { 
-  //   let id = communityId.toString() + ' ' + userAddress.toHex();
-  //   let userComunityRating = new UserCommunityRating(id);
-  //   userComunityRating.communityId = communityId;
-   
-  //   let rating = getPeeranha().getUserRating(userAddress, BigInt.fromI32(userComunityRating.communityId));
-  //   userComunityRating.rating = rating;
-  //   userComunityRating.userId = userAddress.toHex();
-  //   userComunityRating.save();
-  //   ratings.push(id);
-  // }
-
-  // user.ratings = ratings;
+  
   user.ipfsHash = peeranhaUser.ipfsDoc.hash;
   user.ipfsHash2 = peeranhaUser.ipfsDoc.hash2;
 
