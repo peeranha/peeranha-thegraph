@@ -42,6 +42,23 @@ export class User extends Entity {
     this.set("id", Value.fromString(value));
   }
 
+  get ratings(): Array<string> | null {
+    let value = this.get("ratings");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set ratings(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("ratings");
+    } else {
+      this.set("ratings", Value.fromStringArray(value as Array<string>));
+    }
+  }
+
   get displayName(): string | null {
     let value = this.get("displayName");
     if (value === null || value.kind == ValueKind.NULL) {
@@ -247,6 +264,72 @@ export class User extends Entity {
       this.unset("achievements");
     } else {
       this.set("achievements", Value.fromStringArray(value as Array<string>));
+    }
+  }
+}
+
+export class UserCommunityRating extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save UserCommunityRating entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save UserCommunityRating entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("UserCommunityRating", id.toString(), this);
+  }
+
+  static load(id: string): UserCommunityRating | null {
+    return store.get("UserCommunityRating", id) as UserCommunityRating | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get communityId(): i32 {
+    let value = this.get("communityId");
+    return value.toI32();
+  }
+
+  set communityId(value: i32) {
+    this.set("communityId", Value.fromI32(value));
+  }
+
+  get rating(): i32 {
+    let value = this.get("rating");
+    return value.toI32();
+  }
+
+  set rating(value: i32) {
+    this.set("rating", Value.fromI32(value));
+  }
+
+  get user(): string | null {
+    let value = this.get("user");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set user(value: string | null) {
+    if (value === null) {
+      this.unset("user");
+    } else {
+      this.set("user", Value.fromString(value as string));
     }
   }
 }
@@ -731,21 +814,13 @@ export class Post extends Entity {
     }
   }
 
-  get communityId(): BigInt | null {
+  get communityId(): BigInt {
     let value = this.get("communityId");
-    if (value === null || value.kind == ValueKind.NULL) {
-      return null;
-    } else {
-      return value.toBigInt();
-    }
+    return value.toBigInt();
   }
 
-  set communityId(value: BigInt | null) {
-    if (value === null) {
-      this.unset("communityId");
-    } else {
-      this.set("communityId", Value.fromBigInt(value as BigInt));
-    }
+  set communityId(value: BigInt) {
+    this.set("communityId", Value.fromBigInt(value));
   }
 
   get title(): string | null {

@@ -1,5 +1,6 @@
 type User @entity {
   id: ID!
+  ratings: [UserCommunityRating!]
   displayName: String
   postCount: Int
   replyCount: Int
@@ -14,6 +15,13 @@ type User @entity {
   followedCommunities: [Community!]
   achievements: [Achievement!]
 }
+
+type UserCommunityRating @entity {
+  id: ID!
+  communityId: Int
+  rating: Int
+  user: User
+} 
 
 type Community @entity {
   id: ID!
@@ -68,7 +76,7 @@ type Post @entity {
   author: User!
   rating: Int
   postTime: BigInt
-  communityId: BigInt
+  communityId: BigInt!
 
   title: String
   content: String

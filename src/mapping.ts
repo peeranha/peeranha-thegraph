@@ -65,8 +65,6 @@ export function handleNewUser(event: UserCreated): void {
   if (event.params.userAddress.toHex() == "0xdb3dec65f2dfd5bd93f60738f6b0876125c43c2e") {
     return;
   }
-  let a = event.params.userAddress.toHex() === "0xf1fef67cdeb0d2af32f125ab8ffc85ab2cec0881" ? "true" : "false";
-  log.error("userIdFFF {} ffff {}", [event.params.userAddress.toHex(), a])
   let user = new User(event.params.userAddress.toHex());
   newUser(user, event.params.userAddress);
 
@@ -92,7 +90,6 @@ export function handleUpdatedUser(event: UserUpdated): void {
   if (event.params.userAddress.toHex() == "0xdb3dec65f2dfd5bd93f60738f6b0876125c43c2e") {
     return;
   }
-  log.error("userIdFFF {}", [event.params.userAddress.toHex()])
   let id = event.params.userAddress.toHex()
   let user = User.load(id)
   if (user == null) {
@@ -328,8 +325,7 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
     } else {
       previousReply.isBestReply = false;
     }
-
-    updateUserRating(Address.fromString(previousReply.author));
+    updateUserRating(Address.fromString(previousReply.author), post.communityId);
     previousReply.save(); 
   }
 
@@ -342,7 +338,7 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
     }
 
     reply.isBestReply = true;
-    updateUserRating(Address.fromString(reply.author));
+    updateUserRating(Address.fromString(reply.author), post.communityId);
     reply.save();
   }
 }
@@ -377,8 +373,9 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
     }
 
     reply.save();
-    updateUserRating(Address.fromString(reply.author));
-    updateUserRating(event.params.user);
+    let post = Post.load(reply.postId.toString())
+    updateUserRating(Address.fromString(reply.author), post.communityId);
+    updateUserRating(event.params.user, post.communityId);
   } else {
     let post = Post.load(event.params.postId.toString())
     if (post == null) {
@@ -391,7 +388,7 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
     }
 
     post.save();
-    updateUserRating(Address.fromString(post.author));
-    updateUserRating(event.params.user);
+    updateUserRating(Address.fromString(post.author), post.communityId);
+    updateUserRating(event.params.user, post.communityId);
   }
 }
