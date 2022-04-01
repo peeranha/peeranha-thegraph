@@ -42,13 +42,21 @@ export class User extends Entity {
     this.set("id", Value.fromString(value));
   }
 
-  get rating(): i32 {
-    let value = this.get("rating");
-    return value.toI32();
+  get ratings(): Array<string> | null {
+    let value = this.get("ratings");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
   }
 
-  set rating(value: i32) {
-    this.set("rating", Value.fromI32(value));
+  set ratings(value: Array<string> | null) {
+    if (value === null) {
+      this.unset("ratings");
+    } else {
+      this.set("ratings", Value.fromStringArray(value as Array<string>));
+    }
   }
 
   get displayName(): string | null {
@@ -256,6 +264,72 @@ export class User extends Entity {
       this.unset("achievements");
     } else {
       this.set("achievements", Value.fromStringArray(value as Array<string>));
+    }
+  }
+}
+
+export class CommunityPair extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save CommunityPair entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save CommunityPair entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("CommunityPair", id.toString(), this);
+  }
+
+  static load(id: string): CommunityPair | null {
+    return store.get("CommunityPair", id) as CommunityPair | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get communityId(): i32 {
+    let value = this.get("communityId");
+    return value.toI32();
+  }
+
+  set communityId(value: i32) {
+    this.set("communityId", Value.fromI32(value));
+  }
+
+  get rating(): i32 {
+    let value = this.get("rating");
+    return value.toI32();
+  }
+
+  set rating(value: i32) {
+    this.set("rating", Value.fromI32(value));
+  }
+
+  get userId(): string | null {
+    let value = this.get("userId");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set userId(value: string | null) {
+    if (value === null) {
+      this.unset("userId");
+    } else {
+      this.set("userId", Value.fromString(value as string));
     }
   }
 }

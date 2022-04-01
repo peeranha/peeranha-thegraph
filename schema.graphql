@@ -1,6 +1,6 @@
 type User @entity {
   id: ID!
-  rating: Int
+  ratings: [CommunityPair!]
   displayName: String
   postCount: Int
   replyCount: Int
@@ -14,6 +14,13 @@ type User @entity {
   ipfsHash2: Bytes
   followedCommunities: [Community!]
   achievements: [Achievement!]
+}
+
+type CommunityPair @entity {
+  id: ID!
+  communityId: Int
+  rating: Int
+  userId: User
 }
 
 type Community @entity {

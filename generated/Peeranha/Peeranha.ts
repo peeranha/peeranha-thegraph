@@ -905,32 +905,20 @@ export class Peeranha__getUserByAddressResultValue0Struct extends ethereum.Tuple
     return this[1].toBigInt();
   }
 
-  get rating(): i32 {
+  get energy(): i32 {
     return this[2].toI32();
   }
 
-  get payOutRating(): i32 {
-    return this[3].toI32();
-  }
-
-  get energy(): i32 {
-    return this[4].toI32();
-  }
-
   get lastUpdatePeriod(): BigInt {
-    return this[5].toBigInt();
+    return this[3].toBigInt();
   }
 
   get followedCommunities(): Array<BigInt> {
-    return this[6].toBigIntArray();
-  }
-
-  get rewardPeriods(): Array<i32> {
-    return this[7].toI32Array();
+    return this[4].toBigIntArray();
   }
 
   get roles(): Array<Bytes> {
-    return this[8].toBytesArray();
+    return this[5].toBytesArray();
   }
 }
 
@@ -953,32 +941,20 @@ export class Peeranha__getUserByIndexResultValue0Struct extends ethereum.Tuple {
     return this[1].toBigInt();
   }
 
-  get rating(): i32 {
+  get energy(): i32 {
     return this[2].toI32();
   }
 
-  get payOutRating(): i32 {
-    return this[3].toI32();
-  }
-
-  get energy(): i32 {
-    return this[4].toI32();
-  }
-
   get lastUpdatePeriod(): BigInt {
-    return this[5].toBigInt();
+    return this[3].toBigInt();
   }
 
   get followedCommunities(): Array<BigInt> {
-    return this[6].toBigIntArray();
-  }
-
-  get rewardPeriods(): Array<i32> {
-    return this[7].toI32Array();
+    return this[4].toBigIntArray();
   }
 
   get roles(): Array<Bytes> {
-    return this[8].toBytesArray();
+    return this[5].toBytesArray();
   }
 }
 
@@ -989,16 +965,6 @@ export class Peeranha__getUserByIndexResultValue0IpfsDocStruct extends ethereum.
 
   get hash2(): Bytes {
     return this[1].toBytes();
-  }
-}
-
-export class Peeranha__getUserRewardPeriodResultValue0Struct extends ethereum.Tuple {
-  get rating(): i32 {
-    return this[0].toI32();
-  }
-
-  get ratingToReward(): i32 {
-    return this[1].toI32();
   }
 }
 
@@ -1188,13 +1154,18 @@ export class Peeranha extends ethereum.SmartContract {
     );
   }
 
-  getRatingToReward(user: Address, rewardPeriod: i32): i32 {
+  getRatingToReward(
+    user: Address,
+    rewardPeriod: i32,
+    communityId: BigInt
+  ): i32 {
     let result = super.call(
       "getRatingToReward",
-      "getRatingToReward(address,uint16):(int32)",
+      "getRatingToReward(address,uint16,uint32):(int32)",
       [
         ethereum.Value.fromAddress(user),
-        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(rewardPeriod))
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(rewardPeriod)),
+        ethereum.Value.fromUnsignedBigInt(communityId)
       ]
     );
 
@@ -1203,14 +1174,16 @@ export class Peeranha extends ethereum.SmartContract {
 
   try_getRatingToReward(
     user: Address,
-    rewardPeriod: i32
+    rewardPeriod: i32,
+    communityId: BigInt
   ): ethereum.CallResult<i32> {
     let result = super.tryCall(
       "getRatingToReward",
-      "getRatingToReward(address,uint16):(int32)",
+      "getRatingToReward(address,uint16,uint32):(int32)",
       [
         ethereum.Value.fromAddress(user),
-        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(rewardPeriod))
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(rewardPeriod)),
+        ethereum.Value.fromUnsignedBigInt(communityId)
       ]
     );
     if (result.reverted) {
@@ -1382,7 +1355,7 @@ export class Peeranha extends ethereum.SmartContract {
   ): Peeranha__getUserByAddressResultValue0Struct {
     let result = super.call(
       "getUserByAddress",
-      "getUserByAddress(address):(((bytes32,bytes32),uint256,int32,int32,uint16,uint32,uint32[],uint16[],bytes32[]))",
+      "getUserByAddress(address):(((bytes32,bytes32),uint256,uint16,uint32,uint32[],bytes32[]))",
       [ethereum.Value.fromAddress(addr)]
     );
 
@@ -1394,7 +1367,7 @@ export class Peeranha extends ethereum.SmartContract {
   ): ethereum.CallResult<Peeranha__getUserByAddressResultValue0Struct> {
     let result = super.tryCall(
       "getUserByAddress",
-      "getUserByAddress(address):(((bytes32,bytes32),uint256,int32,int32,uint16,uint32,uint32[],uint16[],bytes32[]))",
+      "getUserByAddress(address):(((bytes32,bytes32),uint256,uint16,uint32,uint32[],bytes32[]))",
       [ethereum.Value.fromAddress(addr)]
     );
     if (result.reverted) {
@@ -1409,7 +1382,7 @@ export class Peeranha extends ethereum.SmartContract {
   getUserByIndex(index: BigInt): Peeranha__getUserByIndexResultValue0Struct {
     let result = super.call(
       "getUserByIndex",
-      "getUserByIndex(uint256):(((bytes32,bytes32),uint256,int32,int32,uint16,uint32,uint32[],uint16[],bytes32[]))",
+      "getUserByIndex(uint256):(((bytes32,bytes32),uint256,uint16,uint32,uint32[],bytes32[]))",
       [ethereum.Value.fromUnsignedBigInt(index)]
     );
 
@@ -1421,7 +1394,7 @@ export class Peeranha extends ethereum.SmartContract {
   ): ethereum.CallResult<Peeranha__getUserByIndexResultValue0Struct> {
     let result = super.tryCall(
       "getUserByIndex",
-      "getUserByIndex(uint256):(((bytes32,bytes32),uint256,int32,int32,uint16,uint32,uint32[],uint16[],bytes32[]))",
+      "getUserByIndex(uint256):(((bytes32,bytes32),uint256,uint16,uint32,uint32[],bytes32[]))",
       [ethereum.Value.fromUnsignedBigInt(index)]
     );
     if (result.reverted) {
@@ -1456,41 +1429,68 @@ export class Peeranha extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBytesArray());
   }
 
-  getUserRewardPeriod(
-    user: Address,
-    period: i32
-  ): Peeranha__getUserRewardPeriodResultValue0Struct {
+  getUserRating(addr: Address, communityId: BigInt): i32 {
     let result = super.call(
-      "getUserRewardPeriod",
-      "getUserRewardPeriod(address,uint16):((int32,int32))",
+      "getUserRating",
+      "getUserRating(address,uint32):(int32)",
       [
-        ethereum.Value.fromAddress(user),
-        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(period))
+        ethereum.Value.fromAddress(addr),
+        ethereum.Value.fromUnsignedBigInt(communityId)
       ]
     );
 
-    return result[0].toTuple() as Peeranha__getUserRewardPeriodResultValue0Struct;
+    return result[0].toI32();
   }
 
-  try_getUserRewardPeriod(
-    user: Address,
-    period: i32
-  ): ethereum.CallResult<Peeranha__getUserRewardPeriodResultValue0Struct> {
+  try_getUserRating(
+    addr: Address,
+    communityId: BigInt
+  ): ethereum.CallResult<i32> {
     let result = super.tryCall(
-      "getUserRewardPeriod",
-      "getUserRewardPeriod(address,uint16):((int32,int32))",
+      "getUserRating",
+      "getUserRating(address,uint32):(int32)",
       [
-        ethereum.Value.fromAddress(user),
-        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(period))
+        ethereum.Value.fromAddress(addr),
+        ethereum.Value.fromUnsignedBigInt(communityId)
       ]
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(
-      value[0].toTuple() as Peeranha__getUserRewardPeriodResultValue0Struct
+    return ethereum.CallResult.fromValue(value[0].toI32());
+  }
+
+  getUserRewardCommunities(user: Address, rewardPeriod: i32): Array<BigInt> {
+    let result = super.call(
+      "getUserRewardCommunities",
+      "getUserRewardCommunities(address,uint16):(uint32[])",
+      [
+        ethereum.Value.fromAddress(user),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(rewardPeriod))
+      ]
     );
+
+    return result[0].toBigIntArray();
+  }
+
+  try_getUserRewardCommunities(
+    user: Address,
+    rewardPeriod: i32
+  ): ethereum.CallResult<Array<BigInt>> {
+    let result = super.tryCall(
+      "getUserRewardCommunities",
+      "getUserRewardCommunities(address,uint16):(uint32[])",
+      [
+        ethereum.Value.fromAddress(user),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(rewardPeriod))
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigIntArray());
   }
 
   getUsersCount(): BigInt {
@@ -1712,6 +1712,10 @@ export class AddUserRatingCall__Inputs {
 
   get rating(): i32 {
     return this._call.inputValues[1].value.toI32();
+  }
+
+  get communityId(): BigInt {
+    return this._call.inputValues[2].value.toBigInt();
   }
 }
 
@@ -2607,40 +2611,6 @@ export class RevokeCommunityModeratorPermissionCall__Outputs {
   _call: RevokeCommunityModeratorPermissionCall;
 
   constructor(call: RevokeCommunityModeratorPermissionCall) {
-    this._call = call;
-  }
-}
-
-export class SetEnergyCall extends ethereum.Call {
-  get inputs(): SetEnergyCall__Inputs {
-    return new SetEnergyCall__Inputs(this);
-  }
-
-  get outputs(): SetEnergyCall__Outputs {
-    return new SetEnergyCall__Outputs(this);
-  }
-}
-
-export class SetEnergyCall__Inputs {
-  _call: SetEnergyCall;
-
-  constructor(call: SetEnergyCall) {
-    this._call = call;
-  }
-
-  get userAddr(): Address {
-    return this._call.inputValues[0].value.toAddress();
-  }
-
-  get energy(): i32 {
-    return this._call.inputValues[1].value.toI32();
-  }
-}
-
-export class SetEnergyCall__Outputs {
-  _call: SetEnergyCall;
-
-  constructor(call: SetEnergyCall) {
     this._call = call;
   }
 }

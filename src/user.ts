@@ -1,17 +1,29 @@
-import { ByteArray, Address } from '@graphprotocol/graph-ts'
-import { json, Bytes, ipfs } from '@graphprotocol/graph-ts'
-import { User } from '../generated/schema'
+import { ByteArray, Address, json, Bytes, ipfs, BigInt } from '@graphprotocol/graph-ts'
+import { User, CommunityPair } from '../generated/schema'
 import { getPeeranha } from './utils'
 
 export function newUser(user: User | null, userAddress: Address): void {
   let peeranhaUser = getPeeranha().getUserByAddress(userAddress);
-  if (peeranhaUser == null) return;
+  let communitiesCount = getPeeranha().getCommunitiesCount();
+  if (peeranhaUser == null || communitiesCount == null) return;
 
   user.creationTime = peeranhaUser.creationTime;
   user.postCount = 0;
   user.replyCount = 0;
   user.followedCommunities = [];
   user.achievements = [];
+  user.ratings = [];
+
+  for (let i=0; i<=communitiesCount.length; i++) { 
+    let pair = new CommunityPair(i.toString()); // id ?
+    pair.communityId = i;
+    let rating = getPeeranha().getUserRating(userAddress, BigInt.fromI32(pair.communityId));
+    pair.rating = rating;
+    pair.userId = userAddress.toHex();
+    pair.save();
+    user.ratings.push(i.toString());
+  }
+
   addDataToUser(user, userAddress);
 }
 
@@ -19,7 +31,7 @@ export function addDataToUser(user: User | null, userAddress: Address): void {
   let peeranhaUser = getPeeranha().getUserByAddress(userAddress);
   if (peeranhaUser == null) return;
 
-  user.rating = peeranhaUser.rating;
+  // user.rating = peeranhaUser.rating;
   user.ipfsHash = peeranhaUser.ipfsDoc.hash;
   user.ipfsHash2 = peeranhaUser.ipfsDoc.hash2;
 
@@ -78,7 +90,7 @@ export function updateUserRating(userAddress: Address): void {
 
   let user = User.load(userAddress.toHex());
   if (user != null) {
-    user.rating = peeranhaUser.rating;
+    // user.rating = peeranhaUser.rating;
     user.save();
   }
 }
