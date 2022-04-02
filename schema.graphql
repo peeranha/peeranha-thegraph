@@ -144,3 +144,25 @@ type Achievement @entity {
   image: String
   attributes: String
 }
+
+type UserReward @entity {
+  id: ID!
+  period: Period
+  user: User
+  tokenToReward: BigInt
+  status: Boolean
+}
+
+type Period @entity {
+  id: ID!
+  startPeriodTime: BigInt
+  endPeriodTime: BigInt
+}
+
+type ContractInfo @entity {
+  id: ID!
+  startPeriodTime: BigInt
+  periodLength: BigInt
+  lastUpdatePeriod: Int
+  lastBlock: BigInt
+}

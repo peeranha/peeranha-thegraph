@@ -177,8 +177,9 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt): 
   user.replyCount++;
   user.save();
 
-  updateUserRating(peeranhaReply.author, post.communityId);
-
+  if (peeranhaReply.isFirstReply || peeranhaReply.isQuickReply) {
+    updateUserRating(peeranhaReply.author, post.communityId);
+  }
   addDataToReply(reply, postId, replyId);
 }
 
