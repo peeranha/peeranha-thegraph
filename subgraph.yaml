@@ -6,12 +6,12 @@ dataSources:
     name: Peeranha
     network: goerli
     source:
-      address: "0x8156DDef53905b3c837a97D51D30750293021e50"
+      address: "0x70474A16BcD20c5A204974A2CaF875d4169F40F9"
       abi: Peeranha
-      startBlock: 5701415 
+      startBlock: 6116022 
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.5
+      apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
         - Peeranha
@@ -23,6 +23,10 @@ dataSources:
           handler: handleNewUser
         - event: UserUpdated(address)
           handler: handleUpdatedUser
+        - event: FollowedCommunity(address,uint32)
+          handler: handlerFollowCommunity
+        - event: UnfollowedCommunity(address,uint32)
+          handler: handlerUnfollowCommunity
         - event: CommunityCreated(address,uint32)
           handler: handleNewCommunity
         - event: CommunityUpdated(address,uint32)
@@ -57,5 +61,29 @@ dataSources:
           handler: handlerChangedStatusBestReply
         - event: ForumItemVoted(address,uint256,uint16,uint8,int8)
           handler: handlerForumItemVoted
+
+      file: ./src/mapping.ts
+
+  - kind: ethereum/contract
+    name: PeeranhaNFT
+    network: goerli
+    source:
+      address: "0xcd73A3f09B3FB4e7C27C9379ce5737269bbEb8D9"
+      abi: PeeranhaNFT
+      startBlock: 6461248
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - PeeranhaNFT
+      abis:
+        - name: PeeranhaNFT
+          file: ./abis/PeeranhaNFT.json
+      eventHandlers:
+        - event: ConfigureNewAchievementNFT(uint64)
+          handler: handleConfigureNewAchievement
+        - event: Transfer(indexed address,indexed address,indexed uint256)
+          handler: handleTransferAchievement
 
       file: ./src/mapping.ts

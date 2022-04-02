@@ -1,7 +1,9 @@
 type User @entity {
   id: ID!
-  rating: Int
+  ratings: [UserCommunityRating!]
   displayName: String
+  postCount: Int
+  replyCount: Int
   company: String
   position: String
   location: String
@@ -10,7 +12,16 @@ type User @entity {
   creationTime: BigInt
   ipfsHash: Bytes
   ipfsHash2: Bytes
+  followedCommunities: [Community!]
+  achievements: [Achievement!]
 }
+
+type UserCommunityRating @entity {
+  id: ID!
+  communityId: Int
+  rating: Int
+  user: User
+} 
 
 type Community @entity {
   id: ID!
@@ -22,6 +33,10 @@ type Community @entity {
   isFrozen: Boolean
   creationTime: BigInt
   postCount: Int
+  deletedPostCount: Int
+  replyCount: Int
+  tagsCount: Int
+  followingUsers: Int
   ipfsHash: Bytes
   ipfsHash2: Bytes
 }
@@ -32,6 +47,7 @@ type Tag @entity {
   name: String
   description: String
   postCount: Int
+  deletedPostCount: Int
   ipfsHash: Bytes
   ipfsHash2: Bytes
 }
@@ -60,7 +76,7 @@ type Post @entity {
   author: User!
   rating: Int
   postTime: BigInt
-  communityId: BigInt
+  communityId: BigInt!
 
   title: String
   content: String
@@ -115,4 +131,16 @@ type Comment @entity {
 
   isDeleted: Boolean
   properties: [Bytes!]
+}
+
+type Achievement @entity {
+  id: ID!
+  factCount: BigInt
+  maxCount: BigInt
+  achievementURI: String
+  achievementsType: Int
+  name: String
+  description: String
+  image: String
+  attributes: String
 }

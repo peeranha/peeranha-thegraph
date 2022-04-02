@@ -1,12 +1,14 @@
 import { ByteArray } from '@graphprotocol/graph-ts'
-import { json, Bytes, ipfs, BigInt } from '@graphprotocol/graph-ts'
+import { json, Bytes, ipfs, BigInt, Address } from '@graphprotocol/graph-ts'
 import { Post, Reply, Comment, Community, Tag, User } from '../generated/schema'
 import { getPeeranha } from './utils'
-import { updateUserRating } from './user'
+import { updateUserRating, getUser } from './user'
+import { newCommunity, getCommunity } from './community-tag'
 
-export function newPost(post: Post, postId: BigInt): void {
+
+export function newPost(post: Post | null, postId: BigInt): void {
   let peeranhaPost = getPeeranha().getPost(postId);
-  if (!peeranhaPost) return;
+  if (peeranhaPost == null) return;
 
   post.communityId = peeranhaPost.communityId;
   post.author = peeranhaPost.author.toHex();
@@ -16,31 +18,32 @@ export function newPost(post: Post, postId: BigInt): void {
   post.replyCount = peeranhaPost.replyCount;
   post.officialReply = peeranhaPost.officialReply;
   post.bestReply = peeranhaPost.bestReply;
-  post.isDeleted = peeranhaPost.isDeleted;
+  post.isDeleted = false;
   post.replies = [];
   post.comments = [];
 
-  let community = Community.load(peeranhaPost.communityId.toString()) as Community;
-  if (community != null) {
-    community.postCount++;
-    community.save();
-  }
+  let community = getCommunity(post.communityId);
+  community.postCount++;
+  community.save();
+
+  let user = getUser(peeranhaPost.author);
+  user.postCount++;
+  user.save();
 
   addDataToPost(post, postId);
 }
 
-export function addDataToPost(post: Post, postId: BigInt): void {
+export function addDataToPost(post: Post | null, postId: BigInt): void {
   let peeranhaPost = getPeeranha().getPost(postId);
-  if (!peeranhaPost) return;
+  if (peeranhaPost == null) return;
 
   let postTagsBuf = peeranhaPost.tags;
   for (let i = 0; i < peeranhaPost.tags.length; i++) {
     let newTag = postTagsBuf.pop();
-    let postTags = post.tags as Array<i32>;
 
-    if(!postTags.includes(newTag)) {
+    if(!post.tags.includes(newTag)) {
       let tag = Tag.load(peeranhaPost.communityId.toString() + "-" + newTag.toString());
-      if (tag) {
+      if (tag != null) {
         tag.postCount++;
         tag.save();
       }
@@ -48,9 +51,8 @@ export function addDataToPost(post: Post, postId: BigInt): void {
   }
 
   if(peeranhaPost.tags.length != 0) {
-    let postTags = post.tags as Array<i32>;
-    let postTagsBuf = post.tags as Array<i32>;
-    for (let i = 0; i < postTags.length; i++) {
+    let postTagsBuf = post.tags;
+    for (let i = 0; i < post.tags.length; i++) {
       let oldTag = postTagsBuf.pop();
 
       if(!peeranhaPost.tags.includes(oldTag)) {
@@ -60,9 +62,9 @@ export function addDataToPost(post: Post, postId: BigInt): void {
           tag.save();
         }
       }
-    }
+   }
   }
-
+  
   post.tags = peeranhaPost.tags;
   post.ipfsHash = peeranhaPost.ipfsDoc.hash;
   post.ipfsHash2 = peeranhaPost.ipfsDoc.hash2;
@@ -71,35 +73,77 @@ export function addDataToPost(post: Post, postId: BigInt): void {
   getIpfsPostData(post);
 }
 
-function getIpfsPostData(post: Post): void {
-  let postipfs = post.ipfsHash as ByteArray;
-  let hashstr = postipfs.toHexString();
+function getIpfsPostData(post: Post | null): void {
+  let hashstr = post.ipfsHash.toHexString();
   let hashHex = "1220" + hashstr.slice(2);
   let ipfsBytes = ByteArray.fromHexString(hashHex);
   let ipfsHashBase58 = ipfsBytes.toBase58();
   let result = ipfs.cat(ipfsHashBase58) as Bytes;
   
-  if (result) {
+  if (result != null) {
     let ipfsData = json.fromBytes(result);
   
-    if(ipfsData) {
+    if(!ipfsData.isNull()) {
       let ipfsObj = ipfsData.toObject()
       let title = ipfsObj.get('title');
-      if (title) {
+      if (!title.isNull()) {
         post.title = title.toString();
       }
   
       let content = ipfsObj.get('content');
-      if (content) {
+      if (!content.isNull()) {
         post.content = content.toString();
       }
     }
   }
 }
 
-export function newReply(reply: Reply, postId: BigInt, replyId: BigInt): void {
+export function deletePost(post: Post | null, postId: BigInt): void {
+  post.isDeleted = true;
+
+  updateUserRating(Address.fromString(post.author), post.communityId);
+
+  let community = getCommunity(post.communityId);
+
+  for (let i = 1; i <= post.replyCount; i++) {
+    let reply = Reply.load(postId.toString() + "-" + i.toString());
+    if (
+    (reply != null && !reply.isDeleted) && 
+    (reply.isFirstReply || reply.isQuickReply || reply.rating > 0)) {
+
+      updateUserRating(Address.fromString(reply.author), post.communityId);
+      
+      let userReply = getUser(Address.fromString(reply.author));
+      userReply.postCount--;
+      userReply.save();
+      
+      community.replyCount--;
+    }
+  }
+  community.deletedPostCount++;
+  community.postCount--;
+  community.save();
+
+  // for (let i = 0; i < post.tags.length; i++) {
+  //   let tags = post.tags;
+  //   let tagID = tags[i];
+  //   let tag = Tag.load(post.communityId.toString() + "-" + tagID.toString());
+  //   if (tag != null) {
+  //     tag.deletedPostCount++;
+  //     tag.postCount--;
+  //     tag.save();
+  //   }
+  // }
+  
+
+  let userPost = getUser(Address.fromString(post.author));
+  userPost.postCount--;
+  userPost.save();
+}
+
+export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt): void {
   let peeranhaReply = getPeeranha().getReply(postId, replyId.toI32());
-  if (!peeranhaReply) return;
+  if (peeranhaReply == null) return;
 
   reply.author = peeranhaReply.author.toHex();
   reply.postTime = peeranhaReply.postTime;
@@ -112,29 +156,35 @@ export function newReply(reply: Reply, postId: BigInt, replyId: BigInt): void {
   reply.isDeleted = false;
   reply.comments = [];
 
+  let post = Post.load(postId.toString())
   if (peeranhaReply.parentReplyId == 0) {
-    let post = Post.load(postId.toString()) as Post;
-    if (post) {
+    if (post != null) {
       post.replyCount++;
 
-      let replies = post.replies as string[];
+      let replies = post.replies
       replies.push(postId.toString() + "-" + replyId.toString())
       post.replies = replies
 
       post.save();
+
+      let community = getCommunity(post.communityId);
+      community.replyCount++;
+      community.save();
     }
   }
 
-  if (peeranhaReply.isFirstReply || peeranhaReply.isQuickReply) {
-    updateUserRating(peeranhaReply.author);
-  }
+  let user = getUser(Address.fromString(reply.author));
+  user.replyCount++;
+  user.save();
+
+  updateUserRating(peeranhaReply.author, post.communityId);
 
   addDataToReply(reply, postId, replyId);
 }
 
-export function addDataToReply(reply: Reply, postId: BigInt, replyId: BigInt): void {
+export function addDataToReply(reply: Reply | null, postId: BigInt, replyId: BigInt): void {
   let peeranhaReply = getPeeranha().getReply(postId, replyId.toI32());
-  if (!peeranhaReply) return;
+  if (peeranhaReply == null) return;
 
   reply.ipfsHash = peeranhaReply.ipfsDoc.hash;
   reply.ipfsHash2 = peeranhaReply.ipfsDoc.hash2;
@@ -142,31 +192,49 @@ export function addDataToReply(reply: Reply, postId: BigInt, replyId: BigInt): v
   getIpfsReplyData(reply);
 }
 
-function getIpfsReplyData(reply: Reply): void {
-  let replyipfs = reply.ipfsHash as ByteArray;
-  let hashstr = replyipfs.toHexString();
+function getIpfsReplyData(reply: Reply | null): void {
+  let hashstr = reply.ipfsHash.toHexString();
   let hashHex = "1220" + hashstr.slice(2);
   let ipfsBytes = ByteArray.fromHexString(hashHex);
   let ipfsHashBase58 = ipfsBytes.toBase58();
   let result = ipfs.cat(ipfsHashBase58) as Bytes;
   
-  if (result) {
+  if (result != null) {
     let ipfsData = json.fromBytes(result);
   
-    if(ipfsData) {
+    if(!ipfsData.isNull()) {
       let ipfsObj = ipfsData.toObject()
   
       let content = ipfsObj.get('content');
-      if (content) {
+      if (!content.isNull()) {
         reply.content = content.toString();
       }
     }
   }
 }
 
-export function newComment(comment: Comment, postId: BigInt, parentReplyId: BigInt, commentId: BigInt): void {
+export function deleteReply(reply: Reply | null, postId: BigInt): void {
+  reply.isDeleted = true;
+  let post = Post.load(postId.toString());
+  updateUserRating(Address.fromString(reply.author), post.communityId);
+
+  if (reply.parentReplyId == 0) {
+    let post = Post.load(postId.toString())
+    if (post != null) {
+      let community = getCommunity(post.communityId);
+      community.replyCount--;
+      community.save();
+    }
+  }
+
+  let user = getUser(Address.fromString(reply.author));
+  user.replyCount--;
+  user.save();
+}
+
+export function newComment(comment: Comment | null, postId: BigInt, parentReplyId: BigInt, commentId: BigInt): void {
   let peeranhaComment = getPeeranha().getComment(postId, parentReplyId.toI32(), commentId.toI32());
-  if (!peeranhaComment) return;
+  if (peeranhaComment == null) return;
 
   comment.author = peeranhaComment.author.toHex();
   comment.postTime = peeranhaComment.postTime;
@@ -175,12 +243,12 @@ export function newComment(comment: Comment, postId: BigInt, parentReplyId: BigI
   comment.parentReplyId = parentReplyId.toI32();  
   comment.isDeleted = false;
 
-  const commentFullId = postId.toString() + "-" + parentReplyId.toString() +  "-" + commentId.toString();
+  let commentFullId = postId.toString() + "-" + parentReplyId.toString() +  "-" + commentId.toString();
   if (parentReplyId == BigInt.fromI32(0)) {
     let post = Post.load(postId.toString());
     if (post != null ) {    // init post
       post.commentCount++;
-      let comments = post.comments as string[];
+      let comments = post.comments
       comments.push(commentFullId)
       post.comments = comments
 
@@ -188,9 +256,9 @@ export function newComment(comment: Comment, postId: BigInt, parentReplyId: BigI
     }
   } else {
     let reply = Reply.load(postId.toString() + "-" + parentReplyId.toString());
-    if (reply) {     // init post
+    if (reply != null ) {     // init post
       reply.commentCount++;
-      let comments = reply.comments as string[];
+      let comments = reply.comments
       comments.push(commentFullId)
       reply.comments = comments
 
@@ -201,9 +269,9 @@ export function newComment(comment: Comment, postId: BigInt, parentReplyId: BigI
   addDataToComment(comment, postId, parentReplyId, commentId);
 }
 
-export function addDataToComment(comment: Comment, postId: BigInt, parentReplyId: BigInt, commentId: BigInt): void {
+export function addDataToComment(comment: Comment | null, postId: BigInt, parentReplyId: BigInt, commentId: BigInt): void {
   let peeranhaComment = getPeeranha().getComment(postId, parentReplyId.toI32(), commentId.toI32());
-  if (!peeranhaComment) return;
+  if (peeranhaComment == null) return;
 
   comment.ipfsHash = peeranhaComment.ipfsDoc.hash;
   comment.ipfsHash2 = peeranhaComment.ipfsDoc.hash2;
@@ -211,22 +279,21 @@ export function addDataToComment(comment: Comment, postId: BigInt, parentReplyId
   getIpfsCommentData(comment);
 }
 
-function getIpfsCommentData(comment: Comment): void {
-  let commentipfs = comment.ipfsHash as ByteArray;
-  let hashstr = commentipfs.toHexString();
+function getIpfsCommentData(comment: Comment | null): void {
+  let hashstr = comment.ipfsHash.toHexString();
   let hashHex = "1220" + hashstr.slice(2);
   let ipfsBytes = ByteArray.fromHexString(hashHex);
   let ipfsHashBase58 = ipfsBytes.toBase58();
   let result = ipfs.cat(ipfsHashBase58) as Bytes;
   
-  if (result) {
+  if (result != null) {
     let ipfsData = json.fromBytes(result);
   
-    if(ipfsData) {
+    if(!ipfsData.isNull()) {
       let ipfsObj = ipfsData.toObject()
   
       let content = ipfsObj.get('content');
-      if (content) {
+      if (!content.isNull()) {
         comment.content = content.toString();
       }
     }
@@ -234,7 +301,7 @@ function getIpfsCommentData(comment: Comment): void {
 }
 
 
-export function voteComment(comment: Comment, postId: BigInt, parentReplyId: BigInt, commentId: BigInt): void {
+export function voteComment(comment: Comment | null, postId: BigInt, parentReplyId: BigInt, commentId: BigInt): void {
   let peeranhaComment = getPeeranha().getComment(postId, parentReplyId.toI32(), commentId.toI32());
   if (peeranhaComment == null) return;
 

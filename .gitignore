@@ -61,5 +61,8 @@ typings/
 # next.js build output
 .next
 
+package-lock.json
+
+.idea
 # test framework binaries
 tests/.bin/

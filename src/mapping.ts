@@ -1,5 +1,5 @@
-import { Address, BigInt, Bytes, log } from '@graphprotocol/graph-ts'
-import { UserCreated, UserUpdated,
+import { Address, BigInt, log } from '@graphprotocol/graph-ts'
+import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity,
   CommunityCreated, CommunityUpdated, CommunityFrozen, CommunityUnfrozen,
   TagCreated,
   PostCreated, PostEdited, PostDeleted,
@@ -8,18 +8,63 @@ import { UserCreated, UserUpdated,
   ForumItemVoted,
   StatusOfficialReplyChanged, StatusBestReplyChanged
 } from '../generated/Peeranha/Peeranha'
-import { User, Community, Tag, Post, Reply, Comment } from '../generated/schema'
+import { User, Community, Tag, Post, Reply, Comment, Achievement } from '../generated/schema'
 
 import { getPeeranha } from './utils'
-import { newPost, addDataToPost,
-  newReply, addDataToReply, 
+import { newPost, addDataToPost, deletePost,
+  newReply, addDataToReply, deleteReply,
   newComment, addDataToComment } from './post'
-import { newCommunity, addDataToCommunity, newTag } from './community-tag'
+import { newCommunity, addDataToCommunity, newTag, getCommunity } from './community-tag'
 import { newUser, addDataToUser, updateUserRating } from './user'
+import { addDataToAchievement, giveAchievement, newAchievement } from './achievement'
+import { ConfigureNewAchievementNFT, Transfer } from '../generated/PeeranhaNFT/PeeranhaNFT'
+
+const POOL_NFT = 1000000;
   
+export function handleConfigureNewAchievement(event: ConfigureNewAchievementNFT): void {
+  if (event.params.achievementId < BigInt.fromI32(13)) {
+    return;
+  }
+  let achievement = new Achievement(event.params.achievementId.toString());
+  newAchievement(achievement, event.params.achievementId);
+
+  achievement.save();  
+}
+
+export function handleTransferAchievement(event: Transfer): void {
+  let id : BigInt = (event.params.tokenId / BigInt.fromI32(POOL_NFT)) + BigInt.fromI32(1);
+  log.error('User: {}, ID txx: {}, Achievement Id txx: {}', [event.params.to.toHex(), event.params.tokenId.toString(), id.toString()])
+  let achievement = Achievement.load(id.toString());
+
+  if (achievement != null) {
+    addDataToAchievement(achievement, id);
+
+    giveAchievement(id, event.params.to);
+
+    achievement.save();  
+  }
+}
 
 
 export function handleNewUser(event: UserCreated): void {
+  if (event.params.userAddress.toHex() == "0xeed58801f34f32695fc43f1b61c74cb7cea70ee0") {
+    return;
+  }
+  // if (event.params.userAddress.toHex() == "0xed4626046dd913ae11fb4b04b4bd1caec5867645") {
+  //   return;
+  // }
+  // if (event.params.userAddress.toHex() == "0xf1fef67cdeb0d2af32f125ab8ffc85ab2cec0881") {
+  //   return;
+  // }
+  // if (event.params.userAddress.toHex() == "0x094a767eec1aa031953a6f5946ee07c9afe469c8") {
+  //   return;
+  // }
+  if (event.params.userAddress.toHex() == "0x47c7f69e98451a27e6515b5b85d7ea1562a8e903") {
+    return;
+  }
+  if (event.params.userAddress.toHex() == "0xdb3dec65f2dfd5bd93f60738f6b0876125c43c2e") {
+    return;
+  }
   let user = new User(event.params.userAddress.toHex());
   newUser(user, event.params.userAddress);
 
@@ -27,6 +72,24 @@ export function handleNewUser(event: UserCreated): void {
 }
 
 export function handleUpdatedUser(event: UserUpdated): void {
+  if (event.params.userAddress.toHex() == "0xeed58801f34f32695fc43f1b61c74cb7cea70ee0") {
+    return;
+  }
+  // if (event.params.userAddress.toHex() == "0xed4626046dd913ae11fb4b04b4bd1caec5867645") {
+  //   return;
+  // }
+  // if (event.params.userAddress.toHex() == "0xf1fef67cdeb0d2af32f125ab8ffc85ab2cec0881") {
+  //   return;
+  // }
+  // if (event.params.userAddress.toHex() == "0x094a767eec1aa031953a6f5946ee07c9afe469c8") {
+  //   return;
+  // }
+  if (event.params.userAddress.toHex() == "0x47c7f69e98451a27e6515b5b85d7ea1562a8e903") {
+    return;
+  }
+  if (event.params.userAddress.toHex() == "0xdb3dec65f2dfd5bd93f60738f6b0876125c43c2e") {
+    return;
+  }
   let id = event.params.userAddress.toHex()
   let user = User.load(id)
   if (user == null) {
@@ -39,12 +102,31 @@ export function handleUpdatedUser(event: UserUpdated): void {
   user.save();
 }
 
+export function handlerFollowCommunity(event: FollowedCommunity): void {
+  // let user = new User(event.params.userAddress.toHex());
+  
+  // let followedCommunities = user.followedCommunities
+  // followedCommunities.push("1")
+  // followedCommunities.push("2")
+  // user.followedCommunities = followedCommunities
+
+  // user.save();
+}
+
+export function handlerUnfollowCommunity(event: UnfollowedCommunity): void {
+  // let user = new User(event.params.userAddress.toHex());
+  
+  // let followedCommunities = user.followedCommunities
+  // followedCommunities.push("1")
+  // followedCommunities.push("2")
+  // user.followedCommunities = followedCommunities
+
+  // user.save();
+}
+
 export function handleNewCommunity(event: CommunityCreated): void {
   let communityiD = event.params.id; 
   let community = new Community(communityiD.toString());
-
-  let peeranhaCommunity = getPeeranha().getCommunity(communityiD);
-  if (peeranhaCommunity == null) return;
 
   newCommunity(community, communityiD);
   community.save(); 
@@ -85,14 +167,10 @@ export function handleUnfrozenCommunity(event: CommunityUnfrozen): void {
 }
 
 export function handleNewTag(event: TagCreated): void {
-  let community = Community.load(event.params.communityId.toString()) as Community;
-  if (!community) {
-    newCommunity(community, event.params.communityId);
-    community.save();
-  }
-
+  let community = getCommunity(event.params.communityId);
+  community.tagsCount++;
+  community.save();
   let tag = new Tag(event.params.communityId.toString() + "-" + BigInt.fromI32(event.params.tagId).toString());
-  tag.communityId = event.params.communityId;
   
   newTag(tag, event.params.communityId, BigInt.fromI32(event.params.tagId));
   tag.save(); 
@@ -102,7 +180,8 @@ export function handleNewPost(event: PostCreated): void {
   let post = new Post(event.params.postId.toString());
 
   newPost(post, event.params.postId);
-  post.save(); 
+  post.save();
+
 }
 
 export function handleEditedPost(event: PostEdited): void {
@@ -121,18 +200,8 @@ export function handleDeletedPost(event: PostDeleted): void {
   let post = Post.load(event.params.postId.toString());
   if (post == null) return;
 
-  post.isDeleted = true;
+  deletePost(post, event.params.postId);
   post.save();
-  updateUserRating(Address.fromString(post.author));
-
-  for (let i = 1; i <= post.replyCount; i++) {
-    let reply = Reply.load(event.params.postId.toString() + "-" + i.toString());
-    if (
-    (reply != null && !reply.isDeleted) && 
-    (reply.isFirstReply || reply.isQuickReply || reply.rating > 0)) {
-      updateUserRating(Address.fromString(reply.author));
-    }
-  }
 }
 
 export function handleNewReply(event: ReplyCreated): void {
@@ -162,10 +231,8 @@ export function handleDeletedReply(event: ReplyDeleted): void {
   let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString());
   if (reply == null) return;
 
-  reply.isDeleted = true;
+  deleteReply(reply, event.params.postId);
   reply.save();
-
-  updateUserRating(Address.fromString(reply.author));
 }
 
 export function handleNewComment(event: CommentCreated): void {
@@ -216,9 +283,9 @@ export function handlerChangedStatusOfficialReply(event: StatusOfficialReplyChan
   
   if (previousOfficialReply) {
     let replyId = BigInt.fromI32(previousOfficialReply);
-    let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString()) as Reply;
+    let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
 
-    if (!reply) {
+    if (reply == null) {
       newReply(reply, event.params.postId, replyId);
     } else {
       reply.isOfficialReply = false;
@@ -228,9 +295,9 @@ export function handlerChangedStatusOfficialReply(event: StatusOfficialReplyChan
   }
 
   let replyId = BigInt.fromI32(event.params.replyId);
-  let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString()) as Reply;
+  let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
 
-  if (!reply) {
+  if (reply == null) {
     newReply(reply, event.params.postId, replyId);
   } 
   reply.isOfficialReply = true;
@@ -240,7 +307,7 @@ export function handlerChangedStatusOfficialReply(event: StatusOfficialReplyChan
 export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): void {
   let post = Post.load(event.params.postId.toString())
   let previousBestReply = 0;
-  if (!post) {
+  if (post == null) {
     post = new Post(event.params.postId.toString())
     newPost(post, event.params.postId);
   } else {
@@ -250,28 +317,30 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
   post.save();
   
   if (previousBestReply) {
-    let replyId = BigInt.fromI32(previousBestReply);
-    let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString()) as Reply;
+    let previousReplyId = BigInt.fromI32(previousBestReply);
+    let previousReply = Reply.load(event.params.postId.toString() + "-" + previousReplyId.toString())
 
-    if (!reply) {
-      newReply(reply, event.params.postId, replyId);
+    if (previousReply == null) {
+      newReply(previousReply, event.params.postId, previousReplyId);
     } else {
-      reply.isBestReply = false;
+      previousReply.isBestReply = false;
     }
-
-    updateUserRating(Address.fromString(reply.author));
-    reply.save(); 
+    updateUserRating(Address.fromString(previousReply.author), post.communityId);
+    previousReply.save(); 
   }
 
-  let replyId = BigInt.fromI32(event.params.replyId);
-  let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString()) as Reply;
+  if (event.params.replyId != 0) {    // fix  (if reply does not exist -> getReply() call erray)
+    let replyId = BigInt.fromI32(event.params.replyId);
+    let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
 
-  if (!reply) {
-    newReply(reply, event.params.postId, replyId);
-  } 
-  reply.isBestReply = true;
-  updateUserRating(Address.fromString(reply.author));
-  reply.save();
+    if (reply == null) {
+      newReply(reply, event.params.postId, replyId);
+    }
+
+    reply.isBestReply = true;
+    updateUserRating(Address.fromString(reply.author), post.communityId);
+    reply.save();
+  }
 }
 
 export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move this in another function with edit
@@ -280,12 +349,12 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
     let replyId = BigInt.fromI32(event.params.replyId);
     let comment = Comment.load(event.params.postId.toString() + "-" + replyId.toString() + "-" +  commentId.toString());
 
-    if (!comment) {
+    if (comment == null) {
       comment = new Comment(event.params.postId.toString() + "-" + replyId.toString() + "-" +  commentId.toString());
       newComment(comment, event.params.postId, replyId, commentId);
     } else {
       let peeranhaComment = getPeeranha().getComment(event.params.postId, replyId.toI32(), commentId.toI32());
-      if (!peeranhaComment) return;
+      if (peeranhaComment == null) return;
       comment.rating = peeranhaComment.rating;
     }
     
@@ -294,29 +363,32 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
     let replyId = BigInt.fromI32(event.params.replyId);
     let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
 
-    if (!reply) {
+    if (reply == null) {
       reply = new Reply(event.params.postId.toString() + "-" + replyId.toString());
       newReply(reply, event.params.postId, replyId);
     } else {
       let peeranhaReply = getPeeranha().getReply(event.params.postId, replyId.toI32());
-      if (!peeranhaReply) return;
+      if (peeranhaReply == null) return;
       reply.rating = peeranhaReply.rating;
     }
 
     reply.save();
-    updateUserRating(Address.fromString(reply.author));
+    let post = Post.load(reply.postId.toString())
+    updateUserRating(Address.fromString(reply.author), post.communityId);
+    updateUserRating(event.params.user, post.communityId);
   } else {
     let post = Post.load(event.params.postId.toString())
-    if (!post) {
+    if (post == null) {
       post = new Post(event.params.postId.toString())
       newPost(post, event.params.postId);
     } else {
       let peeranhaPost = getPeeranha().getPost(event.params.postId);
-      if (!peeranhaPost) return;
+      if (peeranhaPost == null) return;
       post.rating = peeranhaPost.rating;
     }
 
     post.save();
-    updateUserRating(Address.fromString(post.author));
+    updateUserRating(Address.fromString(post.author), post.communityId);
+    updateUserRating(event.params.user, post.communityId);
   }
 }
