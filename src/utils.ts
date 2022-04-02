@@ -4,9 +4,9 @@ import { PeeranhaNFT } from '../generated/PeeranhaNFT/PeeranhaNFT'
 import { PeeranhaToken } from '../generated/PeeranhaToken/PeeranhaToken'
 
 
-export const peeranhaAddress = "0x821Ff5d4Cf5DB9F82b7eAF41C9709f26bd7FBa06";
-const peeranhaToken = "0xba261Bd4a63773E7f60D25F6fe5A9c0919EB5a66";
-const peeranhaNFTAddress = "0xF839dEc765237232Ad1d0A3eADBBBe24e28AbbEe";
+export const peeranhaAddress = "0x56fB95C7d03E24DB7f03B246506f80145e2Ca0f8";
+const peeranhaToken = "0xdB4af34Fb249C8C8be3D3d8548e046d26C964a79";
+const peeranhaNFTAddress = "0x1328033BDD948e63dA196218b1Db9B25eD6B732e";
 
 
 export function getPeeranha(): Peeranha {
