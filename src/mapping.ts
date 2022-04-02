@@ -12,8 +12,8 @@ import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity,
 
 import { GetReward } from '../generated/PeeranhaToken/PeeranhaToken'
 import { User, Community, Tag, Post, Reply, Comment, Achievement, ContractInfo, UserReward, Period } from '../generated/schema'
-
 import { getPeeranha, getPeeranhaToken, peeranhaAddress } from './utils'
+
 import { newPost, addDataToPost, deletePost,
   newReply, addDataToReply, deleteReply,
   newComment, addDataToComment } from './post'
@@ -50,6 +50,24 @@ export function handleTransferAchievement(event: Transfer): void {
 
 
 export function handleNewUser(event: UserCreated): void {
+  if (event.params.userAddress.toHex() == "0xeed58801f34f32695fc43f1b61c74cb7cea70ee0") {
+    return;
+  }
+  // if (event.params.userAddress.toHex() == "0xed4626046dd913ae11fb4b04b4bd1caec5867645") {
+  //   return;
+  // }
+  // if (event.params.userAddress.toHex() == "0xf1fef67cdeb0d2af32f125ab8ffc85ab2cec0881") {
+  //   return;
+  // }
+  // if (event.params.userAddress.toHex() == "0x094a767eec1aa031953a6f5946ee07c9afe469c8") {
+  //   return;
+  // }
+  if (event.params.userAddress.toHex() == "0x47c7f69e98451a27e6515b5b85d7ea1562a8e903") {
+    return;
+  }
+  if (event.params.userAddress.toHex() == "0xdb3dec65f2dfd5bd93f60738f6b0876125c43c2e") {
+    return;
+  }
   let user = new User(event.params.userAddress.toHex());
   newUser(user, event.params.userAddress);
 
@@ -57,6 +75,24 @@ export function handleNewUser(event: UserCreated): void {
 }
 
 export function handleUpdatedUser(event: UserUpdated): void {
+  if (event.params.userAddress.toHex() == "0xeed58801f34f32695fc43f1b61c74cb7cea70ee0") {
+    return;
+  }
+  // if (event.params.userAddress.toHex() == "0xed4626046dd913ae11fb4b04b4bd1caec5867645") {
+  //   return;
+  // }
+  // if (event.params.userAddress.toHex() == "0xf1fef67cdeb0d2af32f125ab8ffc85ab2cec0881") {
+  //   return;
+  // }
+  // if (event.params.userAddress.toHex() == "0x094a767eec1aa031953a6f5946ee07c9afe469c8") {
+  //   return;
+  // }
+  if (event.params.userAddress.toHex() == "0x47c7f69e98451a27e6515b5b85d7ea1562a8e903") {
+    return;
+  }
+  if (event.params.userAddress.toHex() == "0xdb3dec65f2dfd5bd93f60738f6b0876125c43c2e") {
+    return;
+  }
   let id = event.params.userAddress.toHex()
   let user = User.load(id)
   if (user == null) {
@@ -338,8 +374,7 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
     } else {
       previousReply.isBestReply = false;
     }
-
-    updateUserRating(Address.fromString(previousReply.author));
+    updateUserRating(Address.fromString(previousReply.author), post.communityId);
     previousReply.save(); 
   }
 
@@ -352,7 +387,7 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
     }
 
     reply.isBestReply = true;
-    updateUserRating(Address.fromString(reply.author));
+    updateUserRating(Address.fromString(reply.author), post.communityId);
     reply.save();
   }
 }
@@ -387,8 +422,9 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
     }
 
     reply.save();
-    updateUserRating(Address.fromString(reply.author));
-    updateUserRating(event.params.user);
+    let post = Post.load(reply.postId.toString())
+    updateUserRating(Address.fromString(reply.author), post.communityId);
+    updateUserRating(event.params.user, post.communityId);
   } else {
     let post = Post.load(event.params.postId.toString())
     if (post == null) {
@@ -401,7 +437,7 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
     }
 
     post.save();
-    updateUserRating(Address.fromString(post.author));
-    updateUserRating(event.params.user);
+    updateUserRating(Address.fromString(post.author), post.communityId);
+    updateUserRating(event.params.user, post.communityId);
   }
 }

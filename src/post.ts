@@ -101,7 +101,7 @@ function getIpfsPostData(post: Post | null): void {
 export function deletePost(post: Post | null, postId: BigInt): void {
   post.isDeleted = true;
 
-  updateUserRating(Address.fromString(post.author));
+  updateUserRating(Address.fromString(post.author), post.communityId);
 
   let community = getCommunity(post.communityId);
 
@@ -110,7 +110,8 @@ export function deletePost(post: Post | null, postId: BigInt): void {
     if (
     (reply != null && !reply.isDeleted) && 
     (reply.isFirstReply || reply.isQuickReply || reply.rating > 0)) {
-      updateUserRating(Address.fromString(reply.author));
+
+      updateUserRating(Address.fromString(reply.author), post.communityId);
       
       let userReply = getUser(Address.fromString(reply.author));
       userReply.postCount--;
@@ -155,8 +156,8 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt): 
   reply.isDeleted = false;
   reply.comments = [];
 
+  let post = Post.load(postId.toString())
   if (peeranhaReply.parentReplyId == 0) {
-    let post = Post.load(postId.toString())
     if (post != null) {
       post.replyCount++;
 
@@ -177,9 +178,8 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt): 
   user.save();
 
   if (peeranhaReply.isFirstReply || peeranhaReply.isQuickReply) {
-    updateUserRating(peeranhaReply.author);
+    updateUserRating(peeranhaReply.author, post.communityId);
   }
-
   addDataToReply(reply, postId, replyId);
 }
 
@@ -216,8 +216,8 @@ function getIpfsReplyData(reply: Reply | null): void {
 
 export function deleteReply(reply: Reply | null, postId: BigInt): void {
   reply.isDeleted = true;
-
-  updateUserRating(Address.fromString(reply.author));
+  let post = Post.load(postId.toString());
+  updateUserRating(Address.fromString(reply.author), post.communityId);
 
   if (reply.parentReplyId == 0) {
     let post = Post.load(postId.toString())

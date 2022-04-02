@@ -1,6 +1,6 @@
-import { ByteArray, Address } from '@graphprotocol/graph-ts'
-import { json, Bytes, ipfs } from '@graphprotocol/graph-ts'
-import { User } from '../generated/schema'
+import { ByteArray, Address, log } from '@graphprotocol/graph-ts'
+import { json, Bytes, ipfs, BigInt } from '@graphprotocol/graph-ts'
+import { User, UserCommunityRating } from '../generated/schema'
 import { getPeeranha } from './utils'
 
 export function newUser(user: User | null, userAddress: Address): void {
@@ -12,14 +12,15 @@ export function newUser(user: User | null, userAddress: Address): void {
   user.replyCount = 0;
   user.followedCommunities = [];
   user.achievements = [];
+  user.ratings = [];
+
   addDataToUser(user, userAddress);
 }
 
 export function addDataToUser(user: User | null, userAddress: Address): void {
   let peeranhaUser = getPeeranha().getUserByAddress(userAddress);
   if (peeranhaUser == null) return;
-
-  user.rating = 0;              /// fix
+  
   user.ipfsHash = peeranhaUser.ipfsDoc.hash;
   user.ipfsHash2 = peeranhaUser.ipfsDoc.hash2;
 
@@ -72,20 +73,33 @@ export function getIpfsUserData(user: User | null): void {
   }
 }
 
-export function updateUserRating(userAddress: Address): void {
-  let peeranhaUser = getPeeranha().getUserByAddress(userAddress);
-  if (peeranhaUser == null) return;
-
+export function updateUserRating(userAddress: Address, communityId: BigInt): void { 
   let user = User.load(userAddress.toHex());
-  if (user != null) {
-    user.rating = 0;    ////fix
+  if (user == null) return;
+  let userComunityRating = UserCommunityRating.load(communityId.toString() + ' ' + userAddress.toHex());
+
+  if (userComunityRating == null) {
+    userComunityRating = new UserCommunityRating(communityId.toString() + ' ' + userAddress.toHex());
+    userComunityRating.user = userAddress.toHex()
+    userComunityRating.communityId = communityId.toI32();
+
+    let rating = getPeeranha().getUserRating(userAddress, communityId);
+    userComunityRating.rating = rating;
+    userComunityRating.save();
+
+    let ratings = user.ratings;
+    ratings.push(communityId.toString() + ' ' + userAddress.toHex());
+    user.ratings = ratings;
     user.save();
+  } else {
+    let rating = getPeeranha().getUserRating(userAddress, communityId);
+    userComunityRating.rating = rating;
+    userComunityRating.save();
   }
 }
 
 export function getUser(userAddress: Address): User | null {
   let user = User.load(userAddress.toHex());
-
   if (user == null) {
     // let communityIdI32 = communityId.toI32();                     ///
     // let newCommunityId: BigInt = new BigInt(communityIdI32);      /// -_-
