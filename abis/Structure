@@ -1,6 +1,15 @@
-Peeranha
-User
-Post
-Community & Tag
-Security
-NFT
+Peeranha.json:
+    Peeranha
+    User
+    Post
+        error: Failed to generate types for contract ABIs: Failed to generate types for contract ABI: Conversion from 'ethereum' to 'AssemblyScript' for source type 'PostLib.PostType' is not supported
+        fix - "type": "PostLib.PostType" -> "type": "uint8"
+    Community & Tag
+    Security
+
+
+PeeranhaNFT.json
+    NFT
+
+PeeranhaToken.json
+    Token

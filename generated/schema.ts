@@ -1464,3 +1464,250 @@ export class Achievement extends Entity {
     }
   }
 }
+
+export class UserReward extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save UserReward entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save UserReward entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("UserReward", id.toString(), this);
+  }
+
+  static load(id: string): UserReward | null {
+    return store.get("UserReward", id) as UserReward | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get period(): string | null {
+    let value = this.get("period");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set period(value: string | null) {
+    if (value === null) {
+      this.unset("period");
+    } else {
+      this.set("period", Value.fromString(value as string));
+    }
+  }
+
+  get user(): string | null {
+    let value = this.get("user");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toString();
+    }
+  }
+
+  set user(value: string | null) {
+    if (value === null) {
+      this.unset("user");
+    } else {
+      this.set("user", Value.fromString(value as string));
+    }
+  }
+
+  get tokenToReward(): BigInt | null {
+    let value = this.get("tokenToReward");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set tokenToReward(value: BigInt | null) {
+    if (value === null) {
+      this.unset("tokenToReward");
+    } else {
+      this.set("tokenToReward", Value.fromBigInt(value as BigInt));
+    }
+  }
+
+  get status(): boolean {
+    let value = this.get("status");
+    return value.toBoolean();
+  }
+
+  set status(value: boolean) {
+    this.set("status", Value.fromBoolean(value));
+  }
+}
+
+export class Period extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save Period entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save Period entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("Period", id.toString(), this);
+  }
+
+  static load(id: string): Period | null {
+    return store.get("Period", id) as Period | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get startPeriodTime(): BigInt | null {
+    let value = this.get("startPeriodTime");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set startPeriodTime(value: BigInt | null) {
+    if (value === null) {
+      this.unset("startPeriodTime");
+    } else {
+      this.set("startPeriodTime", Value.fromBigInt(value as BigInt));
+    }
+  }
+
+  get endPeriodTime(): BigInt | null {
+    let value = this.get("endPeriodTime");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set endPeriodTime(value: BigInt | null) {
+    if (value === null) {
+      this.unset("endPeriodTime");
+    } else {
+      this.set("endPeriodTime", Value.fromBigInt(value as BigInt));
+    }
+  }
+}
+
+export class ContractInfo extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id !== null, "Cannot save ContractInfo entity without an ID");
+    assert(
+      id.kind == ValueKind.STRING,
+      "Cannot save ContractInfo entity with non-string ID. " +
+        'Considering using .toHex() to convert the "id" to a string.'
+    );
+    store.set("ContractInfo", id.toString(), this);
+  }
+
+  static load(id: string): ContractInfo | null {
+    return store.get("ContractInfo", id) as ContractInfo | null;
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    return value.toString();
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get startPeriodTime(): BigInt | null {
+    let value = this.get("startPeriodTime");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set startPeriodTime(value: BigInt | null) {
+    if (value === null) {
+      this.unset("startPeriodTime");
+    } else {
+      this.set("startPeriodTime", Value.fromBigInt(value as BigInt));
+    }
+  }
+
+  get periodLength(): BigInt | null {
+    let value = this.get("periodLength");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set periodLength(value: BigInt | null) {
+    if (value === null) {
+      this.unset("periodLength");
+    } else {
+      this.set("periodLength", Value.fromBigInt(value as BigInt));
+    }
+  }
+
+  get lastUpdatePeriod(): i32 {
+    let value = this.get("lastUpdatePeriod");
+    return value.toI32();
+  }
+
+  set lastUpdatePeriod(value: i32) {
+    this.set("lastUpdatePeriod", Value.fromI32(value));
+  }
+
+  get lastBlock(): BigInt | null {
+    let value = this.get("lastBlock");
+    if (value === null || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set lastBlock(value: BigInt | null) {
+    if (value === null) {
+      this.unset("lastBlock");
+    } else {
+      this.set("lastBlock", Value.fromBigInt(value as BigInt));
+    }
+  }
+}

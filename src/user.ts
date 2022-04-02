@@ -19,7 +19,7 @@ export function addDataToUser(user: User | null, userAddress: Address): void {
   let peeranhaUser = getPeeranha().getUserByAddress(userAddress);
   if (peeranhaUser == null) return;
 
-  user.rating = peeranhaUser.rating;
+  user.rating = 0;              /// fix
   user.ipfsHash = peeranhaUser.ipfsDoc.hash;
   user.ipfsHash2 = peeranhaUser.ipfsDoc.hash2;
 
@@ -78,7 +78,7 @@ export function updateUserRating(userAddress: Address): void {
 
   let user = User.load(userAddress.toHex());
   if (user != null) {
-    user.rating = peeranhaUser.rating;
+    user.rating = 0;    ////fix
     user.save();
   }
 }

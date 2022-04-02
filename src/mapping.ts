@@ -1,4 +1,5 @@
 import { Address, BigInt, log } from '@graphprotocol/graph-ts'
+import { ethereum } from '@graphprotocol/graph-ts'
 import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity,
   CommunityCreated, CommunityUpdated, CommunityFrozen, CommunityUnfrozen,
   TagCreated,
@@ -6,11 +7,13 @@ import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity,
   ReplyCreated, ReplyEdited, ReplyDeleted,
   CommentCreated, CommentEdited, CommentDeleted,
   ForumItemVoted,
-  StatusOfficialReplyChanged, StatusBestReplyChanged
+  StatusOfficialReplyChanged, StatusBestReplyChanged,
 } from '../generated/Peeranha/Peeranha'
-import { User, Community, Tag, Post, Reply, Comment, Achievement } from '../generated/schema'
 
-import { getPeeranha } from './utils'
+import { GetReward } from '../generated/PeeranhaToken/PeeranhaToken'
+import { User, Community, Tag, Post, Reply, Comment, Achievement, ContractInfo, UserReward, Period } from '../generated/schema'
+
+import { getPeeranha, getPeeranhaToken, peeranhaAddress } from './utils'
 import { newPost, addDataToPost, deletePost,
   newReply, addDataToReply, deleteReply,
   newComment, addDataToComment } from './post'
@@ -231,6 +234,52 @@ export function handleDeletedComment(event: CommentDeleted): void {
 
   comment.isDeleted = true;
   comment.save(); 
+}
+
+export function handleReward(block: ethereum.Block): void {
+  let contractInfo = ContractInfo.load(peeranhaAddress)
+  if (contractInfo == null) {
+    contractInfo = new ContractInfo(peeranhaAddress)
+    const periodInfo = getPeeranha().getPeriodInfo();
+    const startPeriodTime = periodInfo.value0
+    const periodLength = periodInfo.value1
+    contractInfo.startPeriodTime = startPeriodTime;
+    contractInfo.periodLength = periodLength;
+    contractInfo.lastUpdatePeriod = 0;
+    contractInfo.lastBlock = block.number;
+    contractInfo.save()
+  }
+
+  if ((contractInfo.lastBlock.plus(BigInt.fromI32(3))).lt(block.number)) {
+    const period = getPeeranha().getPeriod() + 1;
+    if (contractInfo.lastUpdatePeriod < period) {   // for() from lastUpdatePeriod to period
+      contractInfo.lastUpdatePeriod = period;
+      contractInfo.lastBlock = block.number;
+      contractInfo.save()
+      let periodStruct = new Period(period.toString());
+      periodStruct.startPeriodTime = contractInfo.startPeriodTime.plus(contractInfo.periodLength.times(BigInt.fromI32(period)))
+      periodStruct.endPeriodTime = contractInfo.startPeriodTime.plus(contractInfo.periodLength.times(BigInt.fromI32(period + 1)))
+      periodStruct.save();
+
+      const activeUsersInPeriod = getPeeranha().getActiveUsersInPeriod(period);
+      for (let i = 0; i < activeUsersInPeriod.length; i++) {
+        const tokenRewards = getPeeranhaToken().getUserRewardGraph(activeUsersInPeriod[i], period);
+
+        let userReward = new UserReward(period.toString() + '-' + activeUsersInPeriod[i].toHex())
+        userReward.tokenToReward = tokenRewards;
+        userReward.period = period.toString();
+        userReward.user = activeUsersInPeriod[i].toHex();
+        userReward.status = false;
+        userReward.save();
+      }
+    }
+  }
+}
+
+export function handleGetReward(event: GetReward): void {
+  const userReward = UserReward.load(BigInt.fromI32(event.params.period).toString() + '-' + event.params.user.toHex())
+  userReward.status = true;
+  userReward.save();
 }
 
 export function handlerChangedStatusOfficialReply(event: StatusOfficialReplyChanged): void {
