@@ -229,6 +229,11 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
         "internalType": "uint16",
         "name": "period",
         "type": "uint16"

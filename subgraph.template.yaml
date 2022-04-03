@@ -6,7 +6,7 @@ dataSources:
     name: Peeranha
     network: mumbai
     source:
-      address: "0x56fB95C7d03E24DB7f03B246506f80145e2Ca0f8"
+      address: "{{mainAddress}}"
       abi: Peeranha
       startBlock: 25765640
     mapping:
@@ -73,7 +73,7 @@ dataSources:
     name: PeeranhaNFT
     network: mumbai
     source:
-      address: "0x1328033BDD948e63dA196218b1Db9B25eD6B732e"
+      address: "{{nftAddress}}"
       abi: PeeranhaNFT
       startBlock: 25765637
     mapping:
@@ -96,7 +96,7 @@ dataSources:
     name: PeeranhaToken
     network: mumbai
     source:
-      address: "0xdB4af34Fb249C8C8be3D3d8548e046d26C964a79"
+      address: "{{tokenAddress}}"
       abi: PeeranhaToken
       startBlock: 25765642
     mapping:

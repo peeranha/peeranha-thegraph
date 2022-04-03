@@ -66,3 +66,6 @@ package-lock.json
 .idea
 # test framework binaries
 tests/.bin/
+
+subgraph.yml
+src/config.ts

@@ -580,8 +580,12 @@ export class ClaimRewardCall__Inputs {
     this._call = call;
   }
 
+  get user(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
   get period(): i32 {
-    return this._call.inputValues[0].value.toI32();
+    return this._call.inputValues[1].value.toI32();
   }
 }
 

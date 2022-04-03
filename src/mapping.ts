@@ -12,7 +12,8 @@ import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity,
 
 import { GetReward } from '../generated/PeeranhaToken/PeeranhaToken'
 import { User, Community, Tag, Post, Reply, Comment, Achievement, ContractInfo, UserReward, Period } from '../generated/schema'
-import { getPeeranha, getPeeranhaToken, peeranhaAddress } from './utils'
+import { MAIN_ADDRESS } from './config'
+import { getPeeranha, getPeeranhaToken } from './utils'
 
 import { newPost, addDataToPost, deletePost,
   newReply, addDataToReply, deleteReply,
@@ -273,9 +274,9 @@ export function handleDeletedComment(event: CommentDeleted): void {
 }
 
 export function handleReward(block: ethereum.Block): void {
-  let contractInfo = ContractInfo.load(peeranhaAddress)
+  let contractInfo = ContractInfo.load(MAIN_ADDRESS)
   if (contractInfo == null) {
-    contractInfo = new ContractInfo(peeranhaAddress)
+    contractInfo = new ContractInfo(MAIN_ADDRESS)
     const periodInfo = getPeeranha().getPeriodInfo();
     const startPeriodTime = periodInfo.value0
     const periodLength = periodInfo.value1
