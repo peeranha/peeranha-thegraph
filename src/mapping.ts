@@ -26,9 +26,6 @@ import { ConfigureNewAchievementNFT, Transfer } from '../generated/PeeranhaNFT/P
 const POOL_NFT = 1000000;
   
 export function handleConfigureNewAchievement(event: ConfigureNewAchievementNFT): void {
-  if (event.params.achievementId < BigInt.fromI32(13)) {
-    return;
-  }
   let achievement = new Achievement(event.params.achievementId.toString());
   newAchievement(achievement, event.params.achievementId);
 
@@ -288,7 +285,7 @@ export function handleReward(block: ethereum.Block): void {
   }
 
   if ((contractInfo.lastBlock.plus(BigInt.fromI32(3))).lt(block.number)) {
-    const period = getPeeranha().getPeriod() + 1;
+    const period = getPeeranha().getPeriod() - 1;
     if (contractInfo.lastUpdatePeriod < period) {   // for() from lastUpdatePeriod to period
       contractInfo.lastUpdatePeriod = period;
       contractInfo.lastBlock = block.number;
