@@ -48,24 +48,6 @@ export function handleTransferAchievement(event: Transfer): void {
 
 
 export function handleNewUser(event: UserCreated): void {
-  if (event.params.userAddress.toHex() == "0xeed58801f34f32695fc43f1b61c74cb7cea70ee0") {
-    return;
-  }
-  // if (event.params.userAddress.toHex() == "0xed4626046dd913ae11fb4b04b4bd1caec5867645") {
-  //   return;
-  // }
-  // if (event.params.userAddress.toHex() == "0xf1fef67cdeb0d2af32f125ab8ffc85ab2cec0881") {
-  //   return;
-  // }
-  // if (event.params.userAddress.toHex() == "0x094a767eec1aa031953a6f5946ee07c9afe469c8") {
-  //   return;
-  // }
-  if (event.params.userAddress.toHex() == "0x47c7f69e98451a27e6515b5b85d7ea1562a8e903") {
-    return;
-  }
-  if (event.params.userAddress.toHex() == "0xdb3dec65f2dfd5bd93f60738f6b0876125c43c2e") {
-    return;
-  }
   let user = new User(event.params.userAddress.toHex());
   newUser(user, event.params.userAddress);
 
@@ -73,24 +55,6 @@ export function handleNewUser(event: UserCreated): void {
 }
 
 export function handleUpdatedUser(event: UserUpdated): void {
-  if (event.params.userAddress.toHex() == "0xeed58801f34f32695fc43f1b61c74cb7cea70ee0") {
-    return;
-  }
-  // if (event.params.userAddress.toHex() == "0xed4626046dd913ae11fb4b04b4bd1caec5867645") {
-  //   return;
-  // }
-  // if (event.params.userAddress.toHex() == "0xf1fef67cdeb0d2af32f125ab8ffc85ab2cec0881") {
-  //   return;
-  // }
-  // if (event.params.userAddress.toHex() == "0x094a767eec1aa031953a6f5946ee07c9afe469c8") {
-  //   return;
-  // }
-  if (event.params.userAddress.toHex() == "0x47c7f69e98451a27e6515b5b85d7ea1562a8e903") {
-    return;
-  }
-  if (event.params.userAddress.toHex() == "0xdb3dec65f2dfd5bd93f60738f6b0876125c43c2e") {
-    return;
-  }
   let id = event.params.userAddress.toHex()
   let user = User.load(id)
   if (user == null) {
@@ -119,16 +83,17 @@ export function handlerFollowCommunity(event: FollowedCommunity): void {
 export function handlerUnfollowCommunity(event: UnfollowedCommunity): void {
   let user = User.load(event.params.userAddress.toHex());
   
-  let followedCommunities = user.followedCommunities
-  user.followedCommunities = []
+  let followedCommunities: string[] = [];
+  let followedCommunitiesBuf = user.followedCommunities
 
-  for (let i = 0; i < followedCommunities.length; i++) {
-      let community = followedCommunities.pop()
-      if (community != event.params.communityId.toString()) {
-        user.followedCommunities.push(community)   
-      }
+  for (let i = 0; i < user.followedCommunities.length; i++) {
+    let community = followedCommunitiesBuf.pop()
+    if (community != event.params.communityId.toString()) {
+      followedCommunities.push(community)   
+    }
   }
 
+  user.followedCommunities = followedCommunities;
   user.save();
 
   let community = Community.load(event.params.communityId.toString())
