@@ -12,7 +12,7 @@ type User @entity {
   creationTime: BigInt
   ipfsHash: Bytes
   ipfsHash2: Bytes
-  followedCommunities: [Community!]
+  followedCommunities: [String!]
   achievements: [Achievement!]
 }
 
@@ -150,13 +150,14 @@ type UserReward @entity {
   period: Period
   user: User
   tokenToReward: BigInt
-  status: Boolean
+  isPaid: Boolean
 }
 
 type Period @entity {
   id: ID!
   startPeriodTime: BigInt
   endPeriodTime: BigInt
+  isFinished: Boolean
 }
 
 type ContractInfo @entity {
