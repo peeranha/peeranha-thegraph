@@ -104,25 +104,36 @@ export function handleUpdatedUser(event: UserUpdated): void {
 }
 
 export function handlerFollowCommunity(event: FollowedCommunity): void {
-  // let user = new User(event.params.userAddress.toHex());
-  
-  // let followedCommunities = user.followedCommunities
-  // followedCommunities.push("1")
-  // followedCommunities.push("2")
-  // user.followedCommunities = followedCommunities
+  let user = User.load(event.params.userAddress.toHex());
+  let followedCommunities = user.followedCommunities
+  followedCommunities.push(event.params.communityId.toString())
 
-  // user.save();
+  user.followedCommunities = followedCommunities
+  user.save();
+
+  let community = Community.load(event.params.communityId.toString())
+  community.followingUsers++;
+  community.save()
 }
 
 export function handlerUnfollowCommunity(event: UnfollowedCommunity): void {
-  // let user = new User(event.params.userAddress.toHex());
+  let user = User.load(event.params.userAddress.toHex());
   
-  // let followedCommunities = user.followedCommunities
-  // followedCommunities.push("1")
-  // followedCommunities.push("2")
-  // user.followedCommunities = followedCommunities
+  let followedCommunities = user.followedCommunities
+  user.followedCommunities = []
 
-  // user.save();
+  for (let i = 0; i < followedCommunities.length; i++) {
+      let community = followedCommunities.pop()
+      if (community != event.params.communityId.toString()) {
+        user.followedCommunities.push(community)   
+      }
+  }
+
+  user.save();
+
+  let community = Community.load(event.params.communityId.toString())
+  community.followingUsers--;
+  community.save()
 }
 
 export function handleNewCommunity(event: CommunityCreated): void {
@@ -279,32 +290,41 @@ export function handleReward(block: ethereum.Block): void {
     const periodLength = periodInfo.value1
     contractInfo.startPeriodTime = startPeriodTime;
     contractInfo.periodLength = periodLength;
-    contractInfo.lastUpdatePeriod = 0;
+    contractInfo.lastUpdatePeriod = -1;
     contractInfo.lastBlock = block.number;
     contractInfo.save()
   }
 
-  if ((contractInfo.lastBlock.plus(BigInt.fromI32(3))).lt(block.number)) {
-    const period = getPeeranha().getPeriod() - 1;
-    if (contractInfo.lastUpdatePeriod < period) {   // for() from lastUpdatePeriod to period
+  if ((contractInfo.lastBlock.plus(BigInt.fromI32(100))).lt(block.number)) {
+    const period = getPeeranha().getPeriod();
+    if (period >= 50000) return;                  // delete in prod
+
+    if (contractInfo.lastUpdatePeriod < period) {   // for() from lastUpdatePeriod to period ?
       contractInfo.lastUpdatePeriod = period;
       contractInfo.lastBlock = block.number;
       contractInfo.save()
       let periodStruct = new Period(period.toString());
       periodStruct.startPeriodTime = contractInfo.startPeriodTime.plus(contractInfo.periodLength.times(BigInt.fromI32(period)))
       periodStruct.endPeriodTime = contractInfo.startPeriodTime.plus(contractInfo.periodLength.times(BigInt.fromI32(period + 1)))
-      periodStruct.save();
+      periodStruct.isFinished = false;
+      periodStruct.save();  
 
-      const activeUsersInPeriod = getPeeranha().getActiveUsersInPeriod(period);
-      for (let i = 0; i < activeUsersInPeriod.length; i++) {
-        const tokenRewards = getPeeranhaToken().getUserRewardGraph(activeUsersInPeriod[i], period);
+      const previousPeriod = period - 1;
+      if (previousPeriod >= 0) {
+        const activeUsersInPeriod = getPeeranha().getActiveUsersInPeriod(previousPeriod);
+        for (let i = 0; i < activeUsersInPeriod.length; i++) {
+          const tokenRewards = getPeeranhaToken().getUserRewardGraph(activeUsersInPeriod[i], previousPeriod);
+          let userReward = new UserReward(previousPeriod.toString() + '-' + activeUsersInPeriod[i].toHex())
+          userReward.tokenToReward = tokenRewards;
+          userReward.period = previousPeriod.toString();
+          userReward.user = activeUsersInPeriod[i].toHex();
+          userReward.isPaid = false;
+          userReward.save();
 
-        let userReward = new UserReward(period.toString() + '-' + activeUsersInPeriod[i].toHex())
-        userReward.tokenToReward = tokenRewards;
-        userReward.period = period.toString();
-        userReward.user = activeUsersInPeriod[i].toHex();
-        userReward.status = false;
-        userReward.save();
+          let previousPeriodStruct = new Period(previousPeriod.toString());
+          previousPeriodStruct.isFinished = true;
+          previousPeriodStruct.save()
+        }
       }
     }
   }
@@ -312,7 +332,7 @@ export function handleReward(block: ethereum.Block): void {
 
 export function handleGetReward(event: GetReward): void {
   const userReward = UserReward.load(BigInt.fromI32(event.params.period).toString() + '-' + event.params.user.toHex())
-  userReward.status = true;
+  userReward.isPaid = true;
   userReward.save();
 }
 
