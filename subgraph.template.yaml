@@ -8,7 +8,7 @@ dataSources:
     source:
       address: "{{mainAddress}}"
       abi: Peeranha
-      startBlock: 25765640
+      startBlock: {{startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -75,7 +75,7 @@ dataSources:
     source:
       address: "{{nftAddress}}"
       abi: PeeranhaNFT
-      startBlock: 25765637
+      startBlock: {{startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -98,7 +98,7 @@ dataSources:
     source:
       address: "{{tokenAddress}}"
       abi: PeeranhaToken
-      startBlock: 25765642
+      startBlock: {{startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
