@@ -63,7 +63,7 @@ type _Schema_
   name: "postSearch"
   language: en
   algorithm: rank
-  include: [{entity: "Post", , fields: [{ name: "title" }, { name: "content"}, { name: "postContent"}]}]        
+  include: [{entity: "Post", fields: [{ name: "title" }, { name: "content"}, { name: "postContent"}]}]        
 )
 
 type Post @entity {
