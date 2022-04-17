@@ -17,7 +17,7 @@ import { getPeeranha, getPeeranhaToken } from './utils'
 
 import { newPost, addDataToPost, deletePost,
   newReply, addDataToReply, deleteReply,
-  newComment, addDataToComment } from './post'
+  newComment, addDataToComment, updatePostContent } from './post'
 import { newCommunity, addDataToCommunity, newTag, getCommunity } from './community-tag'
 import { newUser, addDataToUser, updateUserRating } from './user'
 import { addDataToAchievement, giveAchievement, newAchievement } from './achievement'
@@ -169,8 +169,10 @@ export function handleEditedPost(event: PostEdited): void {
   } else {
     addDataToPost(post, event.params.postId);
   }
-
+  
   post.save();
+  let postId = event.params.postId;
+  updatePostContent(postId);
 }
 
 export function handleDeletedPost(event: PostDeleted): void {
@@ -201,6 +203,8 @@ export function handleEditedReply(event: ReplyEdited): void {
   }
 
   reply.save();
+  let postId = event.params.postId;
+  updatePostContent(postId);
 }
 
 export function handleDeletedReply(event: ReplyDeleted): void {
@@ -210,6 +214,8 @@ export function handleDeletedReply(event: ReplyDeleted): void {
 
   deleteReply(reply, event.params.postId);
   reply.save();
+  let postId = event.params.postId;
+  updatePostContent(postId);
 }
 
 export function handleNewComment(event: CommentCreated): void {
@@ -234,6 +240,8 @@ export function handleEditedComment(event: CommentEdited): void {
   }
 
   comment.save(); 
+  let postId = event.params.postId;
+  updatePostContent(postId);
 }
 
 export function handleDeletedComment(event: CommentDeleted): void {
@@ -244,6 +252,8 @@ export function handleDeletedComment(event: CommentDeleted): void {
 
   comment.isDeleted = true;
   comment.save(); 
+  let postId = event.params.postId;
+  updatePostContent(postId);
 }
 
 export function handleReward(block: ethereum.Block): void {

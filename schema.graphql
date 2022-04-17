@@ -63,7 +63,7 @@ type _Schema_
   name: "postSearch"
   language: en
   algorithm: rank
-  include: [{ entity: "Post", fields: [{ name: "title" }, { name: "content" }] }]
+  include: [{entity: "Post", , fields: [{ name: "title" }, { name: "content"}, { name: "postContent"}]}]        
 )
 
 type Post @entity {
@@ -80,7 +80,7 @@ type Post @entity {
 
   title: String
   content: String
-
+  postContent: String
   commentCount: Int
   replyCount: Int
   isDeleted: Boolean

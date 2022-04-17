@@ -21,6 +21,7 @@ export function newPost(post: Post | null, postId: BigInt): void {
   post.isDeleted = false;
   post.replies = [];
   post.comments = [];
+  post.postContent = "";
 
   let community = getCommunity(post.communityId);
   community.postCount++;
@@ -44,6 +45,7 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
     if(!post.tags.includes(newTag)) {
       let tag = Tag.load(peeranhaPost.communityId.toString() + "-" + newTag.toString());
       if (tag != null) {
+        post.postContent += " " + tag.name;
         tag.postCount++;
         tag.save();
       }
@@ -88,11 +90,13 @@ function getIpfsPostData(post: Post | null): void {
       let title = ipfsObj.get('title');
       if (!title.isNull()) {
         post.title = title.toString();
+        post.postContent += " " + title.toString();
       }
   
       let content = ipfsObj.get('content');
       if (!content.isNull()) {
         post.content = content.toString();
+        post.postContent += " " + content.toString();
       }
     }
   }
@@ -165,7 +169,7 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt): 
       replies.push(postId.toString() + "-" + replyId.toString())
       post.replies = replies
 
-      post.save();
+      
 
       let community = getCommunity(post.communityId);
       community.replyCount++;
@@ -181,6 +185,8 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt): 
     updateUserRating(peeranhaReply.author, post.communityId);
   }
   addDataToReply(reply, postId, replyId);
+  post.postContent += " " + reply.content;
+  post.save();
 }
 
 export function addDataToReply(reply: Reply | null, postId: BigInt, replyId: BigInt): void {
@@ -243,17 +249,17 @@ export function newComment(comment: Comment | null, postId: BigInt, parentReplyI
   comment.rating = peeranhaComment.rating;
   comment.parentReplyId = parentReplyId.toI32();  
   comment.isDeleted = false;
-
+  let post = Post.load(postId.toString());
   let commentFullId = postId.toString() + "-" + parentReplyId.toString() +  "-" + commentId.toString();
   if (parentReplyId == BigInt.fromI32(0)) {
-    let post = Post.load(postId.toString());
+    
     if (post != null ) {    // init post
       post.commentCount++;
       let comments = post.comments
       comments.push(commentFullId)
       post.comments = comments
 
-      post.save();
+      
     }
   } else {
     let reply = Reply.load(postId.toString() + "-" + parentReplyId.toString());
@@ -268,6 +274,9 @@ export function newComment(comment: Comment | null, postId: BigInt, parentReplyI
   }
 
   addDataToComment(comment, postId, parentReplyId, commentId);
+
+  post.postContent += " " + comment.content;
+  post.save();
 }
 
 export function addDataToComment(comment: Comment | null, postId: BigInt, parentReplyId: BigInt, commentId: BigInt): void {
@@ -319,4 +328,50 @@ export function voteComment(comment: Comment | null, postId: BigInt, parentReply
   }
 
   addDataToComment(comment, postId, parentReplyId, commentId);
+}
+
+
+export function updatePostContent(postId: BigInt): void {
+  let post = Post.load(postId.toString());
+  post.postContent = "";
+  
+
+  let peeranhaPost = getPeeranha().getPost(postId);
+  if (peeranhaPost == null) return;
+  let postTagsBuf = post.tags;
+  for (let i = 0; i < peeranhaPost.tags.length; i++) {
+  let tagId = postTagsBuf.pop();
+  let tag = Tag.load(post.communityId.toString() + "-" + tagId.toString());
+  if (tag != null) {
+    post.postContent += " " + tag.name;
+    }
+  }
+  // for (let i = 0; i < post.tags.length; i++) {
+  //   let tag = Tag.load(post.communityId.toString() + "-" + post.tags[i]);
+  //   if (tag != null) {
+  //     post.postContent += ` ${tag.name}`;
+  //   }
+  // }
+  post.postContent += " " + post.title;
+  post.postContent += " " + post.content;
+  for (let replyId = 1; replyId <= post.replyCount; replyId++) {
+    let reply = Reply.load(postId.toString() + "-" + replyId.toString());
+    if (!reply.isDeleted){
+      post.postContent += " " + reply.content;
+    
+    }
+    for (let commentId = 1; commentId <= reply.commentCount; commentId++) {
+      let comment = Comment.load(postId.toString() + "-" + replyId.toString() + "-" +  commentId.toString());
+      if (!comment.isDeleted) {
+        post.postContent += " " + comment.content;
+      }
+    }
+  }
+  for (let commentId = 1; commentId <= post.commentCount; commentId++) {
+    let comment = Comment.load(postId.toString() + "-" + "0" + "-" +  commentId.toString());
+    if (!comment.isDeleted) {
+      post.postContent += " " + comment.content;
+    }
+  }
+  post.save();
 }
