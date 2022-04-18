@@ -171,12 +171,10 @@ type ContractInfo @entity {
 type History @entity{
   id: ID!
   transactionHash: Int
-  postId: Int
-  postAuthor: String
+  post: Post
   answerId: Int
   answerAuthor: String
-  commentId: Int
-  commentAuthor: String
+  comment: Comment
   eventName: String
   actionUser: String
 }
