@@ -167,3 +167,17 @@ type ContractInfo @entity {
   lastUpdatePeriod: Int
   lastBlock: BigInt
 }
+
+
+type History @entity{
+  id: ID!
+  transactionHash: Int
+  postId: Int
+  postAuthor: String
+  answerId: Int
+  answerAuthor: String
+  commentId: Int
+  commentAuthor: String
+  eventName: String
+  actionUser: String
+}
