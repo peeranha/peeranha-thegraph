@@ -168,7 +168,6 @@ type ContractInfo @entity {
   lastBlock: BigInt
 }
 
-
 type History @entity{
   id: ID!
   transactionHash: Int
