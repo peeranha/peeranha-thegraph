@@ -83,6 +83,13 @@ export function newTag(tag: Tag | null, communityId: BigInt, tagId: BigInt): voi
   addDataToTag(tag, communityId, tagId);
 }
 
+export function updateTag(tag: Tag | null, communityId: BigInt, tagId: BigInt): void {
+  let peeranhaTag = getPeeranha().getTag(communityId, tagId.toI32());
+  if (peeranhaTag == null) return;
+  
+  addDataToTag(tag, communityId, tagId);
+}
+
 export function addDataToTag(tag: Tag | null, communityId: BigInt, tagId: BigInt): void {
   let peeranhaTag = getPeeranha().getTag(communityId, tagId.toI32());
   if (peeranhaTag == null) return;
