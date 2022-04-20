@@ -92,6 +92,7 @@ type Post @entity {
   properties: [BigInt!]
   replies: [Reply!]
   comments: [Comment!]
+  history: [History!]
 }
 
 type Reply @entity {
@@ -115,6 +116,7 @@ type Reply @entity {
   isQuickReply: Boolean
   properties: [Bytes!]
   comments: [Comment!]
+  history: [History!]
 }
 
 type Comment @entity {
@@ -131,6 +133,7 @@ type Comment @entity {
 
   isDeleted: Boolean
   properties: [Bytes!]
+  history: [History!]
 }
 
 type Achievement @entity {
@@ -170,7 +173,7 @@ type ContractInfo @entity {
 
 type History @entity {
   id: ID!
-  transactionHash: Int
+  transactionHash: Bytes
   post: Post
   reply: Reply
   comment: Comment

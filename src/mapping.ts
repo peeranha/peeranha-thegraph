@@ -166,14 +166,17 @@ export function handleNewPost(event: PostCreated): void {
   let post = new Post(event.params.postId.toString());
 
   newPost(post, event.params.postId);
-  post.save();
 
-  let history = new History(event.block.hash.toString());
+  let history = new History(event.transaction.hash.toString());
   history.post = event.params.postId.toString();
-  history.transactionHash = event.block.hash.toString();
+  history.transactionHash = event.transaction.hash;
   history.eventName = 'PostCreated';
   history.actionUser = event.params.user.toString();
+
   history.save();
+
+  post.history.push(event.transaction.hash.toString());
+  post.save();
 }
 
 export function handleEditedPost(event: PostEdited): void {
@@ -200,8 +203,19 @@ export function handleNewReply(event: ReplyCreated): void {
   let replyId = BigInt.fromI32(event.params.replyId);
   let reply = new Reply(event.params.postId.toString() + "-" + replyId.toString());
 
+  let history = new History(event.transaction.hash.toString());
+  history.post = event.params.postId.toString(); //!!!!
+  history.reply = event.params.postId.toString() + "-" + replyId.toString();
+  history.transactionHash = event.transaction.hash;
+  history.eventName = 'ReplyCreated';
+  history.actionUser = event.params.user.toString();
+
+  history.save();
+
+  reply.history.push(event.transaction.hash.toString());
+
   newReply(reply, event.params.postId, replyId);
-  reply.save(); 
+  reply.save();
 }
 
 export function handleEditedReply(event: ReplyEdited): void { 
@@ -232,8 +246,27 @@ export function handleNewComment(event: CommentCreated): void {
   let parentReplyId = BigInt.fromI32(event.params.parentReplyId);
   let comment = new Comment(event.params.postId.toString() + "-" + parentReplyId.toString() + "-" +  commentId.toString());
 
+  let history = new History(event.transaction.hash.toString());
+  history.post = event.params.postId.toString(); //!!!!
+  //history.reply = event.params.postId.toString() + "-" + replyId.toString();
+  history.transactionHash = event.transaction.hash;
+  history.eventName = 'CommentCreated';
+  history.actionUser = event.params.user.toString();
+
+  history.save();
+
+  comment.history.push(event.transaction.hash.toString());
+
+
   newComment(comment, event.params.postId, BigInt.fromI32(event.params.parentReplyId), commentId);  //без конвертации
-  comment.save(); 
+  comment.save();
+
+  // let history = new History(event.block.hash.toString());
+  // history.post = event.params.postId.toString();
+  // history.transactionHash = BigInt.fromI32(event.block.hash).toString();
+  // history.eventName = 'CommentCreated';
+  // history.actionUser = event.params.user.toString();
+  // history.save();
 }
 
 export function handleEditedComment(event: CommentEdited): void { 
@@ -338,7 +371,7 @@ export function handlerChangedStatusOfficialReply(event: StatusOfficialReplyChan
       reply.isOfficialReply = false;
     }
 
-    reply?.save();
+    reply.save();
   }
 
   let replyId = BigInt.fromI32(event.params.replyId);
@@ -347,8 +380,8 @@ export function handlerChangedStatusOfficialReply(event: StatusOfficialReplyChan
   if (reply == null) {
     newReply(reply, event.params.postId, replyId);
   } 
-  reply?.isOfficialReply = true;
-  reply?.save();
+  reply.isOfficialReply = true;
+  reply.save();
 }
 
 export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): void {
@@ -372,8 +405,8 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
     } else {
       previousReply.isBestReply = false;
     }
-    updateUserRating(Address.fromString(previousReply?.author), post.communityId);
-    previousReply?.save();
+    updateUserRating(Address.fromString(previousReply.author), post.communityId);
+    previousReply.save();
   }
 
   if (event.params.replyId != 0) {    // fix  (if reply does not exist -> getReply() call erray)
@@ -384,9 +417,9 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
       newReply(reply, event.params.postId, replyId);
     }
 
-    reply?.isBestReply = true;
-    updateUserRating(Address.fromString(reply?.author), post.communityId);
-    reply?.save();
+    reply.isBestReply = true;
+    updateUserRating(Address.fromString(reply.author), post.communityId);
+    reply.save();
   }
 }
 
