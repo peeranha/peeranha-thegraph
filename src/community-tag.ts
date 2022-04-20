@@ -87,7 +87,10 @@ export function updateTag(tag: Tag | null, communityId: BigInt, tagId: BigInt): 
   let peeranhaTag = getPeeranha().getTag(communityId, tagId.toI32());
   if (peeranhaTag == null) return;
   
-  addDataToTag(tag, communityId, tagId);
+  tag.ipfsHash = peeranhaTag.ipfsDoc.hash;
+  tag.ipfsHash2 = peeranhaTag.ipfsDoc.hash2;
+
+  getIpfsTagData(tag);
 }
 
 export function addDataToTag(tag: Tag | null, communityId: BigInt, tagId: BigInt): void {
