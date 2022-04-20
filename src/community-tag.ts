@@ -79,18 +79,9 @@ function getIpfsCommunityData(community: Community | null): void {
 
 export function newTag(tag: Tag | null, communityId: BigInt, tagId: BigInt): void {
   tag.communityId = communityId;
+  tag.postCount = 0;
   
   addDataToTag(tag, communityId, tagId);
-}
-
-export function updateTag(tag: Tag | null, communityId: BigInt, tagId: BigInt): void {
-  let peeranhaTag = getPeeranha().getTag(communityId, tagId.toI32());
-  if (peeranhaTag == null) return;
-  
-  tag.ipfsHash = peeranhaTag.ipfsDoc.hash;
-  tag.ipfsHash2 = peeranhaTag.ipfsDoc.hash2;
-
-  getIpfsTagData(tag);
 }
 
 export function addDataToTag(tag: Tag | null, communityId: BigInt, tagId: BigInt): void {
@@ -99,7 +90,6 @@ export function addDataToTag(tag: Tag | null, communityId: BigInt, tagId: BigInt
   
   tag.ipfsHash = peeranhaTag.ipfsDoc.hash;
   tag.ipfsHash2 = peeranhaTag.ipfsDoc.hash2;
-  tag.postCount = 0;
 
   getIpfsTagData(tag);
 }
