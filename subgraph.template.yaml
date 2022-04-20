@@ -40,6 +40,8 @@ dataSources:
           handler: handleUnfrozenCommunity
         - event: TagCreated(address,uint8,uint32)
           handler: handleNewTag
+        - event: TagUpdated(address,uint8,uint32)
+          handler: handleEditedTag 
         - event: PostCreated(address,uint32,uint256)
           handler: handleNewPost
         - event: PostEdited(address,uint256)

@@ -2,7 +2,7 @@ import { Address, BigInt, log } from '@graphprotocol/graph-ts'
 import { ethereum } from '@graphprotocol/graph-ts'
 import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity,
   CommunityCreated, CommunityUpdated, CommunityFrozen, CommunityUnfrozen,
-  TagCreated,
+  TagCreated, TagUpdated,
   PostCreated, PostEdited, PostDeleted,
   ReplyCreated, ReplyEdited, ReplyDeleted,
   CommentCreated, CommentEdited, CommentDeleted,
@@ -18,7 +18,7 @@ import { getPeeranha, getPeeranhaToken } from './utils'
 import { newPost, addDataToPost, deletePost,
   newReply, addDataToReply, deleteReply,
   newComment, addDataToComment, updatePostContent } from './post'
-import { newCommunity, addDataToCommunity, newTag, getCommunity } from './community-tag'
+import { newCommunity, addDataToCommunity, newTag, addDataToTag, getCommunity } from './community-tag'
 import { newUser, addDataToUser, updateUserRating } from './user'
 import { addDataToAchievement, giveAchievement, newAchievement } from './achievement'
 import { ConfigureNewAchievementNFT, Transfer } from '../generated/PeeranhaNFT/PeeranhaNFT'
@@ -151,6 +151,12 @@ export function handleNewTag(event: TagCreated): void {
   
   newTag(tag, event.params.communityId, BigInt.fromI32(event.params.tagId));
   tag.save(); 
+}
+
+export function handleEditedTag(event: TagUpdated): void {
+  let tag = Tag.load(event.params.communityId.toString() + "-" + BigInt.fromI32(event.params.tagId).toString());
+  addDataToTag(tag, event.params.communityId, BigInt.fromI32(event.params.tagId));
+  tag.save();
 }
 
 export function handleNewPost(event: PostCreated): void {
