@@ -209,7 +209,6 @@ export function handleNewReply(event: ReplyCreated): void {
   history.transactionHash = event.transaction.hash;
   history.eventName = 'ReplyCreated';
   history.actionUser = event.params.user.toString();
-
   history.save();
 
   reply.history.push(event.transaction.hash.toString());
