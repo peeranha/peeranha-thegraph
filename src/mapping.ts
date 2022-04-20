@@ -6,7 +6,7 @@ import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity,
   PostCreated, PostEdited, PostDeleted,
   ReplyCreated, ReplyEdited, ReplyDeleted,
   CommentCreated, CommentEdited, CommentDeleted,
-  ForumItemVoted,
+  ForumItemVoted, ChangePostType,
   StatusOfficialReplyChanged, StatusBestReplyChanged,
 } from '../generated/Peeranha/Peeranha'
 
@@ -173,6 +173,14 @@ export function handleEditedPost(event: PostEdited): void {
   post.save();
   let postId = event.params.postId;
   updatePostContent(postId);
+}
+
+export function handleChangedTypePost(event: ChangePostType): void {
+  let post = Post.load(event.params.postId.toString())
+  if (post != null) {
+    post.postType = event.params.newPostType;
+    post.save();
+  }
 }
 
 export function handleDeletedPost(event: PostDeleted): void {

@@ -46,6 +46,8 @@ dataSources:
           handler: handleEditedPost
         - event: PostDeleted(address,uint256)
           handler: handleDeletedPost
+        - event: ChangePostType(address,uint256,uint8)
+          handler: handleChangedTypePost
         - event: ReplyCreated(address,uint256,uint16,uint16)
           handler: handleNewReply
         - event: ReplyEdited(address,uint256,uint16)
