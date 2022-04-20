@@ -2,11 +2,8 @@ import { Address, BigInt, log } from '@graphprotocol/graph-ts'
 import { ethereum } from '@graphprotocol/graph-ts'
 import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity,
   CommunityCreated, CommunityUpdated, CommunityFrozen, CommunityUnfrozen,
-  TagCreated,HistoryCreated,
-  PostCreated, PostEdited, PostDeleted,
-  ReplyCreated, ReplyEdited, ReplyDeleted,
-  CommentCreated, CommentEdited, CommentDeleted,
-  ForumItemVoted,
+  TagCreated,  PostCreated, PostEdited, PostDeleted, ReplyCreated, ReplyEdited,
+  ReplyDeleted, CommentCreated, CommentEdited, CommentDeleted, ForumItemVoted,
   StatusOfficialReplyChanged, StatusBestReplyChanged
 } from '../generated/Peeranha/Peeranha'
 
@@ -25,35 +22,18 @@ import { ConfigureNewAchievementNFT, Transfer } from '../generated/PeeranhaNFT/P
 
 const POOL_NFT = 1000000;
 
-export function handlerNewHistory(event: HistoryCreated): void {
-  let history = new History(event.params.id.toString());
-  history.post = event.params.post;
-  history.transactionHash = event.params.transactionHash;
-  history.reply = event.params.reply;
-  history.comment = event.params.comment;
-  history.eventName = event.params.eventName;
-  history.actionUser = event.params.actionUser;
-
-  history.save();
-}
-//export function handleUpdatedHistory(event: UpdatedHistory): void {
-//   let id = event.params.id
-//   let history = History.load(id)
-//   if (history == null) {
-//     history = new History(id)
-//   }
-// history.post = event.params.post;
-// history.transactionHash = event.params.transactionHash;
-// history.reply = event.params.reply;
-// history.comment = event.params.comment;
-// history.eventName = event.params.eventName;
-// history.actionUser = event.params.actionUser;
+// export function handlerNewHistory(event: HistoryCreated): void {
+//   let history = new History(event.params.id.toString());
+//   history.post = event.params.post;
+//   history.transactionHash = event.params.transactionHash;
+//   history.reply = event.params.reply;
+//   history.comment = event.params.comment;
+//   history.eventName = event.params.eventName;
+//   history.actionUser = event.params.actionUser;
 //
-// history.save();
+//   history.save();
 // }
 
-
-  
 export function handleConfigureNewAchievement(event: ConfigureNewAchievementNFT): void {
   let achievement = new Achievement(event.params.achievementId.toString());
   newAchievement(achievement, event.params.achievementId);
@@ -187,7 +167,13 @@ export function handleNewPost(event: PostCreated): void {
 
   newPost(post, event.params.postId);
   post.save();
+  let history = new History(event.block.hash.toString());
+  history.post = event.params.postId.toString();
+  history.transactionHash = event.block.hash.toString();
+  history.eventName = 'PostCreated';
+  history.actionUser = event.params.user.toString();
 
+  history.save();
 }
 
 export function handleEditedPost(event: PostEdited): void {
