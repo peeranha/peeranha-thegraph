@@ -18,7 +18,7 @@ import { getPeeranha, getPeeranhaToken } from './utils'
 import { newPost, addDataToPost, deletePost,
   newReply, addDataToReply, deleteReply,
   newComment, addDataToComment, updatePostContent } from './post'
-import { newCommunity, addDataToCommunity, newTag, updateTag, getCommunity } from './community-tag'
+import { newCommunity, addDataToCommunity, newTag, addDataToTag, getCommunity } from './community-tag'
 import { newUser, addDataToUser, updateUserRating } from './user'
 import { addDataToAchievement, giveAchievement, newAchievement } from './achievement'
 import { ConfigureNewAchievementNFT, Transfer } from '../generated/PeeranhaNFT/PeeranhaNFT'
@@ -155,7 +155,7 @@ export function handleNewTag(event: TagCreated): void {
 
 export function handleEditedTag(event: TagUpdated): void {
   let tag = Tag.load(event.params.communityId.toString() + "-" + BigInt.fromI32(event.params.tagId).toString());
-  updateTag(tag, event.params.communityId, BigInt.fromI32(event.params.tagId));
+  addDataToTag(tag, event.params.communityId, BigInt.fromI32(event.params.tagId));
   tag.save();
 }
 
