@@ -22,18 +22,6 @@ import { ConfigureNewAchievementNFT, Transfer } from '../generated/PeeranhaNFT/P
 
 const POOL_NFT = 1000000;
 
-// export function handlerNewHistory(event: HistoryCreated): void {
-//   let history = new History(event.params.id.toString());
-//   history.post = event.params.post;
-//   history.transactionHash = event.params.transactionHash;
-//   history.reply = event.params.reply;
-//   history.comment = event.params.comment;
-//   history.eventName = event.params.eventName;
-//   history.actionUser = event.params.actionUser;
-//
-//   history.save();
-// }
-
 export function handleConfigureNewAchievement(event: ConfigureNewAchievementNFT): void {
   let achievement = new Achievement(event.params.achievementId.toString());
   newAchievement(achievement, event.params.achievementId);
@@ -209,6 +197,7 @@ export function handleNewReply(event: ReplyCreated): void {
   history.transactionHash = event.transaction.hash;
   history.eventName = 'ReplyCreated';
   history.actionUser = event.params.user.toString();
+
   history.save();
 
   reply.history.push(event.transaction.hash.toString());
