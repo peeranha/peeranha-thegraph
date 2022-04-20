@@ -167,12 +167,12 @@ export function handleNewPost(event: PostCreated): void {
 
   newPost(post, event.params.postId);
   post.save();
+
   let history = new History(event.block.hash.toString());
   history.post = event.params.postId.toString();
   history.transactionHash = event.block.hash.toString();
   history.eventName = 'PostCreated';
   history.actionUser = event.params.user.toString();
-
   history.save();
 }
 
