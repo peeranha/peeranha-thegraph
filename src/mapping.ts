@@ -175,14 +175,10 @@ export function handleEditedPost(event: PostEdited): void {
 
 export function handleChangedTypePost(event: ChangePostType): void {
   let post = Post.load(event.params.postId.toString())
-  if (post == null) {
-    post = new Post(event.params.postId.toString())
-    newPost(post, event.params.postId);
-  } else {
+  if (post != null) {
     post.postType = event.params.newPostType;
+    post.save();
   }
-
-  post.save();
 }
 
 export function handleDeletedPost(event: PostDeleted): void {
