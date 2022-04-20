@@ -64,6 +64,8 @@ dataSources:
           handler: handlerChangedStatusBestReply
         - event: ForumItemVoted(address,uint256,uint16,uint8,int8)
           handler: handlerForumItemVoted
+        - event: HistoryCreated(address,uint256,uint16,uint8)
+            handler: handleNewHistory
       blockHandlers:
         - handler: handleReward
 

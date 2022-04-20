@@ -2,16 +2,16 @@ import { Address, BigInt, log } from '@graphprotocol/graph-ts'
 import { ethereum } from '@graphprotocol/graph-ts'
 import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity,
   CommunityCreated, CommunityUpdated, CommunityFrozen, CommunityUnfrozen,
-  TagCreated,
+  TagCreated,HistoryCreated,
   PostCreated, PostEdited, PostDeleted,
   ReplyCreated, ReplyEdited, ReplyDeleted,
   CommentCreated, CommentEdited, CommentDeleted,
   ForumItemVoted,
-  StatusOfficialReplyChanged, StatusBestReplyChanged,
+  StatusOfficialReplyChanged, StatusBestReplyChanged
 } from '../generated/Peeranha/Peeranha'
 
 import { GetReward } from '../generated/PeeranhaToken/PeeranhaToken'
-import { User, Community, Tag, Post, Reply, Comment, Achievement, ContractInfo, UserReward, Period } from '../generated/schema'
+import { User, Community, Tag, Post, Reply, Comment, Achievement, ContractInfo, UserReward, Period, History } from '../generated/schema'
 import { MAIN_ADDRESS } from './config'
 import { getPeeranha, getPeeranhaToken } from './utils'
 
@@ -24,6 +24,35 @@ import { addDataToAchievement, giveAchievement, newAchievement } from './achieve
 import { ConfigureNewAchievementNFT, Transfer } from '../generated/PeeranhaNFT/PeeranhaNFT'
 
 const POOL_NFT = 1000000;
+
+export function handlerNewHistory(event: HistoryCreated): void {
+  let history = new History(event.params.id.toString());
+  history.post = event.params.post;
+  history.transactionHash = event.params.transactionHash;
+  history.reply = event.params.reply;
+  history.comment = event.params.comment;
+  history.eventName = event.params.eventName;
+  history.actionUser = event.params.actionUser;
+
+  history.save();
+}
+//export function handleUpdatedHistory(event: UpdatedHistory): void {
+//   let id = event.params.id
+//   let history = History.load(id)
+//   if (history == null) {
+//     history = new History(id)
+//   }
+// history.post = event.params.post;
+// history.transactionHash = event.params.transactionHash;
+// history.reply = event.params.reply;
+// history.comment = event.params.comment;
+// history.eventName = event.params.eventName;
+// history.actionUser = event.params.actionUser;
+//
+// history.save();
+// }
+
+
   
 export function handleConfigureNewAchievement(event: ConfigureNewAchievementNFT): void {
   let achievement = new Achievement(event.params.achievementId.toString());
@@ -323,7 +352,7 @@ export function handlerChangedStatusOfficialReply(event: StatusOfficialReplyChan
       reply.isOfficialReply = false;
     }
 
-    reply.save(); 
+    reply?.save();
   }
 
   let replyId = BigInt.fromI32(event.params.replyId);
@@ -332,8 +361,8 @@ export function handlerChangedStatusOfficialReply(event: StatusOfficialReplyChan
   if (reply == null) {
     newReply(reply, event.params.postId, replyId);
   } 
-  reply.isOfficialReply = true;
-  reply.save(); 
+  reply?.isOfficialReply = true;
+  reply?.save();
 }
 
 export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): void {
@@ -357,8 +386,8 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
     } else {
       previousReply.isBestReply = false;
     }
-    updateUserRating(Address.fromString(previousReply.author), post.communityId);
-    previousReply.save(); 
+    updateUserRating(Address.fromString(previousReply?.author), post.communityId);
+    previousReply?.save();
   }
 
   if (event.params.replyId != 0) {    // fix  (if reply does not exist -> getReply() call erray)
@@ -369,9 +398,9 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
       newReply(reply, event.params.postId, replyId);
     }
 
-    reply.isBestReply = true;
-    updateUserRating(Address.fromString(reply.author), post.communityId);
-    reply.save();
+    reply?.isBestReply = true;
+    updateUserRating(Address.fromString(reply?.author), post.communityId);
+    reply?.save();
   }
 }
 
