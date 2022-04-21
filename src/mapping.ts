@@ -176,6 +176,15 @@ export function handleEditedPost(event: PostEdited): void {
     addDataToPost(post, event.params.postId);
   }
 
+  let history = new History(event.transaction.hash.toString());
+  history.post = event.params.postId.toString();
+  history.transactionHash = event.transaction.hash;
+  history.eventName = 'PostEdited';
+  history.actionUser = event.params.user.toString();
+
+  history.save();
+
+  post.history.push(event.transaction.hash.toString());
   post.save();
 }
 
@@ -184,6 +193,16 @@ export function handleDeletedPost(event: PostDeleted): void {
   if (post == null) return;
 
   deletePost(post, event.params.postId);
+
+  let history = new History(event.transaction.hash.toString());
+  history.post = event.params.postId.toString();
+  history.transactionHash = event.transaction.hash;
+  history.eventName = 'PostEdited';
+  history.actionUser = event.params.user.toString();
+
+  history.save();
+
+  post.history.push(event.transaction.hash.toString());
   post.save();
 }
 
