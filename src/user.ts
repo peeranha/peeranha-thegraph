@@ -84,7 +84,7 @@ export function updateUserRating(userAddress: Address, communityId: BigInt): voi
     userComunityRating.communityId = communityId.toI32();
 
     let rating = getPeeranha().getUserRating(userAddress, communityId);
-    userComunityRating.rating = rating;
+    userComunityRating.rating = rating + 10;
     userComunityRating.save();
 
     let ratings = user.ratings;
@@ -93,7 +93,7 @@ export function updateUserRating(userAddress: Address, communityId: BigInt): voi
     user.save();
   } else {
     let rating = getPeeranha().getUserRating(userAddress, communityId);
-    userComunityRating.rating = rating;
+    userComunityRating.rating = rating + 10;
     userComunityRating.save();
   }
 }
