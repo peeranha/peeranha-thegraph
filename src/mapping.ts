@@ -155,12 +155,12 @@ export function handleNewPost(event: PostCreated): void {
 
   newPost(post, event.params.postId);
 
-  let history = new History(event.transaction.hash.toString());
+  let history = new History(event.transaction.hash.toHex());
   history.post = event.params.postId.toString();
   history.transactionHash = event.transaction.hash;
   history.eventName = 'PostCreated';
   history.actionUser = event.params.user.toString();
-
+  history.timeStamp = event.block.timestamp.toString();
   history.save();
 
   post.history.push(event.transaction.hash.toString());
@@ -176,12 +176,12 @@ export function handleEditedPost(event: PostEdited): void {
     addDataToPost(post, event.params.postId);
   }
 
-  let history = new History(event.transaction.hash.toString());
+  let history = new History(event.transaction.hash.toHex());
   history.post = event.params.postId.toString();
   history.transactionHash = event.transaction.hash;
   history.eventName = 'PostEdited';
   history.actionUser = event.params.user.toString();
-
+  history.timeStamp = event.block.timestamp.toString();
   history.save();
 
   post.history.push(event.transaction.hash.toString());
@@ -194,12 +194,12 @@ export function handleDeletedPost(event: PostDeleted): void {
 
   deletePost(post, event.params.postId);
 
-  let history = new History(event.transaction.hash.toString());
+  let history = new History(event.transaction.hash.toHex());
   history.post = event.params.postId.toString();
   history.transactionHash = event.transaction.hash;
-  history.eventName = 'PostEdited';
+  history.eventName = 'PostDeleted';
   history.actionUser = event.params.user.toString();
-
+  history.timeStamp = event.block.timestamp.toString();
   history.save();
 
   post.history.push(event.transaction.hash.toString());
@@ -210,13 +210,13 @@ export function handleNewReply(event: ReplyCreated): void {
   let replyId = BigInt.fromI32(event.params.replyId);
   let reply = new Reply(event.params.postId.toString() + "-" + replyId.toString());
 
-  let history = new History(event.transaction.hash.toString());
-  history.post = event.params.postId.toString(); //!!!!
+  let history = new History(event.transaction.hash.toHex());
+  history.post = event.params.postId.toString();
   history.reply = event.params.postId.toString() + "-" + replyId.toString();
   history.transactionHash = event.transaction.hash;
   history.eventName = 'ReplyCreated';
   history.actionUser = event.params.user.toString();
-
+  history.timeStamp = event.block.timestamp.toString();
   history.save();
 
   reply.history.push(event.transaction.hash.toString());
@@ -253,13 +253,12 @@ export function handleNewComment(event: CommentCreated): void {
   let parentReplyId = BigInt.fromI32(event.params.parentReplyId);
   let comment = new Comment(event.params.postId.toString() + "-" + parentReplyId.toString() + "-" +  commentId.toString());
 
-  let history = new History(event.transaction.hash.toString());
-  history.post = event.params.postId.toString(); //!!!!
-  //history.reply = event.params.postId.toString() + "-" + replyId.toString();
+  let history = new History(event.transaction.hash.toHex());
+  history.post = event.params.postId.toString();
   history.transactionHash = event.transaction.hash;
   history.eventName = 'CommentCreated';
   history.actionUser = event.params.user.toString();
-
+  history.timeStamp = event.block.timestamp.toString();
   history.save();
 
   comment.history.push(event.transaction.hash.toString());
@@ -267,13 +266,6 @@ export function handleNewComment(event: CommentCreated): void {
 
   newComment(comment, event.params.postId, BigInt.fromI32(event.params.parentReplyId), commentId);  //без конвертации
   comment.save();
-
-  // let history = new History(event.block.hash.toString());
-  // history.post = event.params.postId.toString();
-  // history.transactionHash = BigInt.fromI32(event.block.hash).toString();
-  // history.eventName = 'CommentCreated';
-  // history.actionUser = event.params.user.toString();
-  // history.save();
 }
 
 export function handleEditedComment(event: CommentEdited): void { 
