@@ -210,6 +210,8 @@ export function handleNewReply(event: ReplyCreated): void {
   let replyId = BigInt.fromI32(event.params.replyId);
   let reply = new Reply(event.params.postId.toString() + "-" + replyId.toString());
 
+  newReply(reply, event.params.postId, replyId);
+
   let history = new History(event.transaction.hash.toHex());
   history.post = event.params.postId.toString();
   history.reply = event.params.postId.toString() + "-" + replyId.toString();
@@ -220,8 +222,6 @@ export function handleNewReply(event: ReplyCreated): void {
   history.save();
 
   reply.history.push(event.transaction.hash.toString());
-
-  newReply(reply, event.params.postId, replyId);
   reply.save();
 }
 
@@ -253,6 +253,7 @@ export function handleNewComment(event: CommentCreated): void {
   let parentReplyId = BigInt.fromI32(event.params.parentReplyId);
   let comment = new Comment(event.params.postId.toString() + "-" + parentReplyId.toString() + "-" +  commentId.toString());
 
+  newComment(comment, event.params.postId, BigInt.fromI32(event.params.parentReplyId), commentId);  //без конвертации
   let history = new History(event.transaction.hash.toHex());
   history.post = event.params.postId.toString();
   history.transactionHash = event.transaction.hash;
@@ -263,8 +264,6 @@ export function handleNewComment(event: CommentCreated): void {
 
   comment.history.push(event.transaction.hash.toString());
 
-
-  newComment(comment, event.params.postId, BigInt.fromI32(event.params.parentReplyId), commentId);  //без конвертации
   comment.save();
 }
 
