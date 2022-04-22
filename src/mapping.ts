@@ -405,7 +405,8 @@ export function handlerChangedStatusOfficialReply(event: StatusOfficialReplyChan
 
   if (reply == null) {
     newReply(reply, event.params.postId, replyId);
-  } 
+  }
+
   reply.isOfficialReply = true;
   reply.save();
 }
