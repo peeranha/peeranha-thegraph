@@ -2,9 +2,12 @@ import { Address, BigInt, log } from '@graphprotocol/graph-ts'
 import { ethereum } from '@graphprotocol/graph-ts'
 import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity,
   CommunityCreated, CommunityUpdated, CommunityFrozen, CommunityUnfrozen,
-  TagCreated,  PostCreated, PostEdited, PostDeleted, ReplyCreated, ReplyEdited,
-  ReplyDeleted, CommentCreated, CommentEdited, CommentDeleted, ForumItemVoted,
-  StatusOfficialReplyChanged, StatusBestReplyChanged
+  TagCreated, TagUpdated,
+  PostCreated, PostEdited, PostDeleted,
+  ReplyCreated, ReplyEdited, ReplyDeleted,
+  CommentCreated, CommentEdited, CommentDeleted,
+  ForumItemVoted, ChangePostType,
+  StatusOfficialReplyChanged, StatusBestReplyChanged,
 } from '../generated/Peeranha/Peeranha'
 
 import { GetReward } from '../generated/PeeranhaToken/PeeranhaToken'
@@ -14,14 +17,14 @@ import { getPeeranha, getPeeranhaToken } from './utils'
 
 import { newPost, addDataToPost, deletePost,
   newReply, addDataToReply, deleteReply,
-  newComment, addDataToComment } from './post'
-import { newCommunity, addDataToCommunity, newTag, getCommunity } from './community-tag'
+  newComment, addDataToComment, updatePostContent } from './post'
+import { newCommunity, addDataToCommunity, newTag, addDataToTag, getCommunity } from './community-tag'
 import { newUser, addDataToUser, updateUserRating } from './user'
 import { addDataToAchievement, giveAchievement, newAchievement } from './achievement'
 import { ConfigureNewAchievementNFT, Transfer } from '../generated/PeeranhaNFT/PeeranhaNFT'
 
 const POOL_NFT = 1000000;
-
+  
 export function handleConfigureNewAchievement(event: ConfigureNewAchievementNFT): void {
   let achievement = new Achievement(event.params.achievementId.toString());
   newAchievement(achievement, event.params.achievementId);
@@ -150,6 +153,12 @@ export function handleNewTag(event: TagCreated): void {
   tag.save(); 
 }
 
+export function handleEditedTag(event: TagUpdated): void {
+  let tag = Tag.load(event.params.communityId.toString() + "-" + BigInt.fromI32(event.params.tagId).toString());
+  addDataToTag(tag, event.params.communityId, BigInt.fromI32(event.params.tagId));
+  tag.save();
+}
+
 export function handleNewPost(event: PostCreated): void {
   let post = new Post(event.params.postId.toString());
 
@@ -165,6 +174,7 @@ export function handleNewPost(event: PostCreated): void {
 
   post.history.push(event.transaction.hash.toString());
   post.save();
+
 }
 
 export function handleEditedPost(event: PostEdited): void {
@@ -186,6 +196,16 @@ export function handleEditedPost(event: PostEdited): void {
 
   post.history.push(event.transaction.hash.toString());
   post.save();
+  let postId = event.params.postId;
+  updatePostContent(postId);
+}
+
+export function handleChangedTypePost(event: ChangePostType): void {
+  let post = Post.load(event.params.postId.toString())
+  if (post != null) {
+    post.postType = event.params.newPostType;
+    post.save();
+  }
 }
 
 export function handleDeletedPost(event: PostDeleted): void {
@@ -237,6 +257,8 @@ export function handleEditedReply(event: ReplyEdited): void {
   }
 
   reply.save();
+  let postId = event.params.postId;
+  updatePostContent(postId);
 }
 
 export function handleDeletedReply(event: ReplyDeleted): void {
@@ -246,6 +268,8 @@ export function handleDeletedReply(event: ReplyDeleted): void {
 
   deleteReply(reply, event.params.postId);
   reply.save();
+  let postId = event.params.postId;
+  updatePostContent(postId);
 }
 
 export function handleNewComment(event: CommentCreated): void {
@@ -280,6 +304,8 @@ export function handleEditedComment(event: CommentEdited): void {
   }
 
   comment.save(); 
+  let postId = event.params.postId;
+  updatePostContent(postId);
 }
 
 export function handleDeletedComment(event: CommentDeleted): void {
@@ -290,6 +316,8 @@ export function handleDeletedComment(event: CommentDeleted): void {
 
   comment.isDeleted = true;
   comment.save(); 
+  let postId = event.params.postId;
+  updatePostContent(postId);
 }
 
 export function handleReward(block: ethereum.Block): void {
