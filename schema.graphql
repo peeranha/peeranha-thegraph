@@ -179,6 +179,6 @@ type History @entity {
   comment: Comment
   eventName: String
   actionUser: User
-  timeStamp: String
+  timeStamp: BigInt
 }
 
