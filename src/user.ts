@@ -84,7 +84,7 @@ export function updateUserRating(userAddress: Address, communityId: BigInt): voi
     userComunityRating.communityId = communityId.toI32();
 
     let rating = getPeeranha().getUserRating(userAddress, communityId);
-    userComunityRating.rating = rating + 10;
+    userComunityRating.rating = rating;
     userComunityRating.save();
 
     let ratings = user.ratings;
@@ -93,9 +93,28 @@ export function updateUserRating(userAddress: Address, communityId: BigInt): voi
     user.save();
   } else {
     let rating = getPeeranha().getUserRating(userAddress, communityId);
-    userComunityRating.rating = rating + 10;
+    userComunityRating.rating = rating;
     userComunityRating.save();
   }
+}
+
+export function updateStartUserRating(userAddress: Address, communityId: BigInt): void { 
+  let user = User.load(userAddress.toHex());
+  if (user == null) return;
+  let userComunityRating = UserCommunityRating.load(communityId.toString() + ' ' + userAddress.toHex());
+
+  if (userComunityRating == null) {
+    userComunityRating = new UserCommunityRating(communityId.toString() + ' ' + userAddress.toHex());
+    userComunityRating.user = userAddress.toHex()
+    userComunityRating.communityId = communityId.toI32();
+    userComunityRating.rating = 10;
+    userComunityRating.save();
+
+    let ratings = user.ratings;
+    ratings.push(communityId.toString() + ' ' + userAddress.toHex());
+    user.ratings = ratings;
+    user.save();
+  } 
 }
 
 export function getUser(userAddress: Address): User | null {
