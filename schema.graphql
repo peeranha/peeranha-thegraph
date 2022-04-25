@@ -171,12 +171,16 @@ type ContractInfo @entity {
   lastBlock: BigInt
 }
 
+
+
+
 type History @entity {
   id: ID!
   transactionHash: Bytes
   post: Post
   reply: Reply
   comment: Comment
+  eventEntity: String
   eventName: String
   actionUser: User
   timeStamp: BigInt

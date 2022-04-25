@@ -159,29 +159,30 @@ export function handleEditedTag(event: TagUpdated): void {
   tag.save();
 }
 
-export function createHistory<T1, T2, T3, T4>(item: T1,  event: T2, id: T3,  eventName: T4): void {
+export function createHistory<T1, T2, T3, T4, T5>(item: T1,  event: T2, additionalId: T3,  eventEntity: T4, eventName: T5): void {
   let history = new History(event.transaction.hash.toHex());
   history.post = event.params.postId.toString();
   if (item instanceof Reply) {
-    history.reply = `${event.params.postId.toString()}-${id.toString()}`;
+    history.reply = `${event.params.postId.toString()}-${additionalId.toString()}`;
   }
   if (item instanceof Comment) {
-    history.comment = `${event.params.postId.toString()}-${id.toString()}`;
+    history.comment = `${event.params.postId.toString()}-${additionalId.toString()}`;
   }
   history.transactionHash = event.transaction.hash;
+  history.eventEntity = eventEntity;
   history.eventName = eventName;
   history.actionUser = event.params.user.toHex();
   history.timeStamp = event.block.timestamp;
   history.save();
 
-  item.history.push(event.transaction.hash.toString());
+  item.history.push(event.transaction.hash.toHexString());
 }
 
 export function handleNewPost(event: PostCreated): void {
   let post = new Post(event.params.postId.toString());
 
   newPost(post, event.params.postId);
-  createHistory(post, event, null, 'PostCreated')
+  createHistory(post, event, null, 'Post', 'Create')
   post.save();
 }
 
@@ -194,7 +195,8 @@ export function handleEditedPost(event: PostEdited): void {
     addDataToPost(post, event.params.postId);
   }
 
-  createHistory(post, event, null, 'PostEdited')
+  createHistory(post, event, null, 'Post', 'Edit')
+
   post.save();
 
   let postId = event.params.postId;
@@ -215,7 +217,7 @@ export function handleDeletedPost(event: PostDeleted): void {
 
   deletePost(post, event.params.postId);
 
-  createHistory(post, event, null, 'PostDeleted')
+  createHistory(post, event, null, 'Post', 'Delete')
   post.save();
 }
 
@@ -225,7 +227,7 @@ export function handleNewReply(event: ReplyCreated): void {
 
   newReply(reply, event.params.postId, replyId);
 
-  createHistory(reply, event, replyId, 'ReplyCreated')
+  createHistory(reply, event, replyId, 'Reply', 'Create')
   reply.save();
 }
 
@@ -240,7 +242,7 @@ export function handleEditedReply(event: ReplyEdited): void {
     addDataToReply(reply, event.params.postId, replyId);
   }
 
-  createHistory(reply, event, replyId, 'ReplyEdited')
+  createHistory(reply, event, replyId, 'Reply', 'Edit')
   reply.save();
 
   let postId = event.params.postId;
@@ -254,7 +256,7 @@ export function handleDeletedReply(event: ReplyDeleted): void {
 
   deleteReply(reply, event.params.postId);
 
-  createHistory(reply, event, replyId, 'ReplyDeleted')
+  createHistory(reply, event, replyId, 'Reply', 'Delete')
   reply.save();
 
   let postId = event.params.postId;
@@ -268,7 +270,7 @@ export function handleNewComment(event: CommentCreated): void {
 
   newComment(comment, event.params.postId, BigInt.fromI32(event.params.parentReplyId), commentId);  //без конвертации
 
-  createHistory(comment, event, commentId, 'CommentCreated');
+  createHistory(comment, event, commentId, 'Comment', 'Create');
   comment.save();
 }
 
@@ -284,7 +286,7 @@ export function handleEditedComment(event: CommentEdited): void {
     addDataToComment(comment, event.params.postId, parentReplyId, commentId);
   }
 
-  createHistory(comment, event, commentId, 'CommentEdited');
+  createHistory(comment, event, commentId, 'Comment', 'Edit');
   comment.save();
 
   let postId = event.params.postId;
@@ -299,7 +301,7 @@ export function handleDeletedComment(event: CommentDeleted): void {
 
   comment.isDeleted = true;
 
-  createHistory(comment, event, commentId, 'CommentDeleted');
+  createHistory(comment, event, commentId, 'Comment', 'Delete');
   comment.save();
 
   let postId = event.params.postId;
