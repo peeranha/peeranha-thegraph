@@ -159,7 +159,7 @@ export function handleEditedTag(event: TagUpdated): void {
   tag.save();
 }
 
-export function createHistory<T1, T2, T3, T4> (item: T1,  event: T2, id: T3,  eventName: T4): void {
+export function createHistory<T1, T2, T3, T4>(item: T1,  event: T2, id: T3,  eventName: T4): void {
   let history = new History(event.transaction.hash.toHex());
   history.post = event.params.postId.toString();
   if (item instanceof Reply) {
