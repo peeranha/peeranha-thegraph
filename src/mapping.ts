@@ -168,6 +168,7 @@ export function createHistory<T1, T2>(item: T1,  event: T2,  eventEntity: string
   if (item instanceof Comment) {
     history.comment = item.id;
   }
+
   history.transactionHash = event.transaction.hash;
   history.eventEntity = eventEntity;
   history.eventName = eventName;
@@ -175,7 +176,9 @@ export function createHistory<T1, T2>(item: T1,  event: T2,  eventEntity: string
   history.timeStamp = event.block.timestamp;
   history.save();
 
-  item.history.push(event.transaction.hash.toHex());
+   let i = item.history;
+  i.push(history.id.toString());
+  item.history = i;
 }
 
 export function handleNewPost(event: PostCreated): void {
