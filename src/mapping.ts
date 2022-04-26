@@ -175,7 +175,7 @@ export function createHistory<T1, T2>(item: T1,  event: T2,  eventEntity: string
   history.timeStamp = event.block.timestamp;
   history.save();
 
-  item.history.push(event.transaction.hash.toHexString());
+  item.history.push(event.transaction.hash.toHex());
 }
 
 export function handleNewPost(event: PostCreated): void {
