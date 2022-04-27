@@ -175,10 +175,6 @@ export function createHistory<T1, T2>(item: T1,  event: T2,  eventEntity: string
   history.actionUser = event.params.user.toHex();
   history.timeStamp = event.block.timestamp;
   history.save();
-
-  // let itemHistory = item.history;
-  // itemHistory.push(history.id.toString());
-  // item.history = itemHistory;
 }
 
 export function handleNewPost(event: PostCreated): void {
