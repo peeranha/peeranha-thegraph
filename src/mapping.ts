@@ -17,7 +17,7 @@ import { getPeeranha, getPeeranhaToken } from './utils'
 
 import { newPost, addDataToPost, deletePost,
   newReply, addDataToReply, deleteReply,
-  newComment, addDataToComment } from './post'
+  newComment, addDataToComment, changeTypePost } from './post'
 import { newCommunity, addDataToCommunity, newTag, getCommunity } from './community-tag'
 import { newUser, addDataToUser, updateUserRating } from './user'
 import { addDataToAchievement, giveAchievement, newAchievement } from './achievement'
@@ -181,7 +181,7 @@ export function handleChangedTypePost(event: ChangePostType): void {
   } else {
     post.postType = event.params.newPostType;
   }
-
+  changeTypePost(post, event.params.postId);
   post.save();
 }
 

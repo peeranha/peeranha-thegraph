@@ -141,6 +141,22 @@ export function deletePost(post: Post | null, postId: BigInt): void {
   userPost.save();
 }
 
+export function changeTypePost(post: Post | null, postId: BigInt): void {
+  
+  updateUserRating(Address.fromString(post.author), post.communityId);
+
+  for (let i = 1; i <= post.replyCount; i++) {
+    let reply = Reply.load(postId.toString() + "-" + i.toString());
+    if (
+    (reply != null && !reply.isDeleted) && 
+    (reply.isFirstReply || reply.isQuickReply || reply.rating > 0)) {
+
+      updateUserRating(Address.fromString(reply.author), post.communityId);
+
+    }
+  }
+}
+
 export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt): void {
   let peeranhaReply = getPeeranha().getReply(postId, replyId.toI32());
   if (peeranhaReply == null) return;
