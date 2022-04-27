@@ -21,7 +21,6 @@ export function newPost(post: Post | null, postId: BigInt): void {
   post.isDeleted = false;
   post.replies = [];
   post.comments = [];
-  post.history = [];
   post.postContent = '';
 
   let community = getCommunity(post.communityId);
@@ -148,7 +147,6 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt): 
   reply.isQuickReply = peeranhaReply.isQuickReply;
   reply.isDeleted = false;
   reply.comments = [];
-  reply.history = [];
 
   let post = Post.load(postId.toString())
   if (peeranhaReply.parentReplyId == 0) {
@@ -239,7 +237,6 @@ export function newComment(comment: Comment | null, postId: BigInt, parentReplyI
   comment.rating = peeranhaComment.rating;
   comment.parentReplyId = parentReplyId.toI32();  
   comment.isDeleted = false;
-  comment.history = [];
   let post = Post.load(postId.toString());
   let commentFullId = postId.toString() + '-' + parentReplyId.toString() +  '-' + commentId.toString();
   if (parentReplyId == BigInt.fromI32(0)) {
