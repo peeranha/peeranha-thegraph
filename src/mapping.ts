@@ -19,7 +19,7 @@ import { newPost, addDataToPost, deletePost,
   newReply, addDataToReply, deleteReply,
   newComment, addDataToComment, updatePostContent } from './post'
 import { newCommunity, addDataToCommunity, newTag, addDataToTag, getCommunity } from './community-tag'
-import { newUser, addDataToUser, updateUserRating, updateStartUserRating} from './user'
+import { newUser, addDataToUser, updateUserRating} from './user'
 import { addDataToAchievement, giveAchievement, newAchievement } from './achievement'
 import { ConfigureNewAchievementNFT, Transfer } from '../generated/PeeranhaNFT/PeeranhaNFT'
 
@@ -414,9 +414,6 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
       comment.rating = peeranhaComment.rating;
     }
     comment.save();
-
-    let post = Post.load(event.params.postId.toString());
-    updateStartUserRating(Address.fromString(post.author), post.communityId);
     
   } else if (event.params.replyId != 0) {
     let replyId = BigInt.fromI32(event.params.replyId);

@@ -32,7 +32,7 @@ export function newPost(post: Post | null, postId: BigInt): void {
   user.save();
 
   addDataToPost(post, postId);
-  updateStartUserRating((Address.fromString(post.author), post.communityId);
+  updateStartUserRating(Address.fromString(post.author), post.communityId);
 }
 
 export function addDataToPost(post: Post | null, postId: BigInt): void {
@@ -174,7 +174,7 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt): 
     updateUserRating(peeranhaReply.author, post.communityId);
   }
   addDataToReply(reply, postId, replyId);
-  updateStartUserRating((Address.fromString(reply.author), post.communityId)
+  updateStartUserRating(Address.fromString(reply.author), post.communityId);
   post.postContent += ' ' + reply.content;
   post.save();
 }
@@ -264,6 +264,7 @@ export function newComment(comment: Comment | null, postId: BigInt, parentReplyI
   }
 
   addDataToComment(comment, postId, parentReplyId, commentId);
+  updateStartUserRating(Address.fromString(post.author), post.communityId);
 
   post.postContent += ' ' + comment.content;
   post.save();
