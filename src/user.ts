@@ -98,6 +98,27 @@ export function updateUserRating(userAddress: Address, communityId: BigInt): voi
   }
 }
 
+export function updateStartUserRating(userAddress: Address, communityId: BigInt): void { 
+  let user = User.load(userAddress.toHex());
+  if (user == null) return;
+  let parametersUserCommunityRating = communityId.toString() + ' ' + userAddress.toHex();
+  let userComunityRating = UserCommunityRating.load(parametersUserCommunityRating);
+
+  if (userComunityRating == null) {
+    let valueStartUserRating = 10;
+    userComunityRating = new UserCommunityRating(parametersUserCommunityRating);
+    userComunityRating.user = userAddress.toHex()
+    userComunityRating.communityId = communityId.toI32();
+    userComunityRating.rating = valueStartUserRating;
+    userComunityRating.save();
+
+    let ratings = user.ratings;
+    ratings.push(parametersUserCommunityRating);
+    user.ratings = ratings;
+    user.save();
+  } 
+}
+
 export function getUser(userAddress: Address): User | null {
   let user = User.load(userAddress.toHex());
   if (user == null) {

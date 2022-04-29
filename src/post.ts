@@ -2,7 +2,7 @@ import { ByteArray } from '@graphprotocol/graph-ts'
 import { json, Bytes, ipfs, BigInt, Address } from '@graphprotocol/graph-ts'
 import { Post, Reply, Comment, Tag } from '../generated/schema'
 import { getPeeranha } from './utils'
-import { updateUserRating, getUser } from './user'
+import { updateUserRating, updateStartUserRating, getUser } from './user'
 import { getCommunity } from './community-tag'
 
 
@@ -32,6 +32,7 @@ export function newPost(post: Post | null, postId: BigInt): void {
   user.save();
 
   addDataToPost(post, postId);
+  updateStartUserRating(Address.fromString(post.author), post.communityId);
 }
 
 export function addDataToPost(post: Post | null, postId: BigInt): void {
@@ -173,6 +174,7 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt): 
     updateUserRating(peeranhaReply.author, post.communityId);
   }
   addDataToReply(reply, postId, replyId);
+  updateStartUserRating(Address.fromString(reply.author), post.communityId);
   post.postContent += ' ' + reply.content;
   post.save();
 }
@@ -262,6 +264,7 @@ export function newComment(comment: Comment | null, postId: BigInt, parentReplyI
   }
 
   addDataToComment(comment, postId, parentReplyId, commentId);
+  updateStartUserRating(Address.fromString(post.author), post.communityId);
 
   post.postContent += ' ' + comment.content;
   post.save();
