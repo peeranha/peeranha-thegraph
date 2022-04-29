@@ -159,6 +159,7 @@ export function handleEditedTag(event: TagUpdated): void {
   tag.save();
 }
 
+// TODO: Get rid of generics in this method. eventEntity and eventName values move to constants or enums.
 export function createHistory<T1, T2>(item: T1,  event: T2,  eventEntity: string, eventName: string): void {
   let history = new History(event.transaction.hash.toHex());
   history.post = event.params.postId.toString();
@@ -181,8 +182,9 @@ export function handleNewPost(event: PostCreated): void {
   let post = new Post(event.params.postId.toString());
 
   newPost(post, event.params.postId);
-  createHistory(post, event, 'Post', 'Create')
   post.save();
+
+  createHistory(post, event, 'Post', 'Create');
 }
 
 export function handleEditedPost(event: PostEdited): void {
@@ -193,13 +195,12 @@ export function handleEditedPost(event: PostEdited): void {
   } else {
     addDataToPost(post, event.params.postId);
   }
-
-  createHistory(post, event, 'Post', 'Edit')
-
   post.save();
 
   let postId = event.params.postId;
   updatePostContent(postId);
+
+  createHistory(post, event, 'Post', 'Edit');
 }
 
 export function handleChangedTypePost(event: ChangePostType): void {
@@ -215,9 +216,9 @@ export function handleDeletedPost(event: PostDeleted): void {
   if (post == null) return;
 
   deletePost(post, event.params.postId);
-
-  createHistory(post, event, 'Post', 'Delete')
   post.save();
+
+  createHistory(post, event, 'Post', 'Delete');
 }
 
 export function handleNewReply(event: ReplyCreated): void {
@@ -225,9 +226,9 @@ export function handleNewReply(event: ReplyCreated): void {
   let reply = new Reply(event.params.postId.toString() + "-" + replyId.toString());
 
   newReply(reply, event.params.postId, replyId);
-
-  createHistory(reply, event, 'Reply', 'Create')
   reply.save();
+
+  createHistory(reply, event, 'Reply', 'Create');
 }
 
 export function handleEditedReply(event: ReplyEdited): void { 
@@ -240,12 +241,12 @@ export function handleEditedReply(event: ReplyEdited): void {
   } else {
     addDataToReply(reply, event.params.postId, replyId);
   }
-
-  createHistory(reply, event, 'Reply', 'Edit')
   reply.save();
 
   let postId = event.params.postId;
   updatePostContent(postId);
+
+  createHistory(reply, event, 'Reply', 'Edit');
 }
 
 export function handleDeletedReply(event: ReplyDeleted): void {
@@ -254,12 +255,12 @@ export function handleDeletedReply(event: ReplyDeleted): void {
   if (reply == null) return;
 
   deleteReply(reply, event.params.postId);
-
-  createHistory(reply, event, 'Reply', 'Delete')
   reply.save();
 
   let postId = event.params.postId;
   updatePostContent(postId);
+
+  createHistory(reply, event, 'Reply', 'Delete');
 }
 
 export function handleNewComment(event: CommentCreated): void {
@@ -268,9 +269,9 @@ export function handleNewComment(event: CommentCreated): void {
   let comment = new Comment(event.params.postId.toString() + "-" + parentReplyId.toString() + "-" +  commentId.toString());
 
   newComment(comment, event.params.postId, BigInt.fromI32(event.params.parentReplyId), commentId);  //без конвертации
+  comment.save();
 
   createHistory(comment, event, 'Comment', 'Create');
-  comment.save();
 }
 
 export function handleEditedComment(event: CommentEdited): void { 
@@ -299,12 +300,12 @@ export function handleDeletedComment(event: CommentDeleted): void {
   if (comment == null) return;
 
   comment.isDeleted = true;
-
-  createHistory(comment, event, 'Comment', 'Delete');
   comment.save();
 
   let postId = event.params.postId;
   updatePostContent(postId);
+
+  createHistory(comment, event, 'Comment', 'Delete');
 }
 
 export function handleReward(block: ethereum.Block): void {
