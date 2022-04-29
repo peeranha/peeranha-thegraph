@@ -134,15 +134,14 @@ export function deletePost(post: Post | null, postId: BigInt): void {
   userPost.save();
 }
 
-export function changeTypePost(post: Post | null, postId: BigInt): void {
-  
+export function updatePostUsersRatings(post: Post | null): void {
   updateUserRating(Address.fromString(post.author), post.communityId);
 
   for (let i = 1; i <= post.replyCount; i++) {
-    let reply = Reply.load(postId.toString() + "-" + i.toString());
+    let reply = Reply.load(post.id + "-" + i.toString());
     if (
     (reply != null && !reply.isDeleted) && 
-    (reply.isFirstReply || reply.isQuickReply || reply.rating > 0)) {
+    (reply.isFirstReply || reply.isQuickReply || reply.rating != 0)) {
 
       updateUserRating(Address.fromString(reply.author), post.communityId);
 

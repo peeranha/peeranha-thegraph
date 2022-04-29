@@ -15,9 +15,8 @@ import { User, Community, Tag, Post, Reply, Comment, Achievement, ContractInfo, 
 import { MAIN_ADDRESS } from './config'
 import { getPeeranha, getPeeranhaToken } from './utils'
 
-import { newPost, addDataToPost, deletePost,
-  newReply, addDataToReply, deleteReply, changeTypePost,
-  newComment, addDataToComment, updatePostContent } from './post'
+import { newPost, addDataToPost, deletePost, newReply, addDataToReply, deleteReply,
+  newComment, addDataToComment, updatePostContent, updatePostUsersRatings } from './post'
 import { newCommunity, addDataToCommunity, newTag, addDataToTag, getCommunity } from './community-tag'
 import { newUser, addDataToUser, updateUserRating} from './user'
 import { addDataToAchievement, giveAchievement, newAchievement } from './achievement'
@@ -185,7 +184,7 @@ export function handleChangedTypePost(event: ChangePostType): void {
   let post = Post.load(event.params.postId.toString())
   if (post != null) {
     post.postType = event.params.newPostType;
-    changeTypePost(post, event.params.postId);
+    updatePostUsersRatings(post);
     post.save();
   }
 }
