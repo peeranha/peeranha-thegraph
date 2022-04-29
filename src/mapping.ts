@@ -16,7 +16,7 @@ import { MAIN_ADDRESS } from './config'
 import { getPeeranha, getPeeranhaToken } from './utils'
 
 import { newPost, addDataToPost, deletePost,
-  newReply, addDataToReply, deleteReply,
+  newReply, addDataToReply, deleteReply, changeTypePost,
   newComment, addDataToComment, updatePostContent } from './post'
 import { newCommunity, addDataToCommunity, newTag, addDataToTag, getCommunity } from './community-tag'
 import { newUser, addDataToUser, updateUserRating} from './user'
@@ -185,20 +185,9 @@ export function handleChangedTypePost(event: ChangePostType): void {
   let post = Post.load(event.params.postId.toString())
   if (post != null) {
     post.postType = event.params.newPostType;
+    changeTypePost(post, event.params.postId);
     post.save();
   }
-}
-
-export function handleChangedTypePost(event: ChangePostType): void {
-  let post = Post.load(event.params.postId.toString())
-  if (post == null) {
-    post = new Post(event.params.postId.toString())
-    newPost(post, event.params.postId);
-  } else {
-    post.postType = event.params.newPostType;
-  }
-  changeTypePost(post, event.params.postId);
-  post.save();
 }
 
 export function handleDeletedPost(event: PostDeleted): void {
