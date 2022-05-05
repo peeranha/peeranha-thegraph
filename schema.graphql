@@ -63,7 +63,7 @@ type _Schema_
   name: "postSearch"
   language: en
   algorithm: rank
-  include: [{ entity: "Post", fields: [{ name: "title" }, { name: "content" }] }]
+  include: [{entity: "Post", fields: [{ name: "title" }, { name: "content"}, { name: "postContent"}]}]        
 )
 
 type Post @entity {
@@ -72,19 +72,16 @@ type Post @entity {
   ipfsHash: Bytes
   ipfsHash2: Bytes
   postType: Int
-  
   author: User!
   rating: Int
   postTime: BigInt
   communityId: BigInt!
-
   title: String
   content: String
-
+  postContent: String
   commentCount: Int
   replyCount: Int
   isDeleted: Boolean
-
   officialReply: Int
   bestReply: Int
   isFirstReply: Boolean
@@ -103,12 +100,9 @@ type Reply @entity {
   postTime: BigInt
   postId: BigInt
   parentReplyId: Int
-
   content: String
-
   commentCount: Int
   isDeleted: Boolean
-
   isOfficialReply: Boolean
   isBestReply: Boolean
   isFirstReply: Boolean
@@ -126,9 +120,7 @@ type Comment @entity {
   postTime: BigInt
   postId: BigInt
   parentReplyId: Int
-
   content: String
-
   isDeleted: Boolean
   properties: [Bytes!]
 }
@@ -167,3 +159,16 @@ type ContractInfo @entity {
   lastUpdatePeriod: Int
   lastBlock: BigInt
 }
+
+type History @entity {
+  id: ID!
+  transactionHash: Bytes
+  post: Post
+  reply: Reply
+  comment: Comment
+  eventEntity: String
+  eventName: String
+  actionUser: User
+  timeStamp: BigInt
+}
+

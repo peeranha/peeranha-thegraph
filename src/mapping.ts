@@ -2,24 +2,23 @@ import { Address, BigInt, log } from '@graphprotocol/graph-ts'
 import { ethereum } from '@graphprotocol/graph-ts'
 import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity,
   CommunityCreated, CommunityUpdated, CommunityFrozen, CommunityUnfrozen,
-  TagCreated,
+  TagCreated, TagUpdated,
   PostCreated, PostEdited, PostDeleted,
   ReplyCreated, ReplyEdited, ReplyDeleted,
   CommentCreated, CommentEdited, CommentDeleted,
-  ForumItemVoted,
+  ForumItemVoted, ChangePostType,
   StatusOfficialReplyChanged, StatusBestReplyChanged,
 } from '../generated/Peeranha/Peeranha'
 
 import { GetReward } from '../generated/PeeranhaToken/PeeranhaToken'
-import { User, Community, Tag, Post, Reply, Comment, Achievement, ContractInfo, UserReward, Period } from '../generated/schema'
+import { User, Community, Tag, Post, Reply, Comment, Achievement, ContractInfo, UserReward, Period, History } from '../generated/schema'
 import { MAIN_ADDRESS } from './config'
 import { getPeeranha, getPeeranhaToken } from './utils'
 
-import { newPost, addDataToPost, deletePost,
-  newReply, addDataToReply, deleteReply,
-  newComment, addDataToComment } from './post'
-import { newCommunity, addDataToCommunity, newTag, getCommunity } from './community-tag'
-import { newUser, addDataToUser, updateUserRating } from './user'
+import { newPost, addDataToPost, deletePost, newReply, addDataToReply, deleteReply,
+  newComment, addDataToComment, updatePostContent, updatePostUsersRatings } from './post'
+import { newCommunity, addDataToCommunity, newTag, addDataToTag, getCommunity } from './community-tag'
+import { newUser, addDataToUser, updateUserRating} from './user'
 import { addDataToAchievement, giveAchievement, newAchievement } from './achievement'
 import { ConfigureNewAchievementNFT, Transfer } from '../generated/PeeranhaNFT/PeeranhaNFT'
 
@@ -153,12 +152,38 @@ export function handleNewTag(event: TagCreated): void {
   tag.save(); 
 }
 
+export function handleEditedTag(event: TagUpdated): void {
+  let tag = Tag.load(event.params.communityId.toString() + "-" + BigInt.fromI32(event.params.tagId).toString());
+  addDataToTag(tag, event.params.communityId, BigInt.fromI32(event.params.tagId));
+  tag.save();
+}
+
+// TODO: Get rid of generics in this method. eventEntity and eventName values move to constants or enums.
+export function createHistory<T1, T2>(item: T1,  event: T2,  eventEntity: string, eventName: string): void {
+  let history = new History(event.transaction.hash.toHex());
+  history.post = event.params.postId.toString();
+  if (item instanceof Reply) {
+    history.reply = item.id;
+  }
+  if (item instanceof Comment) {
+    history.comment = item.id;
+  }
+
+  history.transactionHash = event.transaction.hash;
+  history.eventEntity = eventEntity;
+  history.eventName = eventName;
+  history.actionUser = event.params.user.toHex();
+  history.timeStamp = event.block.timestamp;
+  history.save();
+}
+
 export function handleNewPost(event: PostCreated): void {
   let post = new Post(event.params.postId.toString());
 
   newPost(post, event.params.postId);
   post.save();
 
+  createHistory(post, event, 'Post', 'Create');
 }
 
 export function handleEditedPost(event: PostEdited): void {
@@ -169,8 +194,21 @@ export function handleEditedPost(event: PostEdited): void {
   } else {
     addDataToPost(post, event.params.postId);
   }
-
   post.save();
+
+  let postId = event.params.postId;
+  updatePostContent(postId);
+
+  createHistory(post, event, 'Post', 'Edit');
+}
+
+export function handleChangedTypePost(event: ChangePostType): void {
+  let post = Post.load(event.params.postId.toString())
+  if (post != null) {
+    post.postType = event.params.newPostType;
+    updatePostUsersRatings(post);
+    post.save();
+  }
 }
 
 export function handleDeletedPost(event: PostDeleted): void {
@@ -179,6 +217,8 @@ export function handleDeletedPost(event: PostDeleted): void {
 
   deletePost(post, event.params.postId);
   post.save();
+
+  createHistory(post, event, 'Post', 'Delete');
 }
 
 export function handleNewReply(event: ReplyCreated): void {
@@ -186,7 +226,9 @@ export function handleNewReply(event: ReplyCreated): void {
   let reply = new Reply(event.params.postId.toString() + "-" + replyId.toString());
 
   newReply(reply, event.params.postId, replyId);
-  reply.save(); 
+  reply.save();
+
+  createHistory(reply, event, 'Reply', 'Create');
 }
 
 export function handleEditedReply(event: ReplyEdited): void { 
@@ -199,8 +241,12 @@ export function handleEditedReply(event: ReplyEdited): void {
   } else {
     addDataToReply(reply, event.params.postId, replyId);
   }
-
   reply.save();
+
+  let postId = event.params.postId;
+  updatePostContent(postId);
+
+  createHistory(reply, event, 'Reply', 'Edit');
 }
 
 export function handleDeletedReply(event: ReplyDeleted): void {
@@ -210,6 +256,11 @@ export function handleDeletedReply(event: ReplyDeleted): void {
 
   deleteReply(reply, event.params.postId);
   reply.save();
+
+  let postId = event.params.postId;
+  updatePostContent(postId);
+
+  createHistory(reply, event, 'Reply', 'Delete');
 }
 
 export function handleNewComment(event: CommentCreated): void {
@@ -218,7 +269,9 @@ export function handleNewComment(event: CommentCreated): void {
   let comment = new Comment(event.params.postId.toString() + "-" + parentReplyId.toString() + "-" +  commentId.toString());
 
   newComment(comment, event.params.postId, BigInt.fromI32(event.params.parentReplyId), commentId);  //без конвертации
-  comment.save(); 
+  comment.save();
+
+  createHistory(comment, event, 'Comment', 'Create');
 }
 
 export function handleEditedComment(event: CommentEdited): void { 
@@ -233,7 +286,11 @@ export function handleEditedComment(event: CommentEdited): void {
     addDataToComment(comment, event.params.postId, parentReplyId, commentId);
   }
 
-  comment.save(); 
+  createHistory(comment, event, 'Comment', 'Edit');
+  comment.save();
+
+  let postId = event.params.postId;
+  updatePostContent(postId);
 }
 
 export function handleDeletedComment(event: CommentDeleted): void {
@@ -243,7 +300,12 @@ export function handleDeletedComment(event: CommentDeleted): void {
   if (comment == null) return;
 
   comment.isDeleted = true;
-  comment.save(); 
+  comment.save();
+
+  let postId = event.params.postId;
+  updatePostContent(postId);
+
+  createHistory(comment, event, 'Comment', 'Delete');
 }
 
 export function handleReward(block: ethereum.Block): void {
@@ -323,7 +385,7 @@ export function handlerChangedStatusOfficialReply(event: StatusOfficialReplyChan
       reply.isOfficialReply = false;
     }
 
-    reply.save(); 
+    reply.save();
   }
 
   let replyId = BigInt.fromI32(event.params.replyId);
@@ -331,9 +393,10 @@ export function handlerChangedStatusOfficialReply(event: StatusOfficialReplyChan
 
   if (reply == null) {
     newReply(reply, event.params.postId, replyId);
-  } 
+  }
+
   reply.isOfficialReply = true;
-  reply.save(); 
+  reply.save();
 }
 
 export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): void {
@@ -358,7 +421,7 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
       previousReply.isBestReply = false;
     }
     updateUserRating(Address.fromString(previousReply.author), post.communityId);
-    previousReply.save(); 
+    previousReply.save();
   }
 
   if (event.params.replyId != 0) {    // fix  (if reply does not exist -> getReply() call erray)
@@ -389,8 +452,8 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
       if (peeranhaComment == null) return;
       comment.rating = peeranhaComment.rating;
     }
-    
     comment.save();
+    
   } else if (event.params.replyId != 0) {
     let replyId = BigInt.fromI32(event.params.replyId);
     let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
