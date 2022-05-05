@@ -1,7 +1,7 @@
 {
   "network": "mumbai",
-  "mainAddress": "0xF245A33904E6bF3ad4fAcD6d377B79c18e9Ca6Bf",
-  "tokenAddress": "0xd0b8889DF579152F9528a46850c83891f15A2D30",
-  "nftAddress": "0x6eE182056eE3Ac082bdcE5164121C637A2e410bB",
-  "startBlock": 26209899
+  "mainAddress": "0x19Fb6556cc7f63609Ce98F23774c1D97b506AAD9",
+  "tokenAddress": "0xD3F79d4c1AF998d73D0fCd60764b437DD99D75A2",
+  "nftAddress": "0xA0038d67A86aE54052820a2B1ceA1B13c2633f21",
+  "startBlock": 26210250
 }
