@@ -58,6 +58,28 @@ export class GetReward__Params {
   }
 }
 
+export class OwnershipTransferred extends ethereum.Event {
+  get params(): OwnershipTransferred__Params {
+    return new OwnershipTransferred__Params(this);
+  }
+}
+
+export class OwnershipTransferred__Params {
+  _event: OwnershipTransferred;
+
+  constructor(event: OwnershipTransferred) {
+    this._event = event;
+  }
+
+  get previousOwner(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get newOwner(): Address {
+    return this._event.parameters[1].value.toAddress();
+  }
+}
+
 export class Paused extends ethereum.Event {
   get params(): Paused__Params {
     return new Paused__Params(this);
@@ -73,6 +95,32 @@ export class Paused__Params {
 
   get account(): Address {
     return this._event.parameters[0].value.toAddress();
+  }
+}
+
+export class SetStake extends ethereum.Event {
+  get params(): SetStake__Params {
+    return new SetStake__Params(this);
+  }
+}
+
+export class SetStake__Params {
+  _event: SetStake;
+
+  constructor(event: SetStake) {
+    this._event = event;
+  }
+
+  get user(): Address {
+    return this._event.parameters[0].value.toAddress();
+  }
+
+  get period(): i32 {
+    return this._event.parameters[1].value.toI32();
+  }
+
+  get stake(): BigInt {
+    return this._event.parameters[2].value.toBigInt();
   }
 }
 
@@ -120,6 +168,23 @@ export class Unpaused__Params {
   }
 }
 
+export class PeeranhaToken__getStakeResult {
+  value0: BigInt;
+  value1: BigInt;
+
+  constructor(value0: BigInt, value1: BigInt) {
+    this.value0 = value0;
+    this.value1 = value1;
+  }
+
+  toMap(): TypedMap<string, ethereum.Value> {
+    let map = new TypedMap<string, ethereum.Value>();
+    map.set("value0", ethereum.Value.fromUnsignedBigInt(this.value0));
+    map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
+    return map;
+  }
+}
+
 export class PeeranhaToken extends ethereum.SmartContract {
   static bind(address: Address): PeeranhaToken {
     return new PeeranhaToken("PeeranhaToken", address);
@@ -163,14 +228,22 @@ export class PeeranhaToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  REWARD_WEEK(): BigInt {
-    let result = super.call("REWARD_WEEK", "REWARD_WEEK():(uint256)", []);
+  MAX_REWARD_PER_PERIOD(): BigInt {
+    let result = super.call(
+      "MAX_REWARD_PER_PERIOD",
+      "MAX_REWARD_PER_PERIOD():(uint256)",
+      []
+    );
 
     return result[0].toBigInt();
   }
 
-  try_REWARD_WEEK(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("REWARD_WEEK", "REWARD_WEEK():(uint256)", []);
+  try_MAX_REWARD_PER_PERIOD(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "MAX_REWARD_PER_PERIOD",
+      "MAX_REWARD_PER_PERIOD():(uint256)",
+      []
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -178,14 +251,22 @@ export class PeeranhaToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  TOTAL_SUPPLY(): BigInt {
-    let result = super.call("TOTAL_SUPPLY", "TOTAL_SUPPLY():(uint256)", []);
+  MAX_REWARD_PER_USER(): BigInt {
+    let result = super.call(
+      "MAX_REWARD_PER_USER",
+      "MAX_REWARD_PER_USER():(uint256)",
+      []
+    );
 
     return result[0].toBigInt();
   }
 
-  try_TOTAL_SUPPLY(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("TOTAL_SUPPLY", "TOTAL_SUPPLY():(uint256)", []);
+  try_MAX_REWARD_PER_USER(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "MAX_REWARD_PER_USER",
+      "MAX_REWARD_PER_USER():(uint256)",
+      []
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -237,6 +318,29 @@ export class PeeranhaToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBoolean());
   }
 
+  availableBalanceOf(account: Address): BigInt {
+    let result = super.call(
+      "availableBalanceOf",
+      "availableBalanceOf(address):(uint256)",
+      [ethereum.Value.fromAddress(account)]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_availableBalanceOf(account: Address): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "availableBalanceOf",
+      "availableBalanceOf(address):(uint256)",
+      [ethereum.Value.fromAddress(account)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
   balanceOf(account: Address): BigInt {
     let result = super.call("balanceOf", "balanceOf(address):(uint256)", [
       ethereum.Value.fromAddress(account)
@@ -249,21 +353,6 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.tryCall("balanceOf", "balanceOf(address):(uint256)", [
       ethereum.Value.fromAddress(account)
     ]);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBigInt());
-  }
-
-  cap(): BigInt {
-    let result = super.call("cap", "cap():(uint256)", []);
-
-    return result[0].toBigInt();
-  }
-
-  try_cap(): ethereum.CallResult<BigInt> {
-    let result = super.tryCall("cap", "cap():(uint256)", []);
     if (result.reverted) {
       return new ethereum.CallResult();
     }
@@ -318,27 +407,125 @@ export class PeeranhaToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBoolean());
   }
 
-  getPoolTokens(period: i32): BigInt {
+  getAverageStake(findingPeriod: i32): BigInt {
     let result = super.call(
-      "getPoolTokens",
-      "getPoolTokens(uint16):(uint256)",
-      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(period))]
+      "getAverageStake",
+      "getAverageStake(uint16):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(findingPeriod))]
     );
 
     return result[0].toBigInt();
   }
 
-  try_getPoolTokens(period: i32): ethereum.CallResult<BigInt> {
+  try_getAverageStake(findingPeriod: i32): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
-      "getPoolTokens",
-      "getPoolTokens(uint16):(uint256)",
-      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(period))]
+      "getAverageStake",
+      "getAverageStake(uint16):(uint256)",
+      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(findingPeriod))]
     );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  getBoost(user: Address, period: i32): i32 {
+    let result = super.call("getBoost", "getBoost(address,uint16):(int32)", [
+      ethereum.Value.fromAddress(user),
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(period))
+    ]);
+
+    return result[0].toI32();
+  }
+
+  try_getBoost(user: Address, period: i32): ethereum.CallResult<i32> {
+    let result = super.tryCall("getBoost", "getBoost(address,uint16):(int32)", [
+      ethereum.Value.fromAddress(user),
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(period))
+    ]);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toI32());
+  }
+
+  getStake(findingPeriod: i32): PeeranhaToken__getStakeResult {
+    let result = super.call("getStake", "getStake(uint16):(uint256,uint64)", [
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(findingPeriod))
+    ]);
+
+    return new PeeranhaToken__getStakeResult(
+      result[0].toBigInt(),
+      result[1].toBigInt()
+    );
+  }
+
+  try_getStake(
+    findingPeriod: i32
+  ): ethereum.CallResult<PeeranhaToken__getStakeResult> {
+    let result = super.tryCall(
+      "getStake",
+      "getStake(uint16):(uint256,uint64)",
+      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(findingPeriod))]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(
+      new PeeranhaToken__getStakeResult(
+        value[0].toBigInt(),
+        value[1].toBigInt()
+      )
+    );
+  }
+
+  getStakeTotalPeriods(): Array<i32> {
+    let result = super.call(
+      "getStakeTotalPeriods",
+      "getStakeTotalPeriods():(uint16[])",
+      []
+    );
+
+    return result[0].toI32Array();
+  }
+
+  try_getStakeTotalPeriods(): ethereum.CallResult<Array<i32>> {
+    let result = super.tryCall(
+      "getStakeTotalPeriods",
+      "getStakeTotalPeriods():(uint16[])",
+      []
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toI32Array());
+  }
+
+  getStakeUserPeriods(user: Address): Array<i32> {
+    let result = super.call(
+      "getStakeUserPeriods",
+      "getStakeUserPeriods(address):(uint16[])",
+      [ethereum.Value.fromAddress(user)]
+    );
+
+    return result[0].toI32Array();
+  }
+
+  try_getStakeUserPeriods(user: Address): ethereum.CallResult<Array<i32>> {
+    let result = super.tryCall(
+      "getStakeUserPeriods",
+      "getStakeUserPeriods(address):(uint16[])",
+      [ethereum.Value.fromAddress(user)]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toI32Array());
   }
 
   getUserRewardGraph(user: Address, period: i32): BigInt {
@@ -364,6 +551,38 @@ export class PeeranhaToken extends ethereum.SmartContract {
       [
         ethereum.Value.fromAddress(user),
         ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(period))
+      ]
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
+  getUserStake(user: Address, findingPeriod: i32): BigInt {
+    let result = super.call(
+      "getUserStake",
+      "getUserStake(address,uint16):(uint256)",
+      [
+        ethereum.Value.fromAddress(user),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(findingPeriod))
+      ]
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_getUserStake(
+    user: Address,
+    findingPeriod: i32
+  ): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "getUserStake",
+      "getUserStake(address,uint16):(uint256)",
+      [
+        ethereum.Value.fromAddress(user),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(findingPeriod))
       ]
     );
     if (result.reverted) {
@@ -418,6 +637,21 @@ export class PeeranhaToken extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toString());
+  }
+
+  owner(): Address {
+    let result = super.call("owner", "owner():(address)", []);
+
+    return result[0].toAddress();
+  }
+
+  try_owner(): ethereum.CallResult<Address> {
+    let result = super.tryCall("owner", "owner():(address)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toAddress());
   }
 
   paused(): boolean {
@@ -711,6 +945,96 @@ export class InitializeCall__Outputs {
   }
 }
 
+export class MintForOwnerCall extends ethereum.Call {
+  get inputs(): MintForOwnerCall__Inputs {
+    return new MintForOwnerCall__Inputs(this);
+  }
+
+  get outputs(): MintForOwnerCall__Outputs {
+    return new MintForOwnerCall__Outputs(this);
+  }
+}
+
+export class MintForOwnerCall__Inputs {
+  _call: MintForOwnerCall;
+
+  constructor(call: MintForOwnerCall) {
+    this._call = call;
+  }
+
+  get mintTokens(): BigInt {
+    return this._call.inputValues[0].value.toBigInt();
+  }
+}
+
+export class MintForOwnerCall__Outputs {
+  _call: MintForOwnerCall;
+
+  constructor(call: MintForOwnerCall) {
+    this._call = call;
+  }
+}
+
+export class RenounceOwnershipCall extends ethereum.Call {
+  get inputs(): RenounceOwnershipCall__Inputs {
+    return new RenounceOwnershipCall__Inputs(this);
+  }
+
+  get outputs(): RenounceOwnershipCall__Outputs {
+    return new RenounceOwnershipCall__Outputs(this);
+  }
+}
+
+export class RenounceOwnershipCall__Inputs {
+  _call: RenounceOwnershipCall;
+
+  constructor(call: RenounceOwnershipCall) {
+    this._call = call;
+  }
+}
+
+export class RenounceOwnershipCall__Outputs {
+  _call: RenounceOwnershipCall;
+
+  constructor(call: RenounceOwnershipCall) {
+    this._call = call;
+  }
+}
+
+export class SetStakeCall extends ethereum.Call {
+  get inputs(): SetStakeCall__Inputs {
+    return new SetStakeCall__Inputs(this);
+  }
+
+  get outputs(): SetStakeCall__Outputs {
+    return new SetStakeCall__Outputs(this);
+  }
+}
+
+export class SetStakeCall__Inputs {
+  _call: SetStakeCall;
+
+  constructor(call: SetStakeCall) {
+    this._call = call;
+  }
+
+  get user(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+
+  get stakeTokens(): BigInt {
+    return this._call.inputValues[1].value.toBigInt();
+  }
+}
+
+export class SetStakeCall__Outputs {
+  _call: SetStakeCall;
+
+  constructor(call: SetStakeCall) {
+    this._call = call;
+  }
+}
+
 export class TransferCall extends ethereum.Call {
   get inputs(): TransferCall__Inputs {
     return new TransferCall__Inputs(this);
@@ -788,5 +1112,35 @@ export class TransferFromCall__Outputs {
 
   get value0(): boolean {
     return this._call.outputValues[0].value.toBoolean();
+  }
+}
+
+export class TransferOwnershipCall extends ethereum.Call {
+  get inputs(): TransferOwnershipCall__Inputs {
+    return new TransferOwnershipCall__Inputs(this);
+  }
+
+  get outputs(): TransferOwnershipCall__Outputs {
+    return new TransferOwnershipCall__Outputs(this);
+  }
+}
+
+export class TransferOwnershipCall__Inputs {
+  _call: TransferOwnershipCall;
+
+  constructor(call: TransferOwnershipCall) {
+    this._call = call;
+  }
+
+  get newOwner(): Address {
+    return this._call.inputValues[0].value.toAddress();
+  }
+}
+
+export class TransferOwnershipCall__Outputs {
+  _call: TransferOwnershipCall;
+
+  constructor(call: TransferOwnershipCall) {
+    this._call = call;
   }
 }

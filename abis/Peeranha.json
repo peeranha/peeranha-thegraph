@@ -10,29 +10,6 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "userAddr",
-        "type": "address"
-      },
-      {
-        "internalType": "int32",
-        "name": "rating",
-        "type": "int32"
-      },
-      {
-        "internalType": "uint32",
-        "name": "communityId",
-        "type": "uint32"
-      }
-    ],
-    "name": "addUserRating",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
         "name": "userAddress",
         "type": "address"
       },
@@ -747,6 +724,102 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint16",
+        "name": "rewardPeriod",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      }
+    ],
+    "name": "getPeriodRating",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "int32",
+            "name": "ratingToReward",
+            "type": "int32"
+          },
+          {
+            "internalType": "int32",
+            "name": "penalty",
+            "type": "int32"
+          },
+          {
+            "internalType": "bool",
+            "name": "isActive",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct RewardLib.PeriodRating",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint16",
+        "name": "rewardPeriod",
+        "type": "uint16"
+      }
+    ],
+    "name": "getPeriodReward",
+    "outputs": [
+      {
+        "internalType": "int32",
+        "name": "",
+        "type": "int32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint16",
+        "name": "period",
+        "type": "uint16"
+      }
+    ],
+    "name": "getPeriodRewardContainer",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "int32",
+            "name": "totalRewardShares",
+            "type": "int32"
+          },
+          {
+            "internalType": "address[]",
+            "name": "activeUsersInPeriod",
+            "type": "address[]"
+          }
+        ],
+        "internalType": "struct RewardLib.PeriodRewardShares",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint256",
         "name": "postId",
         "type": "uint256"
@@ -1336,37 +1409,6 @@
   {
     "inputs": [
       {
-        "internalType": "uint16",
-        "name": "period",
-        "type": "uint16"
-      }
-    ],
-    "name": "getWeekRewardContainer",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "int64",
-            "name": "rating",
-            "type": "int64"
-          },
-          {
-            "internalType": "address[]",
-            "name": "activeUsersInPeriod",
-            "type": "address[]"
-          }
-        ],
-        "internalType": "struct RewardLib.WeekReward",
-        "name": "",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address",
         "name": "user",
         "type": "address"
@@ -1511,16 +1553,11 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "userAddr",
+        "name": "peeranhaTokenAddress",
         "type": "address"
-      },
-      {
-        "internalType": "uint16",
-        "name": "energy",
-        "type": "uint16"
       }
     ],
-    "name": "setEnergy",
+    "name": "setTokenContract",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
