@@ -154,7 +154,7 @@ type Period @entity {
 
 type ContractInfo @entity {
   id: ID!
-  startPeriodTime: BigInt
+  deployTime: BigInt
   periodLength: BigInt
   lastUpdatePeriod: Int
   lastBlock: BigInt

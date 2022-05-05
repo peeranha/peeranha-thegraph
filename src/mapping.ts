@@ -313,16 +313,16 @@ export function handleReward(block: ethereum.Block): void {
   if (contractInfo == null) {
     contractInfo = new ContractInfo(MAIN_ADDRESS)
     const periodInfo = getPeeranha().getPeriodInfo();
-    const startPeriodTime = periodInfo.value0
+    const deployTime = periodInfo.value0
     const periodLength = periodInfo.value1
-    contractInfo.startPeriodTime = startPeriodTime;
+    contractInfo.deployTime = deployTime;
     contractInfo.periodLength = periodLength;
     contractInfo.lastUpdatePeriod = -1;
     contractInfo.lastBlock = block.number;
     contractInfo.save()
   }
 
-  if ((contractInfo.lastBlock.plus(BigInt.fromI32(100))).lt(block.number)) {
+  if ((contractInfo.lastBlock.plus(BigInt.fromI32(15))).lt(block.number)) {
     const period = getPeeranha().getPeriod();
     if (period >= 50000) return;                  // delete in prod
 
@@ -331,13 +331,13 @@ export function handleReward(block: ethereum.Block): void {
       contractInfo.lastBlock = block.number;
       contractInfo.save()
       let periodStruct = new Period(period.toString());
-      periodStruct.startPeriodTime = contractInfo.startPeriodTime.plus(contractInfo.periodLength.times(BigInt.fromI32(period)))
-      periodStruct.endPeriodTime = contractInfo.startPeriodTime.plus(contractInfo.periodLength.times(BigInt.fromI32(period + 1)))
+      periodStruct.startPeriodTime = contractInfo.deployTime.plus(contractInfo.periodLength.times(BigInt.fromI32(period)))
+      periodStruct.endPeriodTime = contractInfo.deployTime.plus(contractInfo.periodLength.times(BigInt.fromI32(period + 1)))
       periodStruct.isFinished = false;
       periodStruct.save();  
 
-      const previousPeriod = period - 1;
-      if (previousPeriod >= 0) {
+      const previousPeriod = period - 2;
+      if (previousPeriod >= 1) {
         const activeUsersInPeriod = getPeeranha().getActiveUsersInPeriod(previousPeriod);
         for (let i = 0; i < activeUsersInPeriod.length; i++) {
           const tokenRewards = getPeeranhaToken().getUserRewardGraph(activeUsersInPeriod[i], previousPeriod);
@@ -347,11 +347,11 @@ export function handleReward(block: ethereum.Block): void {
           userReward.user = activeUsersInPeriod[i].toHex();
           userReward.isPaid = false;
           userReward.save();
-
-          let previousPeriodStruct = new Period(previousPeriod.toString());
-          previousPeriodStruct.isFinished = true;
-          previousPeriodStruct.save()
         }
+
+        let previousPeriodStruct = Period.load(previousPeriod.toString());
+        previousPeriodStruct.isFinished = true;
+        previousPeriodStruct.save()
       }
     }
   }
