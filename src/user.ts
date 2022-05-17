@@ -1,13 +1,13 @@
 import { ByteArray, Address, log } from '@graphprotocol/graph-ts'
 import { json, Bytes, ipfs, BigInt } from '@graphprotocol/graph-ts'
 import { User, UserCommunityRating } from '../generated/schema'
-import { getPeeranha } from './utils'
+import { getPeeranhaUser } from './utils'
 
-export function newUser(user: User | null, userAddress: Address): void {
-  let peeranhaUser = getPeeranha().getUserByAddress(userAddress);
+export function newUser(user: User | null, userAddress: Address, blockTimeStamp: BigInt): void {
+  let peeranhaUser = getPeeranhaUser().getUserByAddress(userAddress);
   if (peeranhaUser == null) return;
 
-  user.creationTime = peeranhaUser.creationTime;
+  user.creationTime = blockTimeStamp;
   user.postCount = 0;
   user.replyCount = 0;
   user.followedCommunities = [];
@@ -18,7 +18,7 @@ export function newUser(user: User | null, userAddress: Address): void {
 }
 
 export function addDataToUser(user: User | null, userAddress: Address): void {
-  let peeranhaUser = getPeeranha().getUserByAddress(userAddress);
+  let peeranhaUser = getPeeranhaUser().getUserByAddress(userAddress);
   if (peeranhaUser == null) return;
   
   user.ipfsHash = peeranhaUser.ipfsDoc.hash;
@@ -83,7 +83,7 @@ export function updateUserRating(userAddress: Address, communityId: BigInt): voi
     userComunityRating.user = userAddress.toHex()
     userComunityRating.communityId = communityId.toI32();
 
-    let rating = getPeeranha().getUserRating(userAddress, communityId);
+    let rating = getPeeranhaUser().getUserRating(userAddress, communityId);
     userComunityRating.rating = rating;
     userComunityRating.save();
 
@@ -92,7 +92,7 @@ export function updateUserRating(userAddress: Address, communityId: BigInt): voi
     user.ratings = ratings;
     user.save();
   } else {
-    let rating = getPeeranha().getUserRating(userAddress, communityId);
+    let rating = getPeeranhaUser().getUserRating(userAddress, communityId);
     userComunityRating.rating = rating;
     userComunityRating.save();
   }
@@ -121,12 +121,15 @@ export function updateStartUserRating(userAddress: Address, communityId: BigInt)
 
 export function getUser(userAddress: Address): User | null {
   let user = User.load(userAddress.toHex());
+  return user
+}
+
+export function createUserIfDoesNotExist(userAddress: Address, blockTimeStamp: BigInt): void {
+  let user = User.load(userAddress.toHex());
   if (user == null) {
     // let communityIdI32 = communityId.toI32();                     ///
     // let newCommunityId: BigInt = new BigInt(communityIdI32);      /// -_-
-    
-    newUser(user, userAddress);
+    newUser(user, userAddress, blockTimeStamp);
+    user.save();
   }
-
-  return user
 }

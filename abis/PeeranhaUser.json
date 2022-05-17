@@ -1,0 +1,1233 @@
+[
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "version",
+        "type": "uint8"
+      }
+    ],
+    "name": "Initialized",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "userAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "relayerAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "functionSignature",
+        "type": "bytes"
+      }
+    ],
+    "name": "MetaTransactionExecuted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "previousAdminRole",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "newAdminRole",
+        "type": "bytes32"
+      }
+    ],
+    "name": "RoleAdminChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      }
+    ],
+    "name": "RoleGranted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      }
+    ],
+    "name": "RoleRevoked",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "COMMUNITY_ADMIN_ROLE",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "COMMUNITY_MODERATOR_ROLE",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "DEFAULT_ADMIN_ROLE",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "ERC712_VERSION",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "PROTOCOL_ADMIN_ROLE",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "__Peeranha_init",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "actionCaller",
+        "type": "address"
+      },
+      {
+        "internalType": "enum UserLib.Permission",
+        "name": "permission",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      }
+    ],
+    "name": "checkHasRole",
+    "outputs": [],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "actionCaller",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "dataUser",
+        "type": "address"
+      },
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      },
+      {
+        "internalType": "enum UserLib.Action",
+        "name": "action",
+        "type": "uint8"
+      },
+      {
+        "internalType": "enum UserLib.Permission",
+        "name": "permission",
+        "type": "uint8"
+      },
+      {
+        "internalType": "bool",
+        "name": "createUserIfDoesNotExist",
+        "type": "bool"
+      }
+    ],
+    "name": "checkPermission",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint64",
+        "name": "maxCount",
+        "type": "uint64"
+      },
+      {
+        "internalType": "int64",
+        "name": "lowerBound",
+        "type": "int64"
+      },
+      {
+        "internalType": "string",
+        "name": "achievementURI",
+        "type": "string"
+      },
+      {
+        "internalType": "enum AchievementCommonLib.AchievementsType",
+        "name": "achievementsType",
+        "type": "uint8"
+      }
+    ],
+    "name": "configureNewAchievement",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "ipfsHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "createUser",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "userAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "functionSignature",
+        "type": "bytes"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "sigR",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "sigS",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint8",
+        "name": "sigV",
+        "type": "uint8"
+      }
+    ],
+    "name": "executeMetaTransaction",
+    "outputs": [
+      {
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      }
+    ],
+    "name": "followCommunity",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint64",
+        "name": "achievementId",
+        "type": "uint64"
+      }
+    ],
+    "name": "getAchievementConfig",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint64",
+            "name": "factCount",
+            "type": "uint64"
+          },
+          {
+            "internalType": "uint64",
+            "name": "maxCount",
+            "type": "uint64"
+          },
+          {
+            "internalType": "int64",
+            "name": "lowerBound",
+            "type": "int64"
+          },
+          {
+            "internalType": "enum AchievementCommonLib.AchievementsType",
+            "name": "achievementsType",
+            "type": "uint8"
+          }
+        ],
+        "internalType": "struct AchievementLib.AchievementConfig",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "userAddr",
+        "type": "address"
+      }
+    ],
+    "name": "getActiveUserPeriods",
+    "outputs": [
+      {
+        "internalType": "uint16[]",
+        "name": "",
+        "type": "uint16[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getChainId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getDomainSeperator",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getNonce",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "nonce",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint16",
+        "name": "rewardPeriod",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      }
+    ],
+    "name": "getPeriodRating",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint32",
+            "name": "ratingToReward",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "penalty",
+            "type": "uint32"
+          },
+          {
+            "internalType": "bool",
+            "name": "isActive",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct RewardLib.PeriodRating",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint16",
+        "name": "rewardPeriod",
+        "type": "uint16"
+      }
+    ],
+    "name": "getPeriodReward",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint16",
+        "name": "period",
+        "type": "uint16"
+      }
+    ],
+    "name": "getPeriodRewardShares",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "totalRewardShares",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address[]",
+            "name": "activeUsersInPeriod",
+            "type": "address[]"
+          }
+        ],
+        "internalType": "struct RewardLib.PeriodRewardShares",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint16",
+        "name": "rewardPeriod",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      }
+    ],
+    "name": "getRatingToReward",
+    "outputs": [
+      {
+        "internalType": "int32",
+        "name": "",
+        "type": "int32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getRoleAdmin",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      }
+    ],
+    "name": "getRoleMember",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getRoleMemberCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "addr",
+        "type": "address"
+      }
+    ],
+    "name": "getUserByAddress",
+    "outputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "bytes32",
+                "name": "hash",
+                "type": "bytes32"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "hash2",
+                "type": "bytes32"
+              }
+            ],
+            "internalType": "struct CommonLib.IpfsHash",
+            "name": "ipfsDoc",
+            "type": "tuple"
+          },
+          {
+            "internalType": "uint16",
+            "name": "energy",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "lastUpdatePeriod",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint32[]",
+            "name": "followedCommunities",
+            "type": "uint32[]"
+          },
+          {
+            "internalType": "bytes32[]",
+            "name": "roles",
+            "type": "bytes32[]"
+          }
+        ],
+        "internalType": "struct UserLib.User",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "index",
+        "type": "uint256"
+      }
+    ],
+    "name": "getUserByIndex",
+    "outputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "bytes32",
+                "name": "hash",
+                "type": "bytes32"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "hash2",
+                "type": "bytes32"
+              }
+            ],
+            "internalType": "struct CommonLib.IpfsHash",
+            "name": "ipfsDoc",
+            "type": "tuple"
+          },
+          {
+            "internalType": "uint16",
+            "name": "energy",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "lastUpdatePeriod",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint32[]",
+            "name": "followedCommunities",
+            "type": "uint32[]"
+          },
+          {
+            "internalType": "bytes32[]",
+            "name": "roles",
+            "type": "bytes32[]"
+          }
+        ],
+        "internalType": "struct UserLib.User",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "addr",
+        "type": "address"
+      }
+    ],
+    "name": "getUserPermissions",
+    "outputs": [
+      {
+        "internalType": "bytes32[]",
+        "name": "",
+        "type": "bytes32[]"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "addr",
+        "type": "address"
+      },
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      }
+    ],
+    "name": "getUserRating",
+    "outputs": [
+      {
+        "internalType": "int32",
+        "name": "",
+        "type": "int32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint16",
+        "name": "rewardPeriod",
+        "type": "uint16"
+      }
+    ],
+    "name": "getUserRewardCommunities",
+    "outputs": [
+      {
+        "internalType": "uint32[]",
+        "name": "",
+        "type": "uint32[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getUsersCount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "count",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "userAddr",
+        "type": "address"
+      }
+    ],
+    "name": "giveAdminPermission",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "userAddr",
+        "type": "address"
+      },
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      }
+    ],
+    "name": "giveCommunityAdminPermission",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "userAddr",
+        "type": "address"
+      },
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      }
+    ],
+    "name": "giveCommunityModeratorPermission",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "grantRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "hasRole",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "userAddr",
+        "type": "address"
+      },
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      }
+    ],
+    "name": "initCommunityAdminPermission",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "addr",
+        "type": "address"
+      }
+    ],
+    "name": "isUserExists",
+    "outputs": [],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "renounceRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "userAddr",
+        "type": "address"
+      }
+    ],
+    "name": "revokeAdminPermission",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "userAddr",
+        "type": "address"
+      },
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      }
+    ],
+    "name": "revokeCommunityAdminPermission",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "userAddr",
+        "type": "address"
+      },
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      }
+    ],
+    "name": "revokeCommunityModeratorPermission",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "account",
+        "type": "address"
+      }
+    ],
+    "name": "revokeRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "communityContractAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "contentContractAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "nftContractAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "tokenContractAddress",
+        "type": "address"
+      }
+    ],
+    "name": "setContractAddresses",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes4",
+        "name": "interfaceId",
+        "type": "bytes4"
+      }
+    ],
+    "name": "supportsInterface",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      }
+    ],
+    "name": "unfollowCommunity",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "ipfsHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "updateUser",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "userAddr",
+        "type": "address"
+      },
+      {
+        "internalType": "int32",
+        "name": "rating",
+        "type": "int32"
+      },
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      }
+    ],
+    "name": "updateUserRating",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "components": [
+          {
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "internalType": "int32",
+            "name": "rating",
+            "type": "int32"
+          }
+        ],
+        "internalType": "struct UserLib.UserRatingChange[]",
+        "name": "usersRating",
+        "type": "tuple[]"
+      },
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      }
+    ],
+    "name": "updateUsersRating",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "userAddress",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      }
+    ],
+    "name": "FollowedCommunity",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "userAddress",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      }
+    ],
+    "name": "UnfollowedCommunity",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "userAddress",
+        "type": "address"
+      }
+    ],
+    "name": "UserCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "userAddress",
+        "type": "address"
+      }
+    ],
+    "name": "UserUpdated",
+    "type": "event"
+  }
+]

@@ -3,74 +3,114 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: Peeranha
+    name: PeeranhaUser
     network: mumbai
     source:
-      address: "{{mainAddress}}"
-      abi: Peeranha
+      address: "{{userAddress}}"
+      abi: PeeranhaUser
       startBlock: {{startBlock}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - Peeranha
+        - PeeranhaUser
         - PeeranhaToken
       abis:
-        - name: Peeranha
-          file: ./abis/Peeranha.json
+        - name: PeeranhaUser
+          file: ./abis/PeeranhaUser.json
         - name: PeeranhaToken
           file: ./abis/PeeranhaToken.json
       eventHandlers:
-        - event: UserCreated(address)
+        - event: UserCreated(indexed address)
           handler: handleNewUser
-        - event: UserUpdated(address)
+        - event: UserUpdated(indexed address)
           handler: handleUpdatedUser
-        - event: FollowedCommunity(address,uint32)
+        - event: FollowedCommunity(indexed address,indexed uint32)
           handler: handlerFollowCommunity
-        - event: UnfollowedCommunity(address,uint32)
+        - event: UnfollowedCommunity(indexed address,indexed uint32)
           handler: handlerUnfollowCommunity
-        - event: CommunityCreated(address,uint32)
-          handler: handleNewCommunity
-        - event: CommunityUpdated(address,uint32)
-          handler: handleUpdatedCommunity
-        - event: CommunityFrozen(address,uint32)
-          handler: handleFrozenCommunity
-        - event: CommunityUnfrozen(address,uint32)
-          handler: handleUnfrozenCommunity
-        - event: TagCreated(address,uint8,uint32)
-          handler: handleNewTag
-        - event: TagUpdated(address,uint8,uint32)
-          handler: handleEditedTag 
-        - event: PostCreated(address,uint32,uint256)
-          handler: handleNewPost
-        - event: PostEdited(address,uint256)
-          handler: handleEditedPost
-        - event: PostDeleted(address,uint256)
-          handler: handleDeletedPost
-        - event: ChangePostType(address,uint256,uint8)
-          handler: handleChangedTypePost
-        - event: ReplyCreated(address,uint256,uint16,uint16)
-          handler: handleNewReply
-        - event: ReplyEdited(address,uint256,uint16)
-          handler: handleEditedReply
-        - event: ReplyDeleted(address,uint256,uint16)
-          handler: handleDeletedReply
-        - event: CommentCreated(address,uint256,uint16,uint8)
-          handler: handleNewComment
-        - event: CommentEdited(address,uint256,uint16,uint8)
-          handler: handleEditedComment
-        - event: CommentDeleted(address,uint256,uint16,uint8)
-          handler: handleDeletedComment
-        - event: StatusOfficialReplyChanged(address,uint256,uint16)
-          handler: handlerChangedStatusOfficialReply
-        - event: StatusBestReplyChanged(address,uint256,uint16)
-          handler: handlerChangedStatusBestReply
-        - event: ForumItemVoted(address,uint256,uint16,uint8,int8)
-          handler: handlerForumItemVoted
       blockHandlers:
         - handler: handleReward
+      file: ./src/mapping.ts
 
+  - kind: ethereum/contract
+    name: PeeranhaCommunity
+    network: mumbai
+    source:
+      address: "{{communityAddress}}"
+      abi: PeeranhaCommunity
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - PeeranhaCommunity
+      abis:
+        - name: PeeranhaCommunity
+          file: ./abis/PeeranhaCommunity.json
+      eventHandlers:
+        - event: CommunityCreated(indexed address,indexed uint32)
+          handler: handleNewCommunity
+        - event: CommunityUpdated(indexed address,indexed uint32)
+          handler: handleUpdatedCommunity
+        - event: CommunityFrozen(indexed address,indexed uint32)
+          handler: handleFrozenCommunity
+        - event: CommunityUnfrozen(indexed address,indexed uint32)
+          handler: handleUnfrozenCommunity
+        - event: TagCreated(indexed address,indexed uint8,indexed uint32)
+          handler: handleNewTag
+        - event: TagUpdated(indexed address,indexed uint8,indexed uint32)
+          handler: handleEditedTag 
+      file: ./src/mapping.ts
+
+  - kind: ethereum/contract
+    name: PeeranhaContent
+    network: mumbai
+    source:
+      address: "{{contentAddress}}"
+      abi: PeeranhaContent
+      startBlock: {{startBlock}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - PeeranhaContent
+        - PeeranhaToken
+      abis:
+        - name: PeeranhaContent
+          file: ./abis/PeeranhaContent.json
+        - name: PeeranhaToken
+          file: ./abis/PeeranhaToken.json
+      eventHandlers:
+        - event: PostCreated(indexed address,indexed uint32,indexed uint256)
+          handler: handleNewPost
+        - event: PostEdited(indexed address,indexed uint256)
+          handler: handleEditedPost
+        - event: PostDeleted(indexed address,indexed uint256)
+          handler: handleDeletedPost
+        - event: ChangePostType(indexed address,indexed uint256,uint8)
+          handler: handleChangedTypePost
+        - event: ReplyCreated(indexed address,indexed uint256,uint16,uint16)
+          handler: handleNewReply
+        - event: ReplyEdited(indexed address,indexed uint256,uint16)
+          handler: handleEditedReply
+        - event: ReplyDeleted(indexed address,indexed uint256,uint16)
+          handler: handleDeletedReply
+        - event: CommentCreated(indexed address,indexed uint256,uint16,uint8)
+          handler: handleNewComment
+        - event: CommentEdited(indexed address,indexed uint256,uint16,uint8)
+          handler: handleEditedComment
+        - event: CommentDeleted(indexed address,indexed uint256,uint16,uint8)
+          handler: handleDeletedComment
+        - event: StatusOfficialReplyChanged(indexed address,indexed uint256,uint16)
+          handler: handlerChangedStatusOfficialReply
+        - event: StatusBestReplyChanged(indexed address,indexed uint256,uint16)
+          handler: handlerChangedStatusBestReply
+        - event: ForumItemVoted(indexed address,indexed uint256,uint16,uint8,int8)
+          handler: handlerForumItemVoted
       file: ./src/mapping.ts
 
   - kind: ethereum/contract
@@ -90,7 +130,7 @@ dataSources:
         - name: PeeranhaNFT
           file: ./abis/PeeranhaNFT.json
       eventHandlers:
-        - event: ConfigureNewAchievementNFT(uint64)
+        - event: ConfigureNewAchievementNFT(indexed uint64)
           handler: handleConfigureNewAchievement
         - event: Transfer(indexed address,indexed address,indexed uint256)
           handler: handleTransferAchievement
@@ -113,7 +153,7 @@ dataSources:
         - name: PeeranhaToken
           file: ./abis/PeeranhaToken.json
       eventHandlers:
-        - event: GetReward(address,uint16)
+        - event: GetReward(indexed address,indexed uint16)
           handler: handleGetReward
 
       file: ./src/mapping.ts

@@ -1,0 +1,1091 @@
+[
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "version",
+        "type": "uint8"
+      }
+    ],
+    "name": "Initialized",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "userAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "relayerAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "bytes",
+        "name": "functionSignature",
+        "type": "bytes"
+      }
+    ],
+    "name": "MetaTransactionExecuted",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "ERC712_VERSION",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "enum PostLib.PostType",
+        "name": "postType",
+        "type": "uint8"
+      }
+    ],
+    "name": "changePostType",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint16",
+        "name": "replyId",
+        "type": "uint16"
+      }
+    ],
+    "name": "changeStatusBestReply",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint16",
+        "name": "replyId",
+        "type": "uint16"
+      }
+    ],
+    "name": "changeStatusOfficialReply",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint16",
+        "name": "parentReplyId",
+        "type": "uint16"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "ipfsHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "createComment",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "ipfsHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "enum PostLib.PostType",
+        "name": "postType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8[]",
+        "name": "tags",
+        "type": "uint8[]"
+      }
+    ],
+    "name": "createPost",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint16",
+        "name": "parentReplyId",
+        "type": "uint16"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "ipfsHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bool",
+        "name": "isOfficialReply",
+        "type": "bool"
+      }
+    ],
+    "name": "createReply",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint16",
+        "name": "parentReplyId",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint8",
+        "name": "commentId",
+        "type": "uint8"
+      }
+    ],
+    "name": "deleteComment",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      }
+    ],
+    "name": "deletePost",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint16",
+        "name": "replyId",
+        "type": "uint16"
+      }
+    ],
+    "name": "deleteReply",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint16",
+        "name": "parentReplyId",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint8",
+        "name": "commentId",
+        "type": "uint8"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "ipfsHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "editComment",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "ipfsHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint8[]",
+        "name": "tags",
+        "type": "uint8[]"
+      }
+    ],
+    "name": "editPost",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint16",
+        "name": "replyId",
+        "type": "uint16"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "ipfsHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "editReply",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "userAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes",
+        "name": "functionSignature",
+        "type": "bytes"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "sigR",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "sigS",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint8",
+        "name": "sigV",
+        "type": "uint8"
+      }
+    ],
+    "name": "executeMetaTransaction",
+    "outputs": [
+      {
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
+      }
+    ],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getChainId",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint16",
+        "name": "parentReplyId",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint8",
+        "name": "commentId",
+        "type": "uint8"
+      }
+    ],
+    "name": "getComment",
+    "outputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "bytes32",
+                "name": "hash",
+                "type": "bytes32"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "hash2",
+                "type": "bytes32"
+              }
+            ],
+            "internalType": "struct CommonLib.IpfsHash",
+            "name": "ipfsDoc",
+            "type": "tuple"
+          },
+          {
+            "internalType": "address",
+            "name": "author",
+            "type": "address"
+          },
+          {
+            "internalType": "int32",
+            "name": "rating",
+            "type": "int32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "postTime",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint8",
+            "name": "propertyCount",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bool",
+            "name": "isDeleted",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct PostLib.Comment",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getDomainSeperator",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "getNonce",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "nonce",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      }
+    ],
+    "name": "getPost",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "enum PostLib.PostType",
+            "name": "postType",
+            "type": "uint8"
+          },
+          {
+            "internalType": "address",
+            "name": "author",
+            "type": "address"
+          },
+          {
+            "internalType": "int32",
+            "name": "rating",
+            "type": "int32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "postTime",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "communityId",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint16",
+            "name": "officialReply",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "bestReply",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint8",
+            "name": "propertyCount",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint8",
+            "name": "commentCount",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint16",
+            "name": "replyCount",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint16",
+            "name": "deletedReplyCount",
+            "type": "uint16"
+          },
+          {
+            "internalType": "bool",
+            "name": "isDeleted",
+            "type": "bool"
+          },
+          {
+            "internalType": "uint8[]",
+            "name": "tags",
+            "type": "uint8[]"
+          },
+          {
+            "components": [
+              {
+                "internalType": "bytes32",
+                "name": "hash",
+                "type": "bytes32"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "hash2",
+                "type": "bytes32"
+              }
+            ],
+            "internalType": "struct CommonLib.IpfsHash",
+            "name": "ipfsDoc",
+            "type": "tuple"
+          }
+        ],
+        "internalType": "struct PostLib.Post",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint16",
+        "name": "replyId",
+        "type": "uint16"
+      }
+    ],
+    "name": "getReply",
+    "outputs": [
+      {
+        "components": [
+          {
+            "components": [
+              {
+                "internalType": "bytes32",
+                "name": "hash",
+                "type": "bytes32"
+              },
+              {
+                "internalType": "bytes32",
+                "name": "hash2",
+                "type": "bytes32"
+              }
+            ],
+            "internalType": "struct CommonLib.IpfsHash",
+            "name": "ipfsDoc",
+            "type": "tuple"
+          },
+          {
+            "internalType": "address",
+            "name": "author",
+            "type": "address"
+          },
+          {
+            "internalType": "int32",
+            "name": "rating",
+            "type": "int32"
+          },
+          {
+            "internalType": "uint32",
+            "name": "postTime",
+            "type": "uint32"
+          },
+          {
+            "internalType": "uint16",
+            "name": "parentReplyId",
+            "type": "uint16"
+          },
+          {
+            "internalType": "uint8",
+            "name": "commentCount",
+            "type": "uint8"
+          },
+          {
+            "internalType": "uint8",
+            "name": "propertyCount",
+            "type": "uint8"
+          },
+          {
+            "internalType": "bool",
+            "name": "isFirstReply",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isQuickReply",
+            "type": "bool"
+          },
+          {
+            "internalType": "bool",
+            "name": "isDeleted",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct PostLib.Reply",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint16",
+        "name": "replyId",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint8",
+        "name": "commentId",
+        "type": "uint8"
+      }
+    ],
+    "name": "getStatusHistory",
+    "outputs": [
+      {
+        "internalType": "int256",
+        "name": "",
+        "type": "int256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "peeranhaCommunityContractAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "peeranhaUserContractAddress",
+        "type": "address"
+      }
+    ],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint16",
+        "name": "replyId",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint8",
+        "name": "commentId",
+        "type": "uint8"
+      },
+      {
+        "internalType": "bool",
+        "name": "isUpvote",
+        "type": "bool"
+      }
+    ],
+    "name": "voteItem",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum PostLib.PostType",
+        "name": "newPostType",
+        "type": "uint8"
+      }
+    ],
+    "name": "ChangePostType",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "parentReplyId",
+        "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "commentId",
+        "type": "uint8"
+      }
+    ],
+    "name": "CommentCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "parentReplyId",
+        "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "commentId",
+        "type": "uint8"
+      }
+    ],
+    "name": "CommentDeleted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "parentReplyId",
+        "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "commentId",
+        "type": "uint8"
+      }
+    ],
+    "name": "CommentEdited",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "replyId",
+        "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "commentId",
+        "type": "uint8"
+      },
+      {
+        "indexed": false,
+        "internalType": "int8",
+        "name": "voteDirection",
+        "type": "int8"
+      }
+    ],
+    "name": "ForumItemVoted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      }
+    ],
+    "name": "PostCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      }
+    ],
+    "name": "PostDeleted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      }
+    ],
+    "name": "PostEdited",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "parentReplyId",
+        "type": "uint16"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "replyId",
+        "type": "uint16"
+      }
+    ],
+    "name": "ReplyCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "replyId",
+        "type": "uint16"
+      }
+    ],
+    "name": "ReplyDeleted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "replyId",
+        "type": "uint16"
+      }
+    ],
+    "name": "ReplyEdited",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "replyId",
+        "type": "uint16"
+      }
+    ],
+    "name": "StatusBestReplyChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint16",
+        "name": "replyId",
+        "type": "uint16"
+      }
+    ],
+    "name": "StatusOfficialReplyChanged",
+    "type": "event"
+  }
+]

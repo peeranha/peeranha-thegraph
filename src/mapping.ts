@@ -1,24 +1,26 @@
 import { Address, BigInt, log } from '@graphprotocol/graph-ts'
 import { ethereum } from '@graphprotocol/graph-ts'
-import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity,
+import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity } from '../generated/PeeranhaUser/PeeranhaUser'
+import { 
   CommunityCreated, CommunityUpdated, CommunityFrozen, CommunityUnfrozen,
-  TagCreated, TagUpdated,
-  PostCreated, PostEdited, PostDeleted,
+  TagCreated, TagUpdated
+} from '../generated/PeeranhaCommunity/PeeranhaCommunity'
+import { PostCreated, PostEdited, PostDeleted,
   ReplyCreated, ReplyEdited, ReplyDeleted,
   CommentCreated, CommentEdited, CommentDeleted,
   ForumItemVoted, ChangePostType,
   StatusOfficialReplyChanged, StatusBestReplyChanged,
-} from '../generated/Peeranha/Peeranha'
+} from '../generated/PeeranhaContent/PeeranhaContent'
 
 import { GetReward } from '../generated/PeeranhaToken/PeeranhaToken'
 import { User, Community, Tag, Post, Reply, Comment, Achievement, ContractInfo, UserReward, Period, History } from '../generated/schema'
-import { MAIN_ADDRESS } from './config'
-import { getPeeranha, getPeeranhaToken } from './utils'
+import { USER_ADDRESS } from './config'
+import { getPeeranhaUser, getPeeranhaToken, getPeeranhaContent } from './utils'
 
 import { newPost, addDataToPost, deletePost, newReply, addDataToReply, deleteReply,
   newComment, addDataToComment, updatePostContent, updatePostUsersRatings } from './post'
 import { newCommunity, addDataToCommunity, newTag, addDataToTag, getCommunity } from './community-tag'
-import { newUser, addDataToUser, updateUserRating} from './user'
+import { createUserIfDoesNotExist, newUser, addDataToUser, updateUserRating} from './user'
 import { addDataToAchievement, giveAchievement, newAchievement } from './achievement'
 import { ConfigureNewAchievementNFT, Transfer } from '../generated/PeeranhaNFT/PeeranhaNFT'
 
@@ -48,8 +50,7 @@ export function handleTransferAchievement(event: Transfer): void {
 
 export function handleNewUser(event: UserCreated): void {
   let user = new User(event.params.userAddress.toHex());
-  newUser(user, event.params.userAddress);
-
+  newUser(user, event.params.userAddress, event.block.timestamp);
   user.save();
 }
 
@@ -58,7 +59,7 @@ export function handleUpdatedUser(event: UserUpdated): void {
   let user = User.load(id)
   if (user == null) {
     user = new User(id)
-    newUser(user, event.params.userAddress);
+    newUser(user, event.params.userAddress, event.block.timestamp);
   } else {
     addDataToUser(user, event.params.userAddress);
   }
@@ -179,6 +180,7 @@ export function createHistory<T1, T2>(item: T1,  event: T2,  eventEntity: string
 
 export function handleNewPost(event: PostCreated): void {
   let post = new Post(event.params.postId.toString());
+  createUserIfDoesNotExist(Address.fromString(post.author), event.block.timestamp);
 
   newPost(post, event.params.postId);
   post.save();
@@ -224,7 +226,9 @@ export function handleDeletedPost(event: PostDeleted): void {
 export function handleNewReply(event: ReplyCreated): void {
   let replyId = BigInt.fromI32(event.params.replyId);
   let reply = new Reply(event.params.postId.toString() + "-" + replyId.toString());
-
+  
+  createUserIfDoesNotExist(Address.fromString(reply.author), event.block.timestamp);
+  
   newReply(reply, event.params.postId, replyId);
   reply.save();
 
@@ -309,9 +313,9 @@ export function handleDeletedComment(event: CommentDeleted): void {
 }
 
 export function handleReward(block: ethereum.Block): void {
-  let contractInfo = ContractInfo.load(MAIN_ADDRESS)
+  /*let contractInfo = ContractInfo.load(USER_ADDRESS)
   if (contractInfo == null) {
-    contractInfo = new ContractInfo(MAIN_ADDRESS)
+    contractInfo = new ContractInfo(USER_ADDRESS)
     const periodInfo = getPeeranha().getPeriodInfo();
     const deployTime = periodInfo.value0
     const periodLength = periodInfo.value1
@@ -323,7 +327,7 @@ export function handleReward(block: ethereum.Block): void {
   }
 
   if ((contractInfo.lastBlock.plus(BigInt.fromI32(15))).lt(block.number)) {
-    const period = getPeeranha().getPeriod();
+    const period = getPeeranhaUser().getPeriod();
     if (period >= 50000) return;                  // delete in prod
 
     if (contractInfo.lastUpdatePeriod < period) {   // for() from lastUpdatePeriod to period ?
@@ -338,7 +342,7 @@ export function handleReward(block: ethereum.Block): void {
 
       const previousPeriod = period - 2;
       if (previousPeriod >= 1) {
-        const activeUsersInPeriod = getPeeranha().getActiveUsersInPeriod(previousPeriod);
+        const activeUsersInPeriod = getPeeranhaUser().getActiveUsersInPeriod(previousPeriod);
         for (let i = 0; i < activeUsersInPeriod.length; i++) {
           const tokenRewards = getPeeranhaToken().getUserRewardGraph(activeUsersInPeriod[i], previousPeriod);
           let userReward = new UserReward(previousPeriod.toString() + '-' + activeUsersInPeriod[i].toHex())
@@ -354,7 +358,7 @@ export function handleReward(block: ethereum.Block): void {
         previousPeriodStruct.save()
       }
     }
-  }
+  }*/
 }
 
 export function handleGetReward(event: GetReward): void {
@@ -448,7 +452,7 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
       comment = new Comment(event.params.postId.toString() + "-" + replyId.toString() + "-" +  commentId.toString());
       newComment(comment, event.params.postId, replyId, commentId);
     } else {
-      let peeranhaComment = getPeeranha().getComment(event.params.postId, replyId.toI32(), commentId.toI32());
+      let peeranhaComment = getPeeranhaContent().getComment(event.params.postId, replyId.toI32(), commentId.toI32());
       if (peeranhaComment == null) return;
       comment.rating = peeranhaComment.rating;
     }
@@ -462,7 +466,7 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
       reply = new Reply(event.params.postId.toString() + "-" + replyId.toString());
       newReply(reply, event.params.postId, replyId);
     } else {
-      let peeranhaReply = getPeeranha().getReply(event.params.postId, replyId.toI32());
+      let peeranhaReply = getPeeranhaContent().getReply(event.params.postId, replyId.toI32());
       if (peeranhaReply == null) return;
       reply.rating = peeranhaReply.rating;
     }
@@ -477,7 +481,7 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
       post = new Post(event.params.postId.toString())
       newPost(post, event.params.postId);
     } else {
-      let peeranhaPost = getPeeranha().getPost(event.params.postId);
+      let peeranhaPost = getPeeranhaContent().getPost(event.params.postId);
       if (peeranhaPost == null) return;
       post.rating = peeranhaPost.rating;
     }
