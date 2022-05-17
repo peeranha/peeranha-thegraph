@@ -316,7 +316,11 @@ export function handleReward(block: ethereum.Block): void {
   let contractInfo = ContractInfo.load(USER_ADDRESS)
   if (contractInfo == null) {
     contractInfo = new ContractInfo(USER_ADDRESS)
-    const periodInfo = getPeeranhaUser().getContractInformation();
+    const periodInfoResult = getPeeranhaUser().try_getContractInformation();
+    if (periodInfoResult.reverted) {
+      return;
+    }
+    const periodInfo = periodInfoResult.value;
     const deployTime = periodInfo.value0
     const periodLength = periodInfo.value1
     contractInfo.deployTime = deployTime;
