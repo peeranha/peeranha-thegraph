@@ -1,6 +1,7 @@
 import { Address, BigInt, log } from '@graphprotocol/graph-ts'
+import { store } from '@graphprotocol/graph-ts'
 import { ethereum } from '@graphprotocol/graph-ts'
-import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity } from '../generated/PeeranhaUser/PeeranhaUser'
+import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity, RoleGranted, RoleRevoked } from '../generated/PeeranhaUser/PeeranhaUser'
 import { 
   CommunityCreated, CommunityUpdated, CommunityFrozen, CommunityUnfrozen,
   TagCreated, TagUpdated
@@ -13,7 +14,7 @@ import { PostCreated, PostEdited, PostDeleted,
 } from '../generated/PeeranhaContent/PeeranhaContent'
 
 import { GetReward } from '../generated/PeeranhaToken/PeeranhaToken'
-import { User, Community, Tag, Post, Reply, Comment, Achievement, ContractInfo, UserReward, Period, History } from '../generated/schema'
+import { User, Community, Tag, Post, Reply, Comment, Achievement, ContractInfo, UserReward, Period, History, UserPermission } from '../generated/schema'
 import { USER_ADDRESS } from './config'
 import { getPeeranhaUser, getPeeranhaToken, getPeeranhaContent } from './utils'
 
@@ -65,6 +66,17 @@ export function handleUpdatedUser(event: UserUpdated): void {
   }
 
   user.save();
+}
+export function handlerGrantedRole(event: RoleGranted): void {
+  let userPermission = new UserPermission(event.params.account.toHex() + '-' + event.params.role);
+  userPermission.user = event.params.account.toHex();
+  userPermission.permission = event.params.role;
+  userPermission.save();
+}
+
+export function handlerRevokedRole(event: RoleRevoked): void {
+  let userPermissionId = event.params.account.toHex() + '-' + event.params.role;
+  store.remove('UserPermission', userPermissionId)
 }
 
 export function handlerFollowCommunity(event: FollowedCommunity): void {

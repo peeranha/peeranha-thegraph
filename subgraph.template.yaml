@@ -30,6 +30,10 @@ dataSources:
           handler: handlerFollowCommunity
         - event: UnfollowedCommunity(indexed address,indexed uint32)
           handler: handlerUnfollowCommunity
+        - event: RoleGranted(indexed bytes32,indexed address,indexed address)
+          handler: handlerGrantedRole
+        - event: RoleRevoked(indexed bytes32,indexed address,indexed address)
+          handler: handlerRevokedRole
       blockHandlers:
         - handler: handleReward
       file: ./src/mapping.ts
