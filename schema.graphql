@@ -21,7 +21,13 @@ type UserCommunityRating @entity {
   communityId: Int
   rating: Int
   user: User
-} 
+}
+
+type UserPermission @entity {
+  id: ID!
+  user: User
+  permission: Bytes
+}
 
 type Community @entity {
   id: ID!
