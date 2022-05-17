@@ -34,7 +34,7 @@ export function handleConfigureNewAchievement(event: ConfigureNewAchievementNFT)
 }
 
 export function handleTransferAchievement(event: Transfer): void {
-  let id : BigInt = (event.params.tokenId / BigInt.fromI32(POOL_NFT)) + BigInt.fromI32(1);
+  let id : BigInt = (event.params.tokenId.div(BigInt.fromI32(POOL_NFT))).plus(BigInt.fromI32(1)); // (a / b) + c
   log.error('User: {}, ID txx: {}, Achievement Id txx: {}', [event.params.to.toHex(), event.params.tokenId.toString(), id.toString()])
   let achievement = Achievement.load(id.toString());
 
@@ -313,10 +313,10 @@ export function handleDeletedComment(event: CommentDeleted): void {
 }
 
 export function handleReward(block: ethereum.Block): void {
-  /*let contractInfo = ContractInfo.load(USER_ADDRESS)
+  let contractInfo = ContractInfo.load(USER_ADDRESS)
   if (contractInfo == null) {
     contractInfo = new ContractInfo(USER_ADDRESS)
-    const periodInfo = getPeeranha().getPeriodInfo();
+    const periodInfo = getPeeranhaUser().getContractInformation();
     const deployTime = periodInfo.value0
     const periodLength = periodInfo.value1
     contractInfo.deployTime = deployTime;
@@ -358,7 +358,7 @@ export function handleReward(block: ethereum.Block): void {
         previousPeriodStruct.save()
       }
     }
-  }*/
+  }
 }
 
 export function handleGetReward(event: GetReward): void {

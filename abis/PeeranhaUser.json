@@ -399,6 +399,25 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint16",
+        "name": "period",
+        "type": "uint16"
+      }
+    ],
+    "name": "getActiveUsersInPeriod",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "",
+        "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "getChainId",
     "outputs": [
@@ -409,6 +428,24 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getContractInformation",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "startPeriodTime",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "periodLength",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
     "type": "function"
   },
   {
@@ -438,6 +475,19 @@
         "internalType": "uint256",
         "name": "nonce",
         "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "getPeriod",
+    "outputs": [
+      {
+        "internalType": "uint16",
+        "name": "",
+        "type": "uint16"
       }
     ],
     "stateMutability": "view",
