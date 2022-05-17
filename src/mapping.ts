@@ -68,14 +68,14 @@ export function handleUpdatedUser(event: UserUpdated): void {
   user.save();
 }
 export function handlerGrantedRole(event: RoleGranted): void {
-  let userPermission = new UserPermission(event.params.account.toHex() + '-' + event.params.role);
+  let userPermission = new UserPermission(event.params.account.toHex() + '-' + event.params.role.toHex());
   userPermission.user = event.params.account.toHex();
   userPermission.permission = event.params.role;
   userPermission.save();
 }
 
 export function handlerRevokedRole(event: RoleRevoked): void {
-  let userPermissionId = event.params.account.toHex() + '-' + event.params.role;
+  let userPermissionId = event.params.account.toHex() + '-' + event.params.role.toHex();
   store.remove('UserPermission', userPermissionId)
 }
 
