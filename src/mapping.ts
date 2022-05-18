@@ -21,7 +21,7 @@ import { getPeeranhaUser, getPeeranhaToken, getPeeranhaContent } from './utils'
 import { newPost, addDataToPost, deletePost, newReply, addDataToReply, deleteReply,
   newComment, addDataToComment, updatePostContent, updatePostUsersRatings } from './post'
 import { newCommunity, addDataToCommunity, newTag, addDataToTag, getCommunity } from './community-tag'
-import { createUserIfDoesNotExist, newUser, addDataToUser, updateUserRating} from './user'
+import { newUser, addDataToUser, updateUserRating} from './user'
 import { addDataToAchievement, giveAchievement, newAchievement } from './achievement'
 import { ConfigureNewAchievementNFT, Transfer } from '../generated/PeeranhaNFT/PeeranhaNFT'
 
@@ -192,9 +192,7 @@ export function createHistory<T1, T2>(item: T1,  event: T2,  eventEntity: string
 
 export function handleNewPost(event: PostCreated): void {
   let post = new Post(event.params.postId.toString());
-  createUserIfDoesNotExist(Address.fromString(post.author), event.block.timestamp);
-
-  newPost(post, event.params.postId);
+  newPost(post, event.params.postId, event.block.timestamp);
   post.save();
 
   createHistory(post, event, 'Post', 'Create');
@@ -204,7 +202,7 @@ export function handleEditedPost(event: PostEdited): void {
   let post = Post.load(event.params.postId.toString())
   if (post == null) {
     post = new Post(event.params.postId.toString())
-    newPost(post, event.params.postId);
+    newPost(post, event.params.postId, event.block.timestamp);
   } else {
     addDataToPost(post, event.params.postId);
   }
@@ -238,10 +236,7 @@ export function handleDeletedPost(event: PostDeleted): void {
 export function handleNewReply(event: ReplyCreated): void {
   let replyId = BigInt.fromI32(event.params.replyId);
   let reply = new Reply(event.params.postId.toString() + "-" + replyId.toString());
-  
-  createUserIfDoesNotExist(Address.fromString(reply.author), event.block.timestamp);
-  
-  newReply(reply, event.params.postId, replyId);
+  newReply(reply, event.params.postId, replyId, event.block.timestamp);
   reply.save();
 
   createHistory(reply, event, 'Reply', 'Create');
@@ -253,7 +248,7 @@ export function handleEditedReply(event: ReplyEdited): void {
 
   if (reply == null) {
     reply = new Reply(event.params.postId.toString() + "-" + replyId.toString());
-    newReply(reply, event.params.postId, replyId);
+    newReply(reply, event.params.postId, replyId, event.block.timestamp);
   } else {
     addDataToReply(reply, event.params.postId, replyId);
   }
@@ -384,7 +379,7 @@ export function handlerChangedStatusOfficialReply(event: StatusOfficialReplyChan
   let previousOfficialReply = 0;
   if (post == null) {
     post = new Post(event.params.postId.toString())
-    newPost(post, event.params.postId);
+    newPost(post, event.params.postId, event.block.timestamp);
   } else {
     previousOfficialReply = post.officialReply;
     post.officialReply = event.params.replyId;
@@ -396,7 +391,7 @@ export function handlerChangedStatusOfficialReply(event: StatusOfficialReplyChan
     let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
 
     if (reply == null) {
-      newReply(reply, event.params.postId, replyId);
+      newReply(reply, event.params.postId, replyId, event.block.timestamp);
     } else {
       reply.isOfficialReply = false;
     }
@@ -408,7 +403,7 @@ export function handlerChangedStatusOfficialReply(event: StatusOfficialReplyChan
   let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
 
   if (reply == null) {
-    newReply(reply, event.params.postId, replyId);
+    newReply(reply, event.params.postId, replyId, event.block.timestamp);
   }
 
   reply.isOfficialReply = true;
@@ -420,7 +415,7 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
   let previousBestReply = 0;
   if (post == null) {
     post = new Post(event.params.postId.toString())
-    newPost(post, event.params.postId);
+    newPost(post, event.params.postId, event.block.timestamp);
   } else {
     previousBestReply = post.bestReply;
     post.bestReply = event.params.replyId;
@@ -432,7 +427,7 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
     let previousReply = Reply.load(event.params.postId.toString() + "-" + previousReplyId.toString())
 
     if (previousReply == null) {
-      newReply(previousReply, event.params.postId, previousReplyId);
+      newReply(previousReply, event.params.postId, previousReplyId, event.block.timestamp);
     } else {
       previousReply.isBestReply = false;
     }
@@ -445,7 +440,7 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
     let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
 
     if (reply == null) {
-      newReply(reply, event.params.postId, replyId);
+      newReply(reply, event.params.postId, replyId, event.block.timestamp);
     }
 
     reply.isBestReply = true;
@@ -476,7 +471,7 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
 
     if (reply == null) {
       reply = new Reply(event.params.postId.toString() + "-" + replyId.toString());
-      newReply(reply, event.params.postId, replyId);
+      newReply(reply, event.params.postId, replyId, event.block.timestamp);
     } else {
       let peeranhaReply = getPeeranhaContent().getReply(event.params.postId, replyId.toI32());
       if (peeranhaReply == null) return;
@@ -491,7 +486,7 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
     let post = Post.load(event.params.postId.toString())
     if (post == null) {
       post = new Post(event.params.postId.toString())
-      newPost(post, event.params.postId);
+      newPost(post, event.params.postId, event.block.timestamp);
     } else {
       let peeranhaPost = getPeeranhaContent().getPost(event.params.postId);
       if (peeranhaPost == null) return;

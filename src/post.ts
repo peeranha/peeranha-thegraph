@@ -2,11 +2,11 @@ import { ByteArray } from '@graphprotocol/graph-ts'
 import { json, Bytes, ipfs, BigInt, Address } from '@graphprotocol/graph-ts'
 import { Post, Reply, Comment, Tag } from '../generated/schema'
 import { getPeeranhaContent } from './utils'
-import { updateUserRating, updateStartUserRating, getUser } from './user'
+import { updateUserRating, updateStartUserRating, getUser, newUser } from './user'
 import { getCommunity } from './community-tag'
 
 
-export function newPost(post: Post | null, postId: BigInt): void {
+export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigInt): void {
   let peeranhaPost = getPeeranhaContent().getPost(postId);
   if (peeranhaPost == null) return;
 
@@ -28,6 +28,9 @@ export function newPost(post: Post | null, postId: BigInt): void {
   community.save();
 
   let user = getUser(peeranhaPost.author);
+  if (user == null) {
+    newUser(user, peeranhaPost.author, blockTimestamp);
+  }
   user.postCount++;
   user.save();
 
@@ -149,7 +152,7 @@ export function updatePostUsersRatings(post: Post | null): void {
   }
 }
 
-export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt): void {
+export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt, blockTimestamp: BigInt): void {
   let peeranhaReply = getPeeranhaContent().getReply(postId, replyId.toI32());
   if (peeranhaReply == null) return;
 
@@ -182,6 +185,9 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt): 
   }
 
   let user = getUser(Address.fromString(reply.author));
+  if (user == null) {
+    newUser(user, Address.fromString(reply.author), blockTimestamp);
+  }
   user.replyCount++;
   user.save();
 

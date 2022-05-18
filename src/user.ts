@@ -123,13 +123,3 @@ export function getUser(userAddress: Address): User | null {
   let user = User.load(userAddress.toHex());
   return user
 }
-
-export function createUserIfDoesNotExist(userAddress: Address, blockTimeStamp: BigInt): void {
-  let user = User.load(userAddress.toHex());
-  if (user == null) {
-    // let communityIdI32 = communityId.toI32();                     ///
-    // let newCommunityId: BigInt = new BigInt(communityIdI32);      /// -_-
-    newUser(user, userAddress, blockTimeStamp);
-    user.save();
-  }
-}
