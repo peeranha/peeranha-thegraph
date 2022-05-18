@@ -1,10 +1,10 @@
 import { ByteArray } from '@graphprotocol/graph-ts'
 import { json, Bytes, ipfs, BigInt } from '@graphprotocol/graph-ts'
 import { Community, Tag } from '../generated/schema'
-import { getPeeranha } from './utils'
+import { getPeeranhaCommunity } from './utils'
 
 export function newCommunity(community: Community | null, communityId: BigInt): void {
-  let peeranhaCommunity = getPeeranha().getCommunity(communityId);
+  let peeranhaCommunity = getPeeranhaCommunity().getCommunity(communityId);
   if (peeranhaCommunity == null) return;
 
   community.creationTime = peeranhaCommunity.timeCreate;
@@ -15,7 +15,7 @@ export function newCommunity(community: Community | null, communityId: BigInt): 
   community.followingUsers = 0;
   addDataToCommunity(community, communityId);
   
-  let peeranhaTags = getPeeranha().getTags(communityId);
+  let peeranhaTags = getPeeranhaCommunity().getTags(communityId);
   if (peeranhaTags.length == 0) return;
 
   community.tagsCount = peeranhaTags.length;
@@ -28,7 +28,7 @@ export function newCommunity(community: Community | null, communityId: BigInt): 
 }
 
 export function addDataToCommunity(community: Community | null, communityId: BigInt): void {
-  let peeranhaCommunity = getPeeranha().getCommunity(communityId);
+  let peeranhaCommunity = getPeeranhaCommunity().getCommunity(communityId);
   if (peeranhaCommunity == null) return;
   
   community.ipfsHash = peeranhaCommunity.ipfsDoc.hash;
@@ -85,7 +85,7 @@ export function newTag(tag: Tag | null, communityId: BigInt, tagId: BigInt): voi
 }
 
 export function addDataToTag(tag: Tag | null, communityId: BigInt, tagId: BigInt): void {
-  let peeranhaTag = getPeeranha().getTag(communityId, tagId.toI32());
+  let peeranhaTag = getPeeranhaCommunity().getTag(communityId, tagId.toI32());
   if (peeranhaTag == null) return;
   
   tag.ipfsHash = peeranhaTag.ipfsDoc.hash;
