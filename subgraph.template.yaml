@@ -83,11 +83,14 @@ dataSources:
       entities:
         - PeeranhaContent
         - PeeranhaToken
+        - PeeranhaUser
       abis:
         - name: PeeranhaContent
           file: ./abis/PeeranhaContent.json
         - name: PeeranhaToken
           file: ./abis/PeeranhaToken.json
+        - name: PeeranhaUser
+          file: ./abis/PeeranhaUser.json
       eventHandlers:
         - event: PostCreated(indexed address,indexed uint32,indexed uint256)
           handler: handleNewPost

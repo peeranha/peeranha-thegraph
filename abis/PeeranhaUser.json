@@ -248,6 +248,19 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "addr",
+        "type": "address"
+      }
+    ],
+    "name": "checkUser",
+    "outputs": [],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "uint64",
         "name": "maxCount",
         "type": "uint64"
@@ -802,25 +815,6 @@
         "internalType": "address",
         "name": "addr",
         "type": "address"
-      }
-    ],
-    "name": "getUserPermissions",
-    "outputs": [
-      {
-        "internalType": "bytes32[]",
-        "name": "",
-        "type": "bytes32[]"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "addr",
-        "type": "address"
       },
       {
         "internalType": "uint32",
@@ -990,19 +984,6 @@
     "name": "initialize",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "addr",
-        "type": "address"
-      }
-    ],
-    "name": "isExistsUser",
-    "outputs": [],
-    "stateMutability": "view",
     "type": "function"
   },
   {
