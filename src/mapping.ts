@@ -447,6 +447,7 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
     updateUserRating(Address.fromString(reply.author), post.communityId);
     reply.save();
   }
+  updateUserRating(Address.fromString(post.author), post.communityId);
 }
 
 export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move this in another function with edit
