@@ -1,5 +1,5 @@
 import { Achievement } from "../generated/schema";
-import { Address, BigInt, ByteArray, Bytes, ipfs, json, log } from '@graphprotocol/graph-ts'
+import { Address, BigInt, ByteArray, Bytes, ipfs, json, JSONValueKind } from '@graphprotocol/graph-ts'
 import { getPeeranhaNFT } from "./utils";
 import { getUser } from "./user";
 
@@ -34,7 +34,7 @@ function getIpfsAchievementData(achievement: Achievement | null): void {
     if (result != null) {
       let ipfsData = json.fromBytes(result);
     
-      if(!ipfsData.isNull()) {
+      if(!ipfsData.isNull() && ipfsData.kind == JSONValueKind.OBJECT) {  // TODO else
         let ipfsObj = ipfsData.toObject()
         let name = ipfsObj.get('name');
         if (!name.isNull()) {

@@ -1,5 +1,4 @@
-import { ByteArray } from '@graphprotocol/graph-ts'
-import { json, Bytes, ipfs, BigInt } from '@graphprotocol/graph-ts'
+import { json, Bytes, ipfs, BigInt, JSONValueKind, ByteArray } from '@graphprotocol/graph-ts'
 import { Community, Tag } from '../generated/schema'
 import { getPeeranhaCommunity } from './utils'
 
@@ -47,7 +46,7 @@ function getIpfsCommunityData(community: Community | null): void {
   if (result != null) {
     let ipfsData = json.fromBytes(result);
   
-    if(!ipfsData.isNull()) {
+    if(!ipfsData.isNull() && ipfsData.kind == JSONValueKind.OBJECT) {   // TODO else
       let ipfsObj = ipfsData.toObject()
       let name = ipfsObj.get('name');
       if (!name.isNull()) {
@@ -104,7 +103,7 @@ function getIpfsTagData(tag: Tag | null): void {
   if (result != null) {
     let ipfsData = json.fromBytes(result);
   
-    if(!ipfsData.isNull()) {
+    if(!ipfsData.isNull() && ipfsData.kind == JSONValueKind.OBJECT) {   // TODO else
       let ipfsObj = ipfsData.toObject()
     
       let name = ipfsObj.get('name');

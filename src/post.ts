@@ -1,5 +1,4 @@
-import { ByteArray } from '@graphprotocol/graph-ts'
-import { json, Bytes, ipfs, BigInt, Address } from '@graphprotocol/graph-ts'
+import { json, Bytes, ipfs, BigInt, Address, ByteArray, JSONValueKind } from '@graphprotocol/graph-ts'
 import { Post, Reply, Comment, Tag } from '../generated/schema'
 import { getPeeranhaContent } from './utils'
 import { updateUserRating, updateStartUserRating, getUser, newUser } from './user'
@@ -89,7 +88,7 @@ function getIpfsPostData(post: Post | null): void {
   if (result != null) {
     let ipfsData = json.fromBytes(result);
   
-    if(!ipfsData.isNull()) {
+    if(!ipfsData.isNull() && ipfsData.kind == JSONValueKind.OBJECT) {   // TODO else
       let ipfsObj = ipfsData.toObject()
       let title = ipfsObj.get('title');
       if (!title.isNull()) {
@@ -220,7 +219,7 @@ function getIpfsReplyData(reply: Reply | null): void {
   if (result != null) {
     let ipfsData = json.fromBytes(result);
   
-    if(!ipfsData.isNull()) {
+    if(!ipfsData.isNull() && ipfsData.kind == JSONValueKind.OBJECT) {   // TODO else
       let ipfsObj = ipfsData.toObject()
   
       let content = ipfsObj.get('content');
@@ -311,7 +310,7 @@ function getIpfsCommentData(comment: Comment | null): void {
   if (result != null) {
     let ipfsData = json.fromBytes(result);
   
-    if(!ipfsData.isNull()) {
+    if(!ipfsData.isNull() && ipfsData.kind == JSONValueKind.OBJECT) {   // TODO else
       let ipfsObj = ipfsData.toObject()
   
       let content = ipfsObj.get('content');

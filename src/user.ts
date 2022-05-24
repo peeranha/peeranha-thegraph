@@ -1,5 +1,4 @@
-import { ByteArray, Address, log } from '@graphprotocol/graph-ts'
-import { json, Bytes, ipfs, BigInt } from '@graphprotocol/graph-ts'
+import { json, Bytes, ipfs, BigInt, JSONValueKind, ByteArray, Address } from '@graphprotocol/graph-ts'
 import { User, UserCommunityRating } from '../generated/schema'
 import { getPeeranhaUser } from './utils'
 
@@ -37,7 +36,7 @@ export function getIpfsUserData(user: User | null): void {
   if (result != null) {
     let ipfsData = json.fromBytes(result);
   
-    if(!ipfsData.isNull()) {
+    if(!ipfsData.isNull() && ipfsData.kind == JSONValueKind.OBJECT) {  // TODO else
       let ipfsObj = ipfsData.toObject()
       
       let displayName = ipfsObj.get('displayName');
