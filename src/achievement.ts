@@ -2,7 +2,7 @@ import { Achievement } from "../generated/schema";
 import { Address, BigInt, ByteArray, Bytes, ipfs, json, JSONValueKind } from '@graphprotocol/graph-ts'
 import { getPeeranhaNFT } from "./utils";
 import { getUser } from "./user";
-import { errorIPFS } from "./utils";
+import { ERROR_IPFS, isValidIPFS } from "./utils";
 
 
 
@@ -35,7 +35,7 @@ function getIpfsAchievementData(achievement: Achievement | null): void {
     if (result != null) {
       let ipfsData = json.fromBytes(result);
     
-      if(!ipfsData.isNull() && ipfsData.kind == JSONValueKind.OBJECT) {
+      if(isValidIPFS(ipfsData)) {
         let ipfsObj = ipfsData.toObject()
         let name = ipfsObj.get('name');
         if (!name.isNull()) {
@@ -57,10 +57,10 @@ function getIpfsAchievementData(achievement: Achievement | null): void {
           achievement.image = image.toString();
         }
       } else {
-        achievement.name = errorIPFS;
-        achievement.description = errorIPFS;
-        achievement.attributes = errorIPFS;
-        achievement.image = errorIPFS;
+        achievement.name = ERROR_IPFS;
+        achievement.description = ERROR_IPFS;
+        achievement.attributes = ERROR_IPFS;
+        achievement.image = ERROR_IPFS;
       }
     }
   }

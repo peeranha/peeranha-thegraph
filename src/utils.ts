@@ -1,4 +1,4 @@
-import { Address } from '@graphprotocol/graph-ts'
+import { Address, JSONValue, JSONValueKind } from '@graphprotocol/graph-ts'
 import { PeeranhaUser } from '../generated/PeeranhaUser/PeeranhaUser'
 import { PeeranhaCommunity } from '../generated/PeeranhaCommunity/PeeranhaCommunity'
 import { PeeranhaContent } from '../generated/PeeranhaContent/PeeranhaContent'
@@ -6,7 +6,11 @@ import { PeeranhaNFT } from '../generated/PeeranhaNFT/PeeranhaNFT'
 import { PeeranhaToken } from '../generated/PeeranhaToken/PeeranhaToken'
 import { USER_ADDRESS, COMMUNITY_ADDRESS, CONTENT_ADDRESS, TOKEN_ADDRESS, NFT_ADDRESS } from './config'
 
-export const errorIPFS = "error IPFS";
+export const ERROR_IPFS = "error IPFS";
+
+export function isValidIPFS(ipfsData: JSONValue): boolean {
+  return !ipfsData.isNull() && ipfsData.kind == JSONValueKind.OBJECT
+}
 
 export function getPeeranhaUser(): PeeranhaUser {
   return PeeranhaUser.bind(Address.fromString(USER_ADDRESS));

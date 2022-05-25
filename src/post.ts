@@ -3,7 +3,7 @@ import { Post, Reply, Comment, Tag } from '../generated/schema'
 import { getPeeranhaContent } from './utils'
 import { updateUserRating, updateStartUserRating, getUser, newUser } from './user'
 import { getCommunity } from './community-tag'
-import { errorIPFS } from "./utils";
+import { ERROR_IPFS, isValidIPFS } from "./utils";
 
 
 export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigInt): void {
@@ -89,7 +89,7 @@ function getIpfsPostData(post: Post | null): void {
   if (result != null) {
     let ipfsData = json.fromBytes(result);
   
-    if (!ipfsData.isNull() && ipfsData.kind == JSONValueKind.OBJECT) {
+    if (isValidIPFS(ipfsData)) {
       let ipfsObj = ipfsData.toObject()
       let title = ipfsObj.get('title');
       if (!title.isNull()) {
@@ -103,8 +103,8 @@ function getIpfsPostData(post: Post | null): void {
         post.postContent += ' ' + content.toString();
       }
     } else {
-      post.title = errorIPFS;
-      post.content = errorIPFS;
+      post.title = ERROR_IPFS;
+      post.content = ERROR_IPFS;
     }
   }
 }
@@ -223,7 +223,7 @@ function getIpfsReplyData(reply: Reply | null): void {
   if (result != null) {
     let ipfsData = json.fromBytes(result);
   
-    if (!ipfsData.isNull() && ipfsData.kind == JSONValueKind.OBJECT) {
+    if (isValidIPFS(ipfsData)) {
       let ipfsObj = ipfsData.toObject()
   
       let content = ipfsObj.get('content');
@@ -231,7 +231,7 @@ function getIpfsReplyData(reply: Reply | null): void {
         reply.content = content.toString();
       }
     } else {
-      reply.content = errorIPFS;
+      reply.content = ERROR_IPFS;
     }
   }
 }
@@ -316,7 +316,7 @@ function getIpfsCommentData(comment: Comment | null): void {
   if (result != null) {
     let ipfsData = json.fromBytes(result);
   
-    if (!ipfsData.isNull() && ipfsData.kind == JSONValueKind.OBJECT) {
+    if (isValidIPFS(ipfsData)) {
       let ipfsObj = ipfsData.toObject()
   
       let content = ipfsObj.get('content');
@@ -324,7 +324,7 @@ function getIpfsCommentData(comment: Comment | null): void {
         comment.content = content.toString();
       }
     } else {
-      comment.content = errorIPFS;
+      comment.content = ERROR_IPFS;
     }
   }
 }
