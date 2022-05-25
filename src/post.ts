@@ -1,9 +1,9 @@
-import { ByteArray } from '@graphprotocol/graph-ts'
-import { json, Bytes, ipfs, BigInt, Address } from '@graphprotocol/graph-ts'
+import { json, Bytes, ipfs, BigInt, Address, ByteArray, JSONValueKind } from '@graphprotocol/graph-ts'
 import { Post, Reply, Comment, Tag } from '../generated/schema'
 import { getPeeranhaContent } from './utils'
 import { updateUserRating, updateStartUserRating, getUser, newUser } from './user'
 import { getCommunity } from './community-tag'
+import { ERROR_IPFS, isValidIPFS } from "./utils";
 
 
 export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigInt): void {
@@ -89,7 +89,7 @@ function getIpfsPostData(post: Post | null): void {
   if (result != null) {
     let ipfsData = json.fromBytes(result);
   
-    if(!ipfsData.isNull()) {
+    if (isValidIPFS(ipfsData)) {
       let ipfsObj = ipfsData.toObject()
       let title = ipfsObj.get('title');
       if (!title.isNull()) {
@@ -102,6 +102,9 @@ function getIpfsPostData(post: Post | null): void {
         post.content = content.toString();
         post.postContent += ' ' + content.toString();
       }
+    } else {
+      post.title = ERROR_IPFS;
+      post.content = ERROR_IPFS;
     }
   }
 }
@@ -220,13 +223,15 @@ function getIpfsReplyData(reply: Reply | null): void {
   if (result != null) {
     let ipfsData = json.fromBytes(result);
   
-    if(!ipfsData.isNull()) {
+    if (isValidIPFS(ipfsData)) {
       let ipfsObj = ipfsData.toObject()
   
       let content = ipfsObj.get('content');
       if (!content.isNull()) {
         reply.content = content.toString();
       }
+    } else {
+      reply.content = ERROR_IPFS;
     }
   }
 }
@@ -311,13 +316,15 @@ function getIpfsCommentData(comment: Comment | null): void {
   if (result != null) {
     let ipfsData = json.fromBytes(result);
   
-    if(!ipfsData.isNull()) {
+    if (isValidIPFS(ipfsData)) {
       let ipfsObj = ipfsData.toObject()
   
       let content = ipfsObj.get('content');
       if (!content.isNull()) {
         comment.content = content.toString();
       }
+    } else {
+      comment.content = ERROR_IPFS;
     }
   }
 }

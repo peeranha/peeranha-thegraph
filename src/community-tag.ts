@@ -1,7 +1,7 @@
-import { ByteArray } from '@graphprotocol/graph-ts'
-import { json, Bytes, ipfs, BigInt } from '@graphprotocol/graph-ts'
+import { json, Bytes, ipfs, BigInt, JSONValueKind, ByteArray } from '@graphprotocol/graph-ts'
 import { Community, Tag } from '../generated/schema'
 import { getPeeranhaCommunity } from './utils'
+import { ERROR_IPFS, isValidIPFS } from "./utils";
 
 export function newCommunity(community: Community | null, communityId: BigInt): void {
   let peeranhaCommunity = getPeeranhaCommunity().getCommunity(communityId);
@@ -47,7 +47,7 @@ function getIpfsCommunityData(community: Community | null): void {
   if (result != null) {
     let ipfsData = json.fromBytes(result);
   
-    if(!ipfsData.isNull()) {
+    if (isValidIPFS(ipfsData)) {
       let ipfsObj = ipfsData.toObject()
       let name = ipfsObj.get('name');
       if (!name.isNull()) {
@@ -73,6 +73,12 @@ function getIpfsCommunityData(community: Community | null): void {
       if (!avatar.isNull()) {
         community.avatar = avatar.toString();
       }
+    } else {
+      community.name = ERROR_IPFS;
+      community.description = ERROR_IPFS;
+      community.website = ERROR_IPFS;
+      community.language = ERROR_IPFS;
+      community.avatar = ERROR_IPFS;
     }
   }
 }
@@ -104,7 +110,7 @@ function getIpfsTagData(tag: Tag | null): void {
   if (result != null) {
     let ipfsData = json.fromBytes(result);
   
-    if(!ipfsData.isNull()) {
+    if (isValidIPFS(ipfsData)) {
       let ipfsObj = ipfsData.toObject()
     
       let name = ipfsObj.get('name');
@@ -116,6 +122,9 @@ function getIpfsTagData(tag: Tag | null): void {
       if (!description.isNull()) {
         tag.description = description.toString();
       }
+    } else {
+      tag.name = ERROR_IPFS;
+      tag.description = ERROR_IPFS;
     }
   }
 }

@@ -333,7 +333,7 @@ export function handleReward(block: ethereum.Block): void {
     contractInfo.save()
   }
 
-  if ((contractInfo.lastBlock.plus(BigInt.fromI32(15))).lt(block.number)) {
+  if ((contractInfo.lastBlock.plus(BigInt.fromI32(50))).lt(block.number)) {
     const period = getPeeranhaUser().getPeriod();
     if (period >= 50000) return;                  // delete in prod
 
