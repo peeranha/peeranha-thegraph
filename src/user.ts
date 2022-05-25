@@ -1,6 +1,7 @@
 import { json, Bytes, ipfs, BigInt, JSONValueKind, ByteArray, Address } from '@graphprotocol/graph-ts'
 import { User, UserCommunityRating } from '../generated/schema'
-import { getPeeranhaUser } from './utils'
+import { getPeeranhaUser, errorIPFS } from './utils'
+
 
 export function newUser(user: User | null, userAddress: Address, blockTimeStamp: BigInt): void {
   let peeranhaUser = getPeeranhaUser().getUserByAddress(userAddress);
@@ -36,7 +37,7 @@ export function getIpfsUserData(user: User | null): void {
   if (result != null) {
     let ipfsData = json.fromBytes(result);
   
-    if(!ipfsData.isNull() && ipfsData.kind == JSONValueKind.OBJECT) {  // TODO else
+    if (!ipfsData.isNull() && ipfsData.kind == JSONValueKind.OBJECT) {
       let ipfsObj = ipfsData.toObject()
       
       let displayName = ipfsObj.get('displayName');
@@ -68,6 +69,13 @@ export function getIpfsUserData(user: User | null): void {
       if (!avatar.isNull()) {
         user.avatar = avatar.toString();
       }
+    } else {
+      user.displayName = errorIPFS;
+      user.company = errorIPFS;
+      user.position = errorIPFS;
+      user.location = errorIPFS;
+      user.about = errorIPFS;
+      user.avatar = errorIPFS;
     }
   }
 }

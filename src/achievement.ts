@@ -2,6 +2,7 @@ import { Achievement } from "../generated/schema";
 import { Address, BigInt, ByteArray, Bytes, ipfs, json, JSONValueKind } from '@graphprotocol/graph-ts'
 import { getPeeranhaNFT } from "./utils";
 import { getUser } from "./user";
+import { errorIPFS } from "./utils";
 
 
 
@@ -34,27 +35,32 @@ function getIpfsAchievementData(achievement: Achievement | null): void {
     if (result != null) {
       let ipfsData = json.fromBytes(result);
     
-      if(!ipfsData.isNull() && ipfsData.kind == JSONValueKind.OBJECT) {  // TODO else
+      if(!ipfsData.isNull() && ipfsData.kind == JSONValueKind.OBJECT) {
         let ipfsObj = ipfsData.toObject()
         let name = ipfsObj.get('name');
         if (!name.isNull()) {
-            achievement.name = name.toString();
+          achievement.name = name.toString();
         }
     
         let description = ipfsObj.get('description');
         if (!description.isNull()) {
-            achievement.description = description.toString();
+          achievement.description = description.toString();
         }
       
         let attributes = ipfsObj.get('attributes');
         if (!attributes.isNull()) {
-            achievement.attributes = attributes.toString();
+          achievement.attributes = attributes.toString();
         }
 
         let image = ipfsObj.get('image');
         if (!image.isNull()) {
-            achievement.image = image.toString();
+          achievement.image = image.toString();
         }
+      } else {
+        achievement.name = errorIPFS;
+        achievement.description = errorIPFS;
+        achievement.attributes = errorIPFS;
+        achievement.image = errorIPFS;
       }
     }
   }

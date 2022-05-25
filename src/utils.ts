@@ -6,6 +6,7 @@ import { PeeranhaNFT } from '../generated/PeeranhaNFT/PeeranhaNFT'
 import { PeeranhaToken } from '../generated/PeeranhaToken/PeeranhaToken'
 import { USER_ADDRESS, COMMUNITY_ADDRESS, CONTENT_ADDRESS, TOKEN_ADDRESS, NFT_ADDRESS } from './config'
 
+export const errorIPFS = "error IPFS";
 
 export function getPeeranhaUser(): PeeranhaUser {
   return PeeranhaUser.bind(Address.fromString(USER_ADDRESS));
