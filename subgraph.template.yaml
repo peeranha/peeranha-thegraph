@@ -140,7 +140,7 @@ dataSources:
         - event: ConfigureNewAchievementNFT(indexed uint64)
           handler: handleConfigureNewAchievement
         - event: Transfer(indexed address,indexed address,indexed uint256)
-          handler: handleTransferAchievement
+          handler: handleTransferNFT
       file: ./src/mapping.ts
   
   - kind: ethereum/contract
