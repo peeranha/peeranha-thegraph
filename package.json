@@ -14,7 +14,6 @@
   "dependencies": {
     "@graphprotocol/graph-cli": "0.21.1",
     "@graphprotocol/ipfs-sync": "^0.2.0",
-    "assemblyscript": "^0.20.4",
     "bs58": "^4.0.1"
   },
   "devDependencies": {

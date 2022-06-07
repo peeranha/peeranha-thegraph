@@ -635,25 +635,29 @@ export class PeeranhaToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
-  getBoost(user: Address, period: i32): i32 {
-    let result = super.call("getBoost", "getBoost(address,uint16):(int32)", [
+  getBoost(user: Address, period: i32): BigInt {
+    let result = super.call("getBoost", "getBoost(address,uint16):(uint256)", [
       ethereum.Value.fromAddress(user),
       ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(period))
     ]);
 
-    return result[0].toI32();
+    return result[0].toBigInt();
   }
 
-  try_getBoost(user: Address, period: i32): ethereum.CallResult<i32> {
-    let result = super.tryCall("getBoost", "getBoost(address,uint16):(int32)", [
-      ethereum.Value.fromAddress(user),
-      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(period))
-    ]);
+  try_getBoost(user: Address, period: i32): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "getBoost",
+      "getBoost(address,uint16):(uint256)",
+      [
+        ethereum.Value.fromAddress(user),
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(period))
+      ]
+    );
     if (result.reverted) {
       return new ethereum.CallResult();
     }
     let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toI32());
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   getChainId(): BigInt {
