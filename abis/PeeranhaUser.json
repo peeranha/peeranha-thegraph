@@ -192,29 +192,6 @@
         "type": "address"
       },
       {
-        "internalType": "enum UserLib.Permission",
-        "name": "permission",
-        "type": "uint8"
-      },
-      {
-        "internalType": "uint32",
-        "name": "communityId",
-        "type": "uint32"
-      }
-    ],
-    "name": "checkHasRole",
-    "outputs": [],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "actionCaller",
-        "type": "address"
-      },
-      {
         "internalType": "address",
         "name": "dataUser",
         "type": "address"
@@ -230,8 +207,8 @@
         "type": "uint8"
       },
       {
-        "internalType": "enum UserLib.Permission",
-        "name": "permission",
+        "internalType": "enum UserLib.ActionRole",
+        "name": "actionRole",
         "type": "uint8"
       },
       {
@@ -240,9 +217,32 @@
         "type": "bool"
       }
     ],
-    "name": "checkPermission",
+    "name": "checkActionRole",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "actionCaller",
+        "type": "address"
+      },
+      {
+        "internalType": "enum UserLib.ActionRole",
+        "name": "actionRole",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      }
+    ],
+    "name": "checkHasRole",
+    "outputs": [],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -501,71 +501,6 @@
         "internalType": "uint16",
         "name": "",
         "type": "uint16"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "internalType": "uint16",
-        "name": "rewardPeriod",
-        "type": "uint16"
-      },
-      {
-        "internalType": "uint32",
-        "name": "communityId",
-        "type": "uint32"
-      }
-    ],
-    "name": "getPeriodRating",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint32",
-            "name": "ratingToReward",
-            "type": "uint32"
-          },
-          {
-            "internalType": "uint32",
-            "name": "penalty",
-            "type": "uint32"
-          },
-          {
-            "internalType": "bool",
-            "name": "isActive",
-            "type": "bool"
-          }
-        ],
-        "internalType": "struct RewardLib.PeriodRating",
-        "name": "",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint16",
-        "name": "rewardPeriod",
-        "type": "uint16"
-      }
-    ],
-    "name": "getPeriodReward",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
