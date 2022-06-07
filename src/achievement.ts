@@ -12,7 +12,7 @@ export function newAchievement(achievement: Achievement | null, achievementId: B
 
  achievement.factCount = peeranhaAchievement.factCount;
  achievement.maxCount = peeranhaAchievement.maxCount;
- achievement.achievementURI = peeranhaAchievement.achievementURI.slice(7); // delete ipfs://
+ achievement.achievementURI = peeranhaAchievement.achievementURI;
  achievement.achievementsType = peeranhaAchievement.achievementsType;
 
  getIpfsAchievementData(achievement)
@@ -26,43 +26,43 @@ export function addDataToAchievement(achievement: Achievement | null, achievemen
  }
 
 function getIpfsAchievementData(achievement: Achievement | null): void {
-    if (achievement.id >= "7") {    // TODO delete in prod!
-      let ipfsData = achievement.achievementURI;
-      let result = ipfs.cat(ipfsData) as Bytes;
+  if (achievement.achievementURI.substr(0, 7) == "ipfs://") {
+    let ipfsData = achievement.achievementURI.slice(7);
+    let result = ipfs.cat(ipfsData) as Bytes;
 
-      if (result != null) {
-        let ipfsData = json.fromBytes(result);
+    if (result != null) {
+      let ipfsData = json.fromBytes(result);
 
-        if(isValidIPFS(ipfsData)) {
-          let ipfsObj = ipfsData.toObject()
-          let name = ipfsObj.get('name');
-          if (!name.isNull()) {
-            achievement.name = name.toString();
-          }
-
-          let description = ipfsObj.get('description');
-          if (!description.isNull()) {
-            achievement.description = description.toString();
-          }
-
-          let attributes = ipfsObj.get('attributes');
-          if (!attributes.isNull()) {
-            achievement.attributes = attributes.toString();
-          }
-
-          let image = ipfsObj.get('image');
-          if (!image.isNull()) {
-            achievement.image = image.toString().slice(7);  // delete ipfs://
-          }
-        } else {
-          achievement.name = ERROR_IPFS;
-          achievement.description = ERROR_IPFS;
-          achievement.attributes = ERROR_IPFS;
-          achievement.image = ERROR_IPFS;
+      if(isValidIPFS(ipfsData)) {
+        let ipfsObj = ipfsData.toObject()
+        let name = ipfsObj.get('name');
+        if (!name.isNull()) {
+          achievement.name = name.toString();
         }
+
+        let description = ipfsObj.get('description');
+        if (!description.isNull()) {
+          achievement.description = description.toString();
+        }
+
+        let attributes = ipfsObj.get('attributes');
+        if (!attributes.isNull()) {
+          achievement.attributes = attributes.toString();
+        }
+
+        let image = ipfsObj.get('image');
+        if (!image.isNull()) {
+          achievement.image = image.toString();
+        }
+      } else {
+        achievement.name = ERROR_IPFS;
+        achievement.description = ERROR_IPFS;
+        achievement.attributes = ERROR_IPFS;
+        achievement.image = ERROR_IPFS;
       }
     }
   }
+}
 
 export function giveAchievement(achievementId: BigInt, userAddress: Address): void {
     let user = getUser(userAddress);
