@@ -26,27 +26,25 @@ export function addDataToAchievement(achievement: Achievement | null, achievemen
  }
 
 function getIpfsAchievementData(achievement: Achievement | null): void {
-    let hashstr = achievement.achievementURI;  
-    let hashHex = "1220" + hashstr.slice(2);
-    let ipfsBytes = ByteArray.fromHexString(hashHex);
-    let ipfsHashBase58 = ipfsBytes.toBase58();
-    let result = ipfs.cat(ipfsHashBase58) as Bytes;
-    
+  if (achievement.achievementURI.substr(0, 7) == "ipfs://") {
+    let ipfsData = achievement.achievementURI.slice(7);
+    let result = ipfs.cat(ipfsData) as Bytes;
+
     if (result != null) {
       let ipfsData = json.fromBytes(result);
-    
+
       if(isValidIPFS(ipfsData)) {
         let ipfsObj = ipfsData.toObject()
         let name = ipfsObj.get('name');
         if (!name.isNull()) {
           achievement.name = name.toString();
         }
-    
+
         let description = ipfsObj.get('description');
         if (!description.isNull()) {
           achievement.description = description.toString();
         }
-      
+
         let attributes = ipfsObj.get('attributes');
         if (!attributes.isNull()) {
           achievement.attributes = attributes.toString();
@@ -64,6 +62,7 @@ function getIpfsAchievementData(achievement: Achievement | null): void {
       }
     }
   }
+}
 
 export function giveAchievement(achievementId: BigInt, userAddress: Address): void {
     let user = getUser(userAddress);

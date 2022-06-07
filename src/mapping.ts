@@ -34,7 +34,12 @@ export function handleConfigureNewAchievement(event: ConfigureNewAchievementNFT)
   achievement.save();  
 }
 
-export function handleTransferAchievement(event: Transfer): void {
+///
+// TODO remove NFT
+// indexing all users?   if (!user) return;
+// can be error when remove
+///
+export function handleTransferNFT(event: Transfer): void {
   let id : BigInt = (event.params.tokenId.div(BigInt.fromI32(POOL_NFT))).plus(BigInt.fromI32(1)); // (a / b) + c
   log.error('User: {}, ID txx: {}, Achievement Id txx: {}', [event.params.to.toHex(), event.params.tokenId.toString(), id.toString()])
   let achievement = Achievement.load(id.toString());
@@ -361,8 +366,10 @@ export function handleReward(block: ethereum.Block): void {
         }
 
         let previousPeriodStruct = Period.load(previousPeriod.toString());
-        previousPeriodStruct.isFinished = true;
-        previousPeriodStruct.save()
+        if (previousPeriodStruct != null) {
+          previousPeriodStruct.isFinished = true;
+          previousPeriodStruct.save();
+        }
       }
     }
   }
