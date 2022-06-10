@@ -442,19 +442,24 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
     previousReply.save();
   }
 
+  let reply: Reply | null;
   if (event.params.replyId != 0) {    // fix  (if reply does not exist -> getReply() call erray)
     let replyId = BigInt.fromI32(event.params.replyId);
-    let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
+    reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
 
     if (reply == null) {
       newReply(reply, event.params.postId, replyId, event.block.timestamp);
     }
 
     reply.isBestReply = true;
-    updateUserRating(Address.fromString(reply.author), post.communityId);
+    if (reply.author != post.author) {
+      updateUserRating(Address.fromString(reply.author), post.communityId);
+    }
     reply.save();
   }
-  updateUserRating(Address.fromString(post.author), post.communityId);
+  if (reply.author != post.author) {
+    updateUserRating(Address.fromString(post.author), post.communityId);
+  }
 }
 
 export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move this in another function with edit
