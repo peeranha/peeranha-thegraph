@@ -43,6 +43,8 @@ export function getIpfsUserData(user: User | null): void {
       let displayName = ipfsObj.get('displayName');
       if (!displayName.isNull()) {
         user.displayName = displayName.toString();
+      } else {
+        user.displayName = user.id.slice(0,6) + '...' + user.id.slice(-4);
       }
       
       let company = ipfsObj.get('company');
