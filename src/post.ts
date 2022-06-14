@@ -328,9 +328,10 @@ function getIpfsCommentData(comment: Comment | null): void {
 
 export function deleteComment(comment: Comment | null, postId: BigInt): void {
   comment.isDeleted = true;
-  let post = Post.load(postId.toString());
-  if (comment.author != post.author)
-  updateUserRating(Address.fromString(comment.author), post.communityId);
+  const post = Post.load(postId.toString());
+  if (comment.author !== post.author) {
+    updateUserRating(Address.fromString(comment.author), post.communityId);
+  }
 }
 
 export function updatePostContent(postId: BigInt): void {
