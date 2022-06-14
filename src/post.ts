@@ -118,14 +118,11 @@ export function deletePost(post: Post | null, postId: BigInt): void {
 
   for (let i = 1; i <= post.replyCount; i++) {
     let reply = Reply.load(postId.toString() + '-' + i.toString());
-    if (
-    (reply != null && !reply.isDeleted) && 
-    (reply.isFirstReply || reply.isQuickReply || reply.rating > 0)) {
-
+    if (reply != null && !reply.isDeleted) {
       updateUserRating(Address.fromString(reply.author), post.communityId);
       
       let userReply = getUser(Address.fromString(reply.author));
-      userReply.postCount--;
+      userReply.replyCount--;
       userReply.save();
       
       community.replyCount--;
@@ -329,26 +326,12 @@ function getIpfsCommentData(comment: Comment | null): void {
   }
 }
 
-
-export function voteComment(comment: Comment | null, postId: BigInt, parentReplyId: BigInt, commentId: BigInt): void {
-  let peeranhaComment = getPeeranhaContent().getComment(postId, parentReplyId.toI32(), commentId.toI32());
-  if (peeranhaComment == null) return;
-
-  comment.author = peeranhaComment.author.toHex();
-  comment.postTime = peeranhaComment.postTime;
-  comment.postId = postId;
-  comment.rating = peeranhaComment.rating;
-  comment.parentReplyId = parentReplyId.toI32();  
-  comment.isDeleted = false;
-
-  let post = Post.load(postId.toString())
-  if (post == null && parentReplyId == BigInt.fromI32(0)) {
-    post.commentCount++;
-  }
-
-  addDataToComment(comment, postId, parentReplyId, commentId);
+export function deleteComment(comment: Comment | null, postId: BigInt): void {
+  comment.isDeleted = true;
+  let post = Post.load(postId.toString());
+  if (comment.author != post.author)
+  updateUserRating(Address.fromString(comment.author), post.communityId);
 }
-
 
 export function updatePostContent(postId: BigInt): void {
   let post = Post.load(postId.toString());

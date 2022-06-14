@@ -19,7 +19,7 @@ import { USER_ADDRESS } from './config'
 import { getPeeranhaUser, getPeeranhaToken, getPeeranhaContent } from './utils'
 
 import { newPost, addDataToPost, deletePost, newReply, addDataToReply, deleteReply,
-  newComment, addDataToComment, updatePostContent, updatePostUsersRatings } from './post'
+  newComment, addDataToComment, deleteComment, updatePostContent, updatePostUsersRatings } from './post'
 import { newCommunity, addDataToCommunity, newTag, addDataToTag, getCommunity } from './community-tag'
 import { newUser, addDataToUser, updateUserRating} from './user'
 import { addDataToAchievement, giveAchievement, newAchievement } from './achievement'
@@ -315,7 +315,7 @@ export function handleDeletedComment(event: CommentDeleted): void {
   let comment = Comment.load(event.params.postId.toString() + "-" + parentReplyId.toString() + "-" +  commentId.toString());
   if (comment == null) return;
 
-  comment.isDeleted = true;
+  deleteComment(comment, event.params.postId);
   comment.save();
 
   let postId = event.params.postId;
