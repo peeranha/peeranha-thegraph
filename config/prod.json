@@ -1,1 +1,9 @@
-{}
+{
+    "network": "matic",
+    "userAddress": "0xc51ABb9835Ac274733c18cFeb9A196717D51F512",
+    "communityAddress": "0xB43F43FC6707EC05C995A14dCAA30dDCE344eb22",
+    "contentAddress": "0xD68fD3afA237D0F96493c959fC150bc584b87AE4",
+    "tokenAddress": "0x210F56cA5f54B32f116132037a911A073fb17131",
+    "nftAddress": "0xfcc2317A8890b1D7E27210E3E94D9DE46f5896Ef",
+    "startBlock": 29595889
+  }

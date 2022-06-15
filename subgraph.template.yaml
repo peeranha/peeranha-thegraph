@@ -4,7 +4,7 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: PeeranhaUser
-    network: mumbai
+    network: "{{network}}"
     source:
       address: "{{userAddress}}"
       abi: PeeranhaUser
@@ -40,7 +40,7 @@ dataSources:
 
   - kind: ethereum/contract
     name: PeeranhaCommunity
-    network: mumbai
+    network: "{{network}}"
     source:
       address: "{{communityAddress}}"
       abi: PeeranhaCommunity
@@ -71,7 +71,7 @@ dataSources:
 
   - kind: ethereum/contract
     name: PeeranhaContent
-    network: mumbai
+    network: "{{network}}"
     source:
       address: "{{contentAddress}}"
       abi: PeeranhaContent
@@ -122,7 +122,7 @@ dataSources:
 
   - kind: ethereum/contract
     name: PeeranhaNFT
-    network: mumbai
+    network: "{{network}}"
     source:
       address: "{{nftAddress}}"
       abi: PeeranhaNFT
@@ -145,7 +145,7 @@ dataSources:
   
   - kind: ethereum/contract
     name: PeeranhaToken
-    network: mumbai
+    network: "{{network}}"
     source:
       address: "{{tokenAddress}}"
       abi: PeeranhaToken
