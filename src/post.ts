@@ -1,4 +1,4 @@
-import { json, Bytes, ipfs, BigInt, Address, ByteArray, JSONValueKind } from '@graphprotocol/graph-ts'
+import { json, Bytes, ipfs, BigInt, Address, ByteArray, JSONValueKind, log } from '@graphprotocol/graph-ts'
 import { Post, Reply, Comment, Tag } from '../generated/schema'
 import { getPeeranhaContent } from './utils'
 import { updateUserRating, updateStartUserRating, getUser, newUser } from './user'
@@ -154,7 +154,7 @@ export function updatePostUsersRatings(post: Post | null): void {
 
 export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt, blockTimestamp: BigInt): void {
   let peeranhaReply = getPeeranhaContent().getReply(postId, replyId.toI32());
-  if (peeranhaReply == null) return;
+  if (peeranhaReply == null || reply == null) return;
 
   reply.author = peeranhaReply.author.toHex();
   reply.postTime = peeranhaReply.postTime;
@@ -166,13 +166,15 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt, b
   reply.isQuickReply = peeranhaReply.isQuickReply;
   reply.isDeleted = false;
   reply.comments = [];
+  reply.isBestReply = false;
 
   let post = Post.load(postId.toString())
   if (peeranhaReply.parentReplyId == 0) {
     if (post != null) {
       post.replyCount++;
 
-      let replies = post.replies
+      let replies = post.replies;
+      
       replies.push(postId.toString() + '-' + replyId.toString())
       post.replies = replies
 
@@ -234,8 +236,11 @@ function getIpfsReplyData(reply: Reply | null): void {
 }
 
 export function deleteReply(reply: Reply | null, postId: BigInt): void {
+  if (reply == null) return;
   reply.isDeleted = true;
   let post = Post.load(postId.toString());
+  if (post == null) return;
+
   updateUserRating(Address.fromString(reply.author), post.communityId);
 
   if (reply.parentReplyId == 0) {
@@ -245,6 +250,11 @@ export function deleteReply(reply: Reply | null, postId: BigInt): void {
       community.replyCount--;
       community.save();
     }
+  }
+
+  if (reply.isBestReply) {
+    post.bestReply = 0;
+    post.save();
   }
 
   let user = getUser(Address.fromString(reply.author));
