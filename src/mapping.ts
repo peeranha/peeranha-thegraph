@@ -59,7 +59,7 @@ export function handleNewUser(event: UserCreated): void {
   newUser(user, event.params.userAddress, event.block.timestamp);
   user.save();
 
-  handleReward();
+  indexingPeriods();
 }
 
 export function handleUpdatedUser(event: UserUpdated): void {
@@ -71,10 +71,9 @@ export function handleUpdatedUser(event: UserUpdated): void {
   } else {
     addDataToUser(user, event.params.userAddress);
   }
-
   user.save();
   
-  handleReward();
+  indexingPeriods();
 }
 export function handlerGrantedRole(event: RoleGranted): void {
   let userPermission = new UserPermission(event.params.account.toHex() + '-' + event.params.role.toHex());
@@ -100,7 +99,7 @@ export function handlerFollowCommunity(event: FollowedCommunity): void {
   community.followingUsers++;
   community.save();
 
-  handleReward();
+  indexingPeriods();
 }
 
 export function handlerUnfollowCommunity(event: UnfollowedCommunity): void {
@@ -123,7 +122,7 @@ export function handlerUnfollowCommunity(event: UnfollowedCommunity): void {
   community.followingUsers--;
   community.save();
 
-  handleReward();
+  indexingPeriods();
 }
 
 export function handleNewCommunity(event: CommunityCreated): void {
@@ -133,7 +132,7 @@ export function handleNewCommunity(event: CommunityCreated): void {
   newCommunity(community, communityiD);
   community.save();
 
-  handleReward();
+  indexingPeriods();
 }
 
 export function handleUpdatedCommunity(event: CommunityUpdated): void {
@@ -145,10 +144,9 @@ export function handleUpdatedCommunity(event: CommunityUpdated): void {
   } else {
     addDataToCommunity(community, event.params.id);
   }
-
   community.save();
 
-  handleReward();
+  indexingPeriods();
 }
 
 export function handleFrozenCommunity(event: CommunityFrozen): void {
@@ -211,10 +209,9 @@ export function handleNewPost(event: PostCreated): void {
   let post = new Post(event.params.postId.toString());
   newPost(post, event.params.postId, event.block.timestamp);
   post.save();
-
   createHistory(post, event, 'Post', 'Create');
   
-  handleReward();
+  indexingPeriods();
 }
 
 export function handleEditedPost(event: PostEdited): void {
@@ -229,10 +226,9 @@ export function handleEditedPost(event: PostEdited): void {
 
   let postId = event.params.postId;
   updatePostContent(postId);
-
   createHistory(post, event, 'Post', 'Edit');
 
-  handleReward();
+  indexingPeriods();
 }
 
 export function handleChangedTypePost(event: ChangePostType): void {
@@ -250,10 +246,9 @@ export function handleDeletedPost(event: PostDeleted): void {
 
   deletePost(post, event.params.postId);
   post.save();
-
   createHistory(post, event, 'Post', 'Delete');
 
-  handleReward();
+  indexingPeriods();
 }
 
 export function handleNewReply(event: ReplyCreated): void {
@@ -261,10 +256,9 @@ export function handleNewReply(event: ReplyCreated): void {
   let reply = new Reply(event.params.postId.toString() + "-" + replyId.toString());
   newReply(reply, event.params.postId, replyId, event.block.timestamp);
   reply.save();
-
   createHistory(reply, event, 'Reply', 'Create');
 
-  handleReward();
+  indexingPeriods();
 }
 
 export function handleEditedReply(event: ReplyEdited): void { 
@@ -281,10 +275,9 @@ export function handleEditedReply(event: ReplyEdited): void {
 
   let postId = event.params.postId;
   updatePostContent(postId);
-
   createHistory(reply, event, 'Reply', 'Edit');
 
-  handleReward();
+  indexingPeriods();
 }
 
 export function handleDeletedReply(event: ReplyDeleted): void {
@@ -297,10 +290,9 @@ export function handleDeletedReply(event: ReplyDeleted): void {
 
   let postId = event.params.postId;
   updatePostContent(postId);
-
   createHistory(reply, event, 'Reply', 'Delete');
 
-  handleReward();
+  indexingPeriods();
 }
 
 export function handleNewComment(event: CommentCreated): void {
@@ -310,10 +302,9 @@ export function handleNewComment(event: CommentCreated): void {
 
   newComment(comment, event.params.postId, BigInt.fromI32(event.params.parentReplyId), commentId);  //без конвертации
   comment.save();
-
   createHistory(comment, event, 'Comment', 'Create');
 
-  handleReward();
+  indexingPeriods();
 }
 
 export function handleEditedComment(event: CommentEdited): void { 
@@ -334,7 +325,7 @@ export function handleEditedComment(event: CommentEdited): void {
   let postId = event.params.postId;
   updatePostContent(postId);
 
-  handleReward();
+  indexingPeriods();
 }
 
 export function handleDeletedComment(event: CommentDeleted): void {
@@ -348,13 +339,12 @@ export function handleDeletedComment(event: CommentDeleted): void {
 
   let postId = event.params.postId;
   updatePostContent(postId);
-
   createHistory(comment, event, 'Comment', 'Delete');
 
-  handleReward();
+  indexingPeriods();
 }
 
-export function handleReward(): void {
+export function indexingPeriods(): void {
   let contractInfo = ContractInfo.load(USER_ADDRESS)
   if (contractInfo == null) {
     contractInfo = new ContractInfo(USER_ADDRESS)
@@ -368,27 +358,18 @@ export function handleReward(): void {
   }
 
   const period = getPeeranhaUser().getPeriod();
-  for (; contractInfo.lastUpdatePeriod <= period; contractInfo.lastUpdatePeriod++) {    // check contractInfo.lastUpdatePeriod++;
+  for (; contractInfo.lastUpdatePeriod <= period; contractInfo.lastUpdatePeriod++) {
     contractInfo.save()
     const lastUpdatePeriod = contractInfo.lastUpdatePeriod;
     let periodStruct = new Period(lastUpdatePeriod.toString());
-    periodStruct.startPeriodTime = contractInfo.deployTime.plus(contractInfo.periodLength.times(BigInt.fromI32(lastUpdatePeriod)))
-    periodStruct.endPeriodTime = contractInfo.deployTime.plus(contractInfo.periodLength.times(BigInt.fromI32(lastUpdatePeriod + 1)))
+    periodStruct.startPeriodTime = contractInfo.deployTime.plus(contractInfo.periodLength.times(BigInt.fromI32(lastUpdatePeriod)));
+    periodStruct.endPeriodTime = contractInfo.deployTime.plus(contractInfo.periodLength.times(BigInt.fromI32(lastUpdatePeriod + 1)));
     periodStruct.isFinished = false;
     periodStruct.save();  
 
     const previousPeriod = lastUpdatePeriod - 2;
     if (previousPeriod >= 0) {
-      const activeUsersInPeriod = getPeeranhaUser().getActiveUsersInPeriod(previousPeriod);
-      for (let i = 0; i < activeUsersInPeriod.length; i++) {
-        const tokenRewards = getPeeranhaToken().getUserRewardGraph(activeUsersInPeriod[i], previousPeriod);
-        let userReward = new UserReward(previousPeriod.toString() + '-' + activeUsersInPeriod[i].toHex())
-        userReward.tokenToReward = tokenRewards;
-        userReward.period = previousPeriod.toString();
-        userReward.user = activeUsersInPeriod[i].toHex();
-        userReward.isPaid = false;
-        userReward.save();
-      }
+      indexingUserReward(previousPeriod);
 
       let previousPeriodStruct = Period.load(previousPeriod.toString());
       if (previousPeriodStruct != null) {
@@ -396,6 +377,19 @@ export function handleReward(): void {
         previousPeriodStruct.save();
       }
     }
+  }
+}
+
+export function indexingUserReward(period: i32): void {
+  const activeUsersInPeriod = getPeeranhaUser().getActiveUsersInPeriod(period);
+  for (let i = 0; i < activeUsersInPeriod.length; i++) {
+    const tokenRewards = getPeeranhaToken().getUserRewardGraph(activeUsersInPeriod[i], period);
+    let userReward = new UserReward(period.toString() + '-' + activeUsersInPeriod[i].toHex())
+    userReward.tokenToReward = tokenRewards;
+    userReward.period = period.toString();
+    userReward.user = activeUsersInPeriod[i].toHex();
+    userReward.isPaid = false;
+    userReward.save();
   }
 }
 
@@ -442,7 +436,7 @@ export function handlerChangedStatusOfficialReply(event: StatusOfficialReplyChan
   reply.isOfficialReply = true;
   reply.save();
 
-  handleReward();
+  indexingPeriods();
 }
 
 export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): void {
@@ -489,7 +483,7 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
     updateUserRating(Address.fromString(post.author), post.communityId);
   }
 
-  handleReward();
+  indexingPeriods();
 }
 
 export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move this in another function with edit
@@ -541,5 +535,5 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
     updateUserRating(event.params.user, post.communityId);
   }
 
-  handleReward();
+  indexingPeriods();
 }
