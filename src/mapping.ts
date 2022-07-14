@@ -41,7 +41,7 @@ export function handleConfigureNewAchievement(event: ConfigureNewAchievementNFT)
 ///
 export function handleTransferNFT(event: Transfer): void {
   let id : BigInt = (event.params.tokenId.div(BigInt.fromI32(POOL_NFT))).plus(BigInt.fromI32(1)); // (a / b) + c
-  log.error('User: {}, ID txx: {}, Achievement Id txx: {}', [event.params.to.toHex(), event.params.tokenId.toString(), id.toString()])
+  log.debug('User: {}, ID txx: {}, Achievement Id txx: {}', [event.params.to.toHex(), event.params.tokenId.toString(), id.toString()])
   let achievement = Achievement.load(id.toString());
 
   if (achievement != null) {
@@ -58,6 +58,8 @@ export function handleNewUser(event: UserCreated): void {
   let user = new User(event.params.userAddress.toHex());
   newUser(user, event.params.userAddress, event.block.timestamp);
   user.save();
+
+  handleReward();
 }
 
 export function handleUpdatedUser(event: UserUpdated): void {
@@ -71,6 +73,8 @@ export function handleUpdatedUser(event: UserUpdated): void {
   }
 
   user.save();
+  
+  handleReward();
 }
 export function handlerGrantedRole(event: RoleGranted): void {
   let userPermission = new UserPermission(event.params.account.toHex() + '-' + event.params.role.toHex());
@@ -94,7 +98,9 @@ export function handlerFollowCommunity(event: FollowedCommunity): void {
 
   let community = Community.load(event.params.communityId.toString())
   community.followingUsers++;
-  community.save()
+  community.save();
+
+  handleReward();
 }
 
 export function handlerUnfollowCommunity(event: UnfollowedCommunity): void {
@@ -115,7 +121,9 @@ export function handlerUnfollowCommunity(event: UnfollowedCommunity): void {
 
   let community = Community.load(event.params.communityId.toString())
   community.followingUsers--;
-  community.save()
+  community.save();
+
+  handleReward();
 }
 
 export function handleNewCommunity(event: CommunityCreated): void {
@@ -123,7 +131,9 @@ export function handleNewCommunity(event: CommunityCreated): void {
   let community = new Community(communityiD.toString());
 
   newCommunity(community, communityiD);
-  community.save(); 
+  community.save();
+
+  handleReward();
 }
 
 export function handleUpdatedCommunity(event: CommunityUpdated): void {
@@ -137,6 +147,8 @@ export function handleUpdatedCommunity(event: CommunityUpdated): void {
   }
 
   community.save();
+
+  handleReward();
 }
 
 export function handleFrozenCommunity(event: CommunityFrozen): void {
@@ -201,6 +213,8 @@ export function handleNewPost(event: PostCreated): void {
   post.save();
 
   createHistory(post, event, 'Post', 'Create');
+  
+  handleReward();
 }
 
 export function handleEditedPost(event: PostEdited): void {
@@ -217,6 +231,8 @@ export function handleEditedPost(event: PostEdited): void {
   updatePostContent(postId);
 
   createHistory(post, event, 'Post', 'Edit');
+
+  handleReward();
 }
 
 export function handleChangedTypePost(event: ChangePostType): void {
@@ -236,6 +252,8 @@ export function handleDeletedPost(event: PostDeleted): void {
   post.save();
 
   createHistory(post, event, 'Post', 'Delete');
+
+  handleReward();
 }
 
 export function handleNewReply(event: ReplyCreated): void {
@@ -245,6 +263,8 @@ export function handleNewReply(event: ReplyCreated): void {
   reply.save();
 
   createHistory(reply, event, 'Reply', 'Create');
+
+  handleReward();
 }
 
 export function handleEditedReply(event: ReplyEdited): void { 
@@ -263,6 +283,8 @@ export function handleEditedReply(event: ReplyEdited): void {
   updatePostContent(postId);
 
   createHistory(reply, event, 'Reply', 'Edit');
+
+  handleReward();
 }
 
 export function handleDeletedReply(event: ReplyDeleted): void {
@@ -277,6 +299,8 @@ export function handleDeletedReply(event: ReplyDeleted): void {
   updatePostContent(postId);
 
   createHistory(reply, event, 'Reply', 'Delete');
+
+  handleReward();
 }
 
 export function handleNewComment(event: CommentCreated): void {
@@ -288,6 +312,8 @@ export function handleNewComment(event: CommentCreated): void {
   comment.save();
 
   createHistory(comment, event, 'Comment', 'Create');
+
+  handleReward();
 }
 
 export function handleEditedComment(event: CommentEdited): void { 
@@ -307,6 +333,8 @@ export function handleEditedComment(event: CommentEdited): void {
 
   let postId = event.params.postId;
   updatePostContent(postId);
+
+  handleReward();
 }
 
 export function handleDeletedComment(event: CommentDeleted): void {
@@ -322,9 +350,11 @@ export function handleDeletedComment(event: CommentDeleted): void {
   updatePostContent(postId);
 
   createHistory(comment, event, 'Comment', 'Delete');
+
+  handleReward();
 }
 
-export function handleReward(block: ethereum.Block): void {
+export function handleReward(): void {
   let contractInfo = ContractInfo.load(USER_ADDRESS)
   if (contractInfo == null) {
     contractInfo = new ContractInfo(USER_ADDRESS)
@@ -333,52 +363,48 @@ export function handleReward(block: ethereum.Block): void {
     const periodLength = periodInfo.value1
     contractInfo.deployTime = deployTime;
     contractInfo.periodLength = periodLength;
-    contractInfo.lastUpdatePeriod = -1;
-    contractInfo.lastBlock = block.number;
+    contractInfo.lastUpdatePeriod = 0;
     contractInfo.save()
   }
 
-  if ((contractInfo.lastBlock.plus(BigInt.fromI32(50))).lt(block.number)) {
-    const period = getPeeranhaUser().getPeriod();
-    if (period >= 50000) return;                  // delete in prod
+  const period = getPeeranhaUser().getPeriod();
+  for (; contractInfo.lastUpdatePeriod <= period; contractInfo.lastUpdatePeriod++) {    // check contractInfo.lastUpdatePeriod++;
+    contractInfo.save()
+    const lastUpdatePeriod = contractInfo.lastUpdatePeriod;
+    let periodStruct = new Period(lastUpdatePeriod.toString());
+    periodStruct.startPeriodTime = contractInfo.deployTime.plus(contractInfo.periodLength.times(BigInt.fromI32(lastUpdatePeriod)))
+    periodStruct.endPeriodTime = contractInfo.deployTime.plus(contractInfo.periodLength.times(BigInt.fromI32(lastUpdatePeriod + 1)))
+    periodStruct.isFinished = false;
+    periodStruct.save();  
 
-    if (contractInfo.lastUpdatePeriod < period) {   // for() from lastUpdatePeriod to period ?
-      contractInfo.lastUpdatePeriod = period;
-      contractInfo.lastBlock = block.number;
-      contractInfo.save()
-      let periodStruct = new Period(period.toString());
-      periodStruct.startPeriodTime = contractInfo.deployTime.plus(contractInfo.periodLength.times(BigInt.fromI32(period)))
-      periodStruct.endPeriodTime = contractInfo.deployTime.plus(contractInfo.periodLength.times(BigInt.fromI32(period + 1)))
-      periodStruct.isFinished = false;
-      periodStruct.save();  
+    const previousPeriod = lastUpdatePeriod - 2;
+    if (previousPeriod >= 0) {
+      const activeUsersInPeriod = getPeeranhaUser().getActiveUsersInPeriod(previousPeriod);
+      for (let i = 0; i < activeUsersInPeriod.length; i++) {
+        const tokenRewards = getPeeranhaToken().getUserRewardGraph(activeUsersInPeriod[i], previousPeriod);
+        let userReward = new UserReward(previousPeriod.toString() + '-' + activeUsersInPeriod[i].toHex())
+        userReward.tokenToReward = tokenRewards;
+        userReward.period = previousPeriod.toString();
+        userReward.user = activeUsersInPeriod[i].toHex();
+        userReward.isPaid = false;
+        userReward.save();
+      }
 
-      const previousPeriod = period - 2;
-      if (previousPeriod >= 1) {
-        const activeUsersInPeriod = getPeeranhaUser().getActiveUsersInPeriod(previousPeriod);
-        for (let i = 0; i < activeUsersInPeriod.length; i++) {
-          const tokenRewards = getPeeranhaToken().getUserRewardGraph(activeUsersInPeriod[i], previousPeriod);
-          let userReward = new UserReward(previousPeriod.toString() + '-' + activeUsersInPeriod[i].toHex())
-          userReward.tokenToReward = tokenRewards;
-          userReward.period = previousPeriod.toString();
-          userReward.user = activeUsersInPeriod[i].toHex();
-          userReward.isPaid = false;
-          userReward.save();
-        }
-
-        let previousPeriodStruct = Period.load(previousPeriod.toString());
-        if (previousPeriodStruct != null) {
-          previousPeriodStruct.isFinished = true;
-          previousPeriodStruct.save();
-        }
+      let previousPeriodStruct = Period.load(previousPeriod.toString());
+      if (previousPeriodStruct != null) {
+        previousPeriodStruct.isFinished = true;
+        previousPeriodStruct.save();
       }
     }
   }
 }
 
 export function handleGetReward(event: GetReward): void {
-  const userReward = UserReward.load(BigInt.fromI32(event.params.period).toString() + '-' + event.params.user.toHex())
-  userReward.isPaid = true;
-  userReward.save();
+  const userReward = UserReward.load(BigInt.fromI32(event.params.period).toString() + '-' + event.params.user.toHex());
+  if (userReward != null) {
+    userReward.isPaid = true;
+    userReward.save();
+  }
 }
 
 export function handlerChangedStatusOfficialReply(event: StatusOfficialReplyChanged): void {
@@ -415,6 +441,8 @@ export function handlerChangedStatusOfficialReply(event: StatusOfficialReplyChan
 
   reply.isOfficialReply = true;
   reply.save();
+
+  handleReward();
 }
 
 export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): void {
@@ -460,6 +488,8 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
   if (reply.author != post.author) {
     updateUserRating(Address.fromString(post.author), post.communityId);
   }
+
+  handleReward();
 }
 
 export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move this in another function with edit
@@ -510,4 +540,6 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
     updateUserRating(Address.fromString(post.author), post.communityId);
     updateUserRating(event.params.user, post.communityId);
   }
+
+  handleReward();
 }
