@@ -154,6 +154,7 @@ export function updatePostUsersRatings(post: Post | null): void {
 
 export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt, blockTimestamp: BigInt): void {
   let peeranhaReply = getPeeranhaContent().getReply(postId, replyId.toI32());
+  let peeranhaPost = getPeeranhaContent().getPost(postId);
   if (peeranhaReply == null || reply == null) return;
 
   reply.author = peeranhaReply.author.toHex();
@@ -164,6 +165,7 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt, b
   reply.commentCount = peeranhaReply.commentCount;
   reply.isFirstReply = peeranhaReply.isFirstReply;
   reply.isQuickReply = peeranhaReply.isQuickReply;
+  reply.isOfficialReply = peeranhaPost.officialReply == replyId.toI32();
   reply.isDeleted = false;
   reply.comments = [];
   reply.isBestReply = false;
@@ -174,11 +176,12 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt, b
       post.replyCount++;
 
       let replies = post.replies;
-      
-      replies.push(postId.toString() + '-' + replyId.toString())
-      post.replies = replies
 
-      
+      replies.push(postId.toString() + '-' + replyId.toString())
+      post.replies = replies;
+      if (peeranhaPost.officialReply == replyId.toI32()) {
+        post.officialReply = replyId.toI32();
+      }
 
       let community = getCommunity(post.communityId);
       community.replyCount++;
