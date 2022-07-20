@@ -34,8 +34,6 @@ dataSources:
           handler: handlerGrantedRole
         - event: RoleRevoked(indexed bytes32,indexed address,indexed address)
           handler: handlerRevokedRole
-      blockHandlers:
-        - handler: handleReward
       file: ./src/mapping.ts
 
   - kind: ethereum/contract
@@ -51,9 +49,15 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - PeeranhaCommunity
+        - PeeranhaUser
+        - PeeranhaToken
       abis:
         - name: PeeranhaCommunity
           file: ./abis/PeeranhaCommunity.json
+        - name: PeeranhaUser
+          file: ./abis/PeeranhaUser.json
+        - name: PeeranhaToken
+          file: ./abis/PeeranhaToken.json
       eventHandlers:
         - event: CommunityCreated(indexed address,indexed uint32)
           handler: handleNewCommunity

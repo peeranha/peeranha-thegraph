@@ -163,7 +163,6 @@ type ContractInfo @entity {
   deployTime: BigInt
   periodLength: BigInt
   lastUpdatePeriod: Int
-  lastBlock: BigInt
 }
 
 type History @entity {
