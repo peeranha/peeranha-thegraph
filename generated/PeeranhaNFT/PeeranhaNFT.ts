@@ -626,6 +626,21 @@ export class PeeranhaNFT extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
+  getVersion(): BigInt {
+    let result = super.call("getVersion", "getVersion():(uint256)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_getVersion(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("getVersion", "getVersion():(uint256)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
   hasRole(role: Bytes, account: Address): boolean {
     let result = super.call("hasRole", "hasRole(bytes32,address):(bool)", [
       ethereum.Value.fromFixedBytes(role),

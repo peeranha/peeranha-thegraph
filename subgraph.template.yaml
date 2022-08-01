@@ -116,12 +116,12 @@ dataSources:
           handler: handleEditedComment
         - event: CommentDeleted(indexed address,indexed uint256,uint16,uint8)
           handler: handleDeletedComment
-        - event: StatusOfficialReplyChanged(indexed address,indexed uint256,uint16)
-          handler: handlerChangedStatusOfficialReply
         - event: StatusBestReplyChanged(indexed address,indexed uint256,uint16)
           handler: handlerChangedStatusBestReply
         - event: ForumItemVoted(indexed address,indexed uint256,uint16,uint8,int8)
           handler: handlerForumItemVoted
+        - event: SetDocumentationPosition(indexed address,indexed uint32)
+          handler: handlerSetDocumentationPosition
       file: ./src/mapping.ts
 
   - kind: ethereum/contract

@@ -1,10 +1,8 @@
-import { json, Bytes, ipfs, BigInt, Address, ByteArray, JSONValueKind, log } from '@graphprotocol/graph-ts'
-import { Post, Reply, Comment, Tag } from '../generated/schema'
-import { getPeeranhaContent } from './utils'
+import { json, Bytes, ipfs, BigInt, Address, ByteArray, log, JSONValue } from '@graphprotocol/graph-ts'
+import { Post, Reply, Comment, Tag, CommunityDocumentation } from '../generated/schema'
+import { getPeeranhaContent, ERROR_IPFS, isValidIPFS } from './utils'
 import { updateUserRating, updateStartUserRating, getUser, newUser } from './user'
 import { getCommunity } from './community-tag'
-import { ERROR_IPFS, isValidIPFS } from "./utils";
-
 
 export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigInt): void {
   let peeranhaPost = getPeeranhaContent().getPost(postId);
@@ -384,4 +382,61 @@ export function updatePostContent(postId: BigInt): void {
     }
   }
   post.save();
+}
+
+export function indexingDocumentation(comunityId: BigInt): void {
+  const documentation = CommunityDocumentation.load(comunityId.toString());
+  if (documentation == null || documentation.ipfsHash == null)
+    return;
+
+  let hashstr = documentation.ipfsHash.toHexString();
+  let hashHex = '1220' + hashstr.slice(2);
+  let ipfsBytes = ByteArray.fromHexString(hashHex);
+  let ipfsHashBase58 = ipfsBytes.toBase58();
+  let result = ipfs.cat(ipfsHashBase58) as Bytes;
+
+  if (result != null) {
+    let ipfsData = json.fromBytes(result);
+  
+    if (isValidIPFS(ipfsData)) {
+      let ipfsObj = ipfsData.toObject()
+      
+      const id = ipfsObj.get('id');
+      if (!id.isNull()) {
+        const post = Post.load(id.toString());
+        if (post != null) {
+          documentation.documentationJSON = '{"id": "' + id.toString() + '",' + ' "title": "' + post.title + '", "children": [';
+
+          let children = ipfsObj.get('children');
+
+          if (children.toArray().length > 0)
+            documentation = indexingJson(documentation, children.toArray());
+
+          documentation.documentationJSON += ']}';
+          documentation.save();
+        }
+      }
+    }
+  }
+}
+
+function indexingJson(documentation: CommunityDocumentation | null, children: JSONValue[]): CommunityDocumentation | null {
+  const childrenLength = children.length;
+  for (let i = 0; i < childrenLength; i++) {
+    const id = children[i].toObject().get("id");
+    const post = Post.load(id.toString());
+    if (post != null) {
+      documentation.documentationJSON += '{"id": "' + id.toString() + '",' + ' "title": "' + post.title + '", "children": ['
+            
+      if (children[i].toObject().get("children").toArray().length > 0)
+        documentation = indexingJson(documentation, children[i].toObject().get("children").toArray());
+            
+      documentation.documentationJSON += ']}';
+
+      if (i < childrenLength - 1)
+        documentation.documentationJSON += ', ';
+    }
+  }
+
+  return documentation;
 }
