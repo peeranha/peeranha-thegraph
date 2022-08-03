@@ -95,24 +95,6 @@
       },
       {
         "internalType": "uint16",
-        "name": "replyId",
-        "type": "uint16"
-      }
-    ],
-    "name": "changeStatusOfficialReply",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "postId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint16",
         "name": "parentReplyId",
         "type": "uint16"
       },
@@ -304,6 +286,11 @@
         "internalType": "bytes32",
         "name": "ipfsHash",
         "type": "bytes32"
+      },
+      {
+        "internalType": "bool",
+        "name": "isOfficialReply",
+        "type": "bool"
       }
     ],
     "name": "editReply",
@@ -429,6 +416,37 @@
           }
         ],
         "internalType": "struct PostLib.Comment",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      }
+    ],
+    "name": "getDocumentationPosition",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "bytes32",
+            "name": "hash",
+            "type": "bytes32"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "hash2",
+            "type": "bytes32"
+          }
+        ],
+        "internalType": "struct CommonLib.IpfsHash",
         "name": "",
         "type": "tuple"
       }
@@ -694,6 +712,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "getVersion",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "address",
@@ -707,6 +738,24 @@
       }
     ],
     "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "ipfsHash",
+        "type": "bytes32"
+      }
+    ],
+    "name": "setDocumentationPosition",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1044,23 +1093,17 @@
       {
         "indexed": true,
         "internalType": "address",
-        "name": "user",
+        "name": "userAddr",
         "type": "address"
       },
       {
         "indexed": true,
-        "internalType": "uint256",
-        "name": "postId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint16",
-        "name": "replyId",
-        "type": "uint16"
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
       }
     ],
-    "name": "StatusBestReplyChanged",
+    "name": "SetDocumentationPosition",
     "type": "event"
   },
   {
@@ -1085,7 +1128,7 @@
         "type": "uint16"
       }
     ],
-    "name": "StatusOfficialReplyChanged",
+    "name": "StatusBestReplyChanged",
     "type": "event"
   }
 ]
