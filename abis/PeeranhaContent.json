@@ -431,7 +431,7 @@
         "type": "uint32"
       }
     ],
-    "name": "getDocumentationPosition",
+    "name": "getDocumentationTree",
     "outputs": [
       {
         "components": [
@@ -751,11 +751,11 @@
       },
       {
         "internalType": "bytes32",
-        "name": "ipfsHash",
+        "name": "documentationTreeIpfsHash",
         "type": "bytes32"
       }
     ],
-    "name": "setDocumentationPosition",
+    "name": "updateDocumentationTree",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -1103,7 +1103,7 @@
         "type": "uint32"
       }
     ],
-    "name": "SetDocumentationPosition",
+    "name": "SetDocumentationTree",
     "type": "event"
   },
   {

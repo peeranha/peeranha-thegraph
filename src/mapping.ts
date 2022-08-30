@@ -9,7 +9,7 @@ import {
 import { PostCreated, PostEdited, PostDeleted,
   ReplyCreated, ReplyEdited, ReplyDeleted,
   CommentCreated, CommentEdited, CommentDeleted,
-  ForumItemVoted, SetDocumentationPosition,
+  ForumItemVoted, SetDocumentationTree,
   ChangePostType, StatusBestReplyChanged,
 } from '../generated/PeeranhaContent/PeeranhaContent'
 
@@ -507,10 +507,10 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
   indexingPeriods();
 }
 
-export function handlerSetDocumentationPosition(event: SetDocumentationPosition): void {
+export function handlerSetDocumentationTree(event: SetDocumentationTree): void {
   const documentation = new CommunityDocumentation(event.params.communityId.toString());
 
-  let communityDocumentation = getPeeranhaContent().getDocumentationPosition(event.params.communityId);
+  let communityDocumentation = getPeeranhaContent().getDocumentationTree(event.params.communityId);
   if (communityDocumentation.hash == new Address(0))
     return;
   
