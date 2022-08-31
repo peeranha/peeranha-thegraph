@@ -1,10 +1,8 @@
-import { json, Bytes, ipfs, BigInt, Address, ByteArray, JSONValueKind, log } from '@graphprotocol/graph-ts'
-import { Post, Reply, Comment, Tag } from '../generated/schema'
-import { getPeeranhaContent } from './utils'
+import { json, Bytes, ipfs, BigInt, Address, ByteArray, log, JSONValue } from '@graphprotocol/graph-ts'
+import { Post, Reply, Comment, Tag, CommunityDocumentation } from '../generated/schema'
+import { getPeeranhaContent, ERROR_IPFS, isValidIPFS } from './utils'
 import { updateUserRating, updateStartUserRating, getUser, newUser } from './user'
 import { getCommunity } from './community-tag'
-import { ERROR_IPFS, isValidIPFS } from "./utils";
-
 
 export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigInt): void {
   let peeranhaPost = getPeeranhaContent().getPost(postId);
@@ -351,7 +349,6 @@ export function updatePostContent(postId: BigInt): void {
   let post = Post.load(postId.toString());
   post.postContent = '';
   
-
   let peeranhaPost = getPeeranhaContent().getPost(postId);
   if (peeranhaPost == null) return;
   let postTagsBuf = post.tags;
@@ -366,22 +363,113 @@ export function updatePostContent(postId: BigInt): void {
   post.postContent += ' ' + post.content;
   for (let replyId = 1; replyId <= post.replyCount; replyId++) {
     let reply = Reply.load(postId.toString() + '-' + replyId.toString());
-    if (!reply.isDeleted){
+    if (reply != null && !reply.isDeleted) {
       post.postContent += ' ' + reply.content;
     
-    }
-    for (let commentId = 1; commentId <= reply.commentCount; commentId++) {
-      let comment = Comment.load(postId.toString() + '-' + replyId.toString() + '-' +  commentId.toString());
-      if (!comment.isDeleted) {
-        post.postContent += ' ' + comment.content;
+      for (let commentId = 1; commentId <= reply.commentCount; commentId++) {
+        let comment = Comment.load(postId.toString() + '-' + replyId.toString() + '-' +  commentId.toString());
+        if (comment != null && !comment.isDeleted) {
+          post.postContent += ' ' + comment.content;
+        }
       }
     }
   }
   for (let commentId = 1; commentId <= post.commentCount; commentId++) {
     let comment = Comment.load(postId.toString() + '-' + '0' + '-' +  commentId.toString());
-    if (!comment.isDeleted) {
+    if (comment != null && !comment.isDeleted) {
       post.postContent += ' ' + comment.content;
     }
   }
   post.save();
+}
+
+export function indexingDocumentation(comunityId: BigInt): void {
+  const documentation = CommunityDocumentation.load(comunityId.toString());
+  if (documentation == null || documentation.ipfsHash == null)
+    return;
+
+  let hashstr = documentation.ipfsHash.toHexString();
+  let hashHex = '1220' + hashstr.slice(2);
+  let ipfsBytes = ByteArray.fromHexString(hashHex);
+  let ipfsHashBase58 = ipfsBytes.toBase58();
+  let result = ipfs.cat(ipfsHashBase58) as Bytes;
+
+  documentation.documentationJSON = '{'
+
+  if (result != null) {
+    let ipfsData = json.fromBytes(result);
+  
+    if (isValidIPFS(ipfsData)) {
+      let ipfsObj = ipfsData.toObject()
+
+      documentation.documentationJSON += '"pinnedPost":{"id": "'
+      const pinnedId = ipfsObj.get('pinnedId');
+      if (!pinnedId.isNull()) {
+        const post = Post.load(pinnedId.toString());
+        if (post != null) {
+          documentation.documentationJSON += pinnedId.toString() + '", "title": "' + post.title;
+        } else {
+          documentation.documentationJSON += '", "title": "';
+        }
+      } else {
+        documentation.documentationJSON += '", "title": "';
+      }
+      documentation.documentationJSON += '"},';
+      const documentations = ipfsObj.get('documentations'); // what's name for array in JSON
+
+      documentation.documentationJSON += '"documentations":['
+      if (!documentations.isNull()) {
+        const documentationsArray = documentations.toArray();
+
+        for (let i = 0; i < documentationsArray.length; i++) {
+          const documentationObject = documentationsArray[i];
+          const id = documentationObject.toObject().get('id');
+
+          if (!id.isNull()) {
+            const post = Post.load(id.toString());
+            if (post != null) {
+              documentation.documentationJSON += '{"id": "' + id.toString() + '",' + ' "title": "' + post.title + '", "children": [';
+
+              let children = documentationObject.toObject().get('children');
+
+              if (children.toArray().length > 0) {
+                documentation = indexingJson(documentation, children.toArray());
+              }
+              documentation.documentationJSON += ']}';
+            } else {
+              documentation.documentationJSON += '{"id": "", "title": "", "children": []}';
+            }
+          } else {
+            documentation.documentationJSON += '{"id": "", "title": "", "children": []}';
+          }
+        }
+      } else {
+        documentation.documentationJSON += '{"id": "", "title": "", "children": []}';
+      }
+      documentation.documentationJSON += ']';
+    }
+  }
+  documentation.documentationJSON += '}';
+  documentation.save();
+}
+
+function indexingJson(documentation: CommunityDocumentation | null, children: JSONValue[]): CommunityDocumentation | null {
+  const childrenLength = children.length;
+  for (let i = 0; i < childrenLength; i++) {
+    const id = children[i].toObject().get("id");
+    const post = Post.load(id.toString());
+    if (post != null) {
+      documentation.documentationJSON += '{"id": "' + id.toString() + '",' + ' "title": "' + post.title + '", "children": ['
+            
+      if (children[i].toObject().get("children").toArray().length > 0)
+        documentation = indexingJson(documentation, children[i].toObject().get("children").toArray());
+            
+      documentation.documentationJSON += ']}';
+
+      if (i < childrenLength - 1)
+        documentation.documentationJSON += ', ';
+    }
+  }
+
+  return documentation;
 }

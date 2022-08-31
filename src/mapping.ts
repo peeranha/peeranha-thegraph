@@ -9,17 +9,17 @@ import {
 import { PostCreated, PostEdited, PostDeleted,
   ReplyCreated, ReplyEdited, ReplyDeleted,
   CommentCreated, CommentEdited, CommentDeleted,
-  ForumItemVoted, ChangePostType,
-  StatusOfficialReplyChanged, StatusBestReplyChanged,
+  ForumItemVoted, SetDocumentationTree,
+  ChangePostType, StatusBestReplyChanged,
 } from '../generated/PeeranhaContent/PeeranhaContent'
 
 import { GetReward } from '../generated/PeeranhaToken/PeeranhaToken'
-import { User, Community, Tag, Post, Reply, Comment, Achievement, ContractInfo, UserReward, Period, History, UserPermission } from '../generated/schema'
+import { User, Community, Tag, Post, Reply, Comment, Achievement, ContractInfo, UserReward, Period, History, UserPermission, CommunityDocumentation } from '../generated/schema'
 import { USER_ADDRESS } from './config'
-import { getPeeranhaUser, getPeeranhaToken, getPeeranhaContent } from './utils'
+import { getPeeranhaUser, getPeeranhaToken, getPeeranhaContent, PostType } from './utils'
 
 import { newPost, addDataToPost, deletePost, newReply, addDataToReply, deleteReply,
-  newComment, addDataToComment, deleteComment, updatePostContent, updatePostUsersRatings } from './post'
+  newComment, addDataToComment, deleteComment, updatePostContent, updatePostUsersRatings, indexingDocumentation } from './post'
 import { newCommunity, addDataToCommunity, newTag, addDataToTag, getCommunity } from './community-tag'
 import { newUser, addDataToUser, updateUserRating} from './user'
 import { addDataToAchievement, giveAchievement, newAchievement } from './achievement'
@@ -75,6 +75,7 @@ export function handleUpdatedUser(event: UserUpdated): void {
   
   indexingPeriods();
 }
+
 export function handlerGrantedRole(event: RoleGranted): void {
   let userPermission = new UserPermission(event.params.account.toHex() + '-' + event.params.role.toHex());
   userPermission.user = event.params.account.toHex();
@@ -215,14 +216,20 @@ export function handleNewPost(event: PostCreated): void {
 }
 
 export function handleEditedPost(event: PostEdited): void {
-  let post = Post.load(event.params.postId.toString())
+  let post = Post.load(event.params.postId.toString());
+  let oldPostTitle: string | null = '';
   if (post == null) {
     post = new Post(event.params.postId.toString())
     newPost(post, event.params.postId, event.block.timestamp);
   } else {
+    oldPostTitle = post.title;
     addDataToPost(post, event.params.postId);
   }
   post.save();
+
+  if (post.postType == PostType.Documentation && post.title != oldPostTitle) {
+    indexingDocumentation(post.communityId);
+  }
 
   let postId = event.params.postId;
   updatePostContent(postId);
@@ -401,44 +408,6 @@ export function handleGetReward(event: GetReward): void {
   }
 }
 
-export function handlerChangedStatusOfficialReply(event: StatusOfficialReplyChanged): void {
-  let post = Post.load(event.params.postId.toString())
-  let previousOfficialReply = 0;
-  if (post == null) {
-    post = new Post(event.params.postId.toString())
-    newPost(post, event.params.postId, event.block.timestamp);
-  } else {
-    previousOfficialReply = post.officialReply;
-    post.officialReply = event.params.replyId;
-  }
-  post.save();
-  
-  if (previousOfficialReply) {
-    let replyId = BigInt.fromI32(previousOfficialReply);
-    let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
-
-    if (reply == null) {
-      newReply(reply, event.params.postId, replyId, event.block.timestamp);
-    } else {
-      reply.isOfficialReply = false;
-    }
-
-    reply.save();
-  }
-
-  let replyId = BigInt.fromI32(event.params.replyId);
-  let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
-
-  if (reply == null) {
-    newReply(reply, event.params.postId, replyId, event.block.timestamp);
-  }
-
-  reply.isOfficialReply = true;
-  reply.save();
-
-  indexingPeriods();
-}
-
 export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): void {
   let post = Post.load(event.params.postId.toString())
   let previousBestReply = 0;
@@ -536,4 +505,17 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
   }
 
   indexingPeriods();
+}
+
+export function handlerSetDocumentationTree(event: SetDocumentationTree): void {
+  const documentation = new CommunityDocumentation(event.params.communityId.toString());
+
+  let communityDocumentation = getPeeranhaContent().getDocumentationTree(event.params.communityId);
+  if (communityDocumentation.hash == new Address(0))
+    return;
+  
+  documentation.ipfsHash = communityDocumentation.hash;
+  documentation.save();
+
+  indexingDocumentation(event.params.communityId);
 }
