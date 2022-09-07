@@ -415,7 +415,7 @@ export function indexingDocumentation(comunityId: BigInt): void {
         documentation.documentationJSON += '", "title": "';
       }
       documentation.documentationJSON += '"},';
-      const documentations = ipfsObj.get('documentations'); // what's name for array in JSON
+      const documentations = ipfsObj.get('documentations');
 
       documentation.documentationJSON += '"documentations":['
       if (!documentations.isNull()) {
@@ -432,8 +432,10 @@ export function indexingDocumentation(comunityId: BigInt): void {
 
               let children = documentationObject.toObject().get('children');
 
-              if (children.toArray().length > 0) {
-                documentation = indexingJson(documentation, children.toArray());
+              if (!children.isNull()) {
+                if (children.toArray().length > 0) {
+                  documentation = indexingJson(documentation, children.toArray());
+                }
               }
               documentation.documentationJSON += ']}';
             } else {
@@ -457,17 +459,19 @@ function indexingJson(documentation: CommunityDocumentation | null, children: JS
   const childrenLength = children.length;
   for (let i = 0; i < childrenLength; i++) {
     const id = children[i].toObject().get("id");
-    const post = Post.load(id.toString());
-    if (post != null) {
-      documentation.documentationJSON += '{"id": "' + id.toString() + '",' + ' "title": "' + post.title + '", "children": ['
-            
-      if (children[i].toObject().get("children").toArray().length > 0)
-        documentation = indexingJson(documentation, children[i].toObject().get("children").toArray());
-            
-      documentation.documentationJSON += ']}';
+    if (!id.isNull()) {
+      const post = Post.load(id.toString());
+      if (post != null) {
+        documentation.documentationJSON += '{"id": "' + id.toString() + '",' + ' "title": "' + post.title + '", "children": ['
+        if (!children[i].toObject().get("children").isNull()) {
+          if (children[i].toObject().get("children").toArray().length > 0)
+            documentation = indexingJson(documentation, children[i].toObject().get("children").toArray());
+        }
+        documentation.documentationJSON += ']}';
 
-      if (i < childrenLength - 1)
-        documentation.documentationJSON += ', ';
+        if (i < childrenLength - 1)
+          documentation.documentationJSON += ', ';
+      }
     }
   }
 
