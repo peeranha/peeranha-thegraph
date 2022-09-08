@@ -1,4 +1,4 @@
-import { json, Bytes, ipfs, BigInt, Address, ByteArray, log, JSONValue } from '@graphprotocol/graph-ts'
+import { json, Bytes, ipfs, BigInt, Address, ByteArray, log, JSONValue , JSONValueKind} from '@graphprotocol/graph-ts'
 import { Post, Reply, Comment, Tag, CommunityDocumentation } from '../generated/schema'
 import { getPeeranhaContent, ERROR_IPFS, isValidIPFS } from './utils'
 import { updateUserRating, updateStartUserRating, getUser, newUser } from './user'
@@ -404,13 +404,14 @@ export function indexingDocumentation(comunityId: BigInt): void {
 
       documentation.documentationJSON += '"pinnedPost":{"id": "'
       const pinnedId = ipfsObj.get('pinnedId');
-      if (pinnedId.toString() !== '') {
-        const post = Post.load(pinnedId.toString());
-        if (post != null) {
-          documentation.documentationJSON += pinnedId.toString() + '", "title": "' + post.title;
-        } else {
+      if (!pinnedId.isNull()) {
+        // log.debug('pinnedId1: {}', [pinnedId.toString()])
+        // const post = Post.load(pinnedId.toString());
+        // if (post != null) {
+        //   documentation.documentationJSON += pinnedId.toString() + '", "title": "' + post.title;
+        // } else {
           documentation.documentationJSON += '", "title": "';
-        }
+        // }
       } else {
         documentation.documentationJSON += '", "title": "';
       }
@@ -418,32 +419,41 @@ export function indexingDocumentation(comunityId: BigInt): void {
       const documentations = ipfsObj.get('documentations');
 
       documentation.documentationJSON += '"documentations":['
-      if (documentations.toString() !== '') {
+      if (!documentations.isNull()) {
         const documentationsArray = documentations.toArray();
 
         for (let i = 0; i < documentationsArray.length; i++) {
           const documentationObject = documentationsArray[i];
           const id = documentationObject.toObject().get('id');
 
-          if (id.toString() !== '') {
+       
+
+          if (!id.isNull() && id.kind !== JSONValueKind.NUMBER) {
+             //fromHeare
+            log.debug("id", [])
             const post = Post.load(id.toString());
             if (post != null) {
               documentation.documentationJSON += '{"id": "' + id.toString() + '",' + ' "title": "' + post.title + '", "children": [';
 
               let children = documentationObject.toObject().get('children');
 
-              if (!children.isNull() || children.toString() !== '') {
+              if (!children.isNull()) {
                 if (children.toArray().length > 0) {
                   documentation = indexingJson(documentation, children.toArray());
                 }
               }
               documentation.documentationJSON += ']}';
+              if (i < documentationsArray.length - 1)
+              documentation.documentationJSON += ', ';
             } else {
               documentation.documentationJSON += '{"id": "", "title": "", "children": []}';
             }
+
+          //toHeare
           } else {
             documentation.documentationJSON += '{"id": "", "title": "", "children": []}';
           }
+
         }
       } else {
         documentation.documentationJSON += '{"id": "", "title": "", "children": []}';
@@ -459,7 +469,7 @@ function indexingJson(documentation: CommunityDocumentation | null, children: JS
   const childrenLength = children.length;
   for (let i = 0; i < childrenLength; i++) {
     const id = children[i].toObject().get('id');
-    if (!id.isNull() || id.toString() !== '') {
+    if (!id.isNull()) {
       const post = Post.load(id.toString());
       if (post != null) {
         documentation.documentationJSON += '{"id": "' + id.toString() + '",' + ' "title": "' + post.title + '", "children": ['
