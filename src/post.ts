@@ -383,16 +383,105 @@ export function updatePostContent(postId: BigInt): void {
   post.save();
 }
 
-export function indexingDocumentation(comunityId: BigInt): void {
-  const documentation = CommunityDocumentation.load(comunityId.toString());
-  if (documentation == null || documentation.ipfsHash == null)
-    return;
-
-  let hashstr = documentation.ipfsHash.toHexString();
+const convertIpfsHash = (ipfsHash: Bytes): Bytes => { //to utils
+  let hashstr = ipfsHash.toHexString();
   let hashHex = '1220' + hashstr.slice(2);
   let ipfsBytes = ByteArray.fromHexString(hashHex);
   let ipfsHashBase58 = ipfsBytes.toBase58();
   let result = ipfs.cat(ipfsHashBase58) as Bytes;
+  return result;
+};
+
+const getChildrenPostsByDocumentation = (posts: string[], children: JSONValue[]): string[] => {
+  const childrenLength = children.length;
+  for (let i = 0; i < childrenLength; i++) {
+    const id = children[i].toObject().get("id");
+    if (!id.isNull()) {
+      posts.push(id.toString())
+      if (!children[i].toObject().get("children").isNull()) {
+        if (children[i].toObject().get("children").toArray().length > 0)
+          posts = getChildrenPostsByDocumentation(posts, children[i].toObject().get("children").toArray());
+      }
+      }
+    }
+  return posts;
+}
+
+const getPostByDocumentation = (result: Bytes): string[] => {
+  let posts: string[] = [];
+
+  if (result != null) {
+    let ipfsData = json.fromBytes(result);
+  
+    if (isValidIPFS(ipfsData)) {
+      let ipfsObj = ipfsData.toObject()
+
+      const pinnedId = ipfsObj.get('pinnedId');
+      if (!pinnedId.isNull()) {
+        posts.push(pinnedId.toString())
+      }
+      const documentations = ipfsObj.get('documentations');
+      if (!documentations.isNull()) {
+        const documentationsArray = documentations.toArray();
+
+        for (let i = 0; i < documentationsArray.length; i++) {
+          const documentationObject = documentationsArray[i];
+          const id = documentationObject.toObject().get('id');
+
+          if (!id.isNull()) {
+            posts.push(id.toString())
+            
+            let children = documentationObject.toObject().get('children');
+
+            if (!children.isNull()) {
+              if (children.toArray().length > 0) {
+                posts = getChildrenPostsByDocumentation(posts, children.toArray());
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return posts;
+}
+
+export function generateDocumentationPosts(
+  comunityId: BigInt, 
+  oldDocumentationIpfsHash: Bytes | null, 
+  newDocumentationIpfsHash: Bytes
+): void {
+  if (newDocumentationIpfsHash == null) // oldDocumentationIpfsHash == null || 
+    return;
+  const oldResult = oldDocumentationIpfsHash ? convertIpfsHash(oldDocumentationIpfsHash) : null;
+  const newResult = convertIpfsHash(newDocumentationIpfsHash);
+  const oldPosts = oldResult ? getPostByDocumentation(oldResult) : [];
+  const newPosts = getPostByDocumentation(newResult);
+
+  const createPosts = newPosts.filter(id=>oldPosts.indexOf(id) === -1);
+  indexingDocumentation(comunityId, createPosts);
+
+  const deletePosts = oldPosts.filter(id=>newPosts.indexOf(id) === -1);
+  for (let index = 0; index < deletePosts.length; index++) {
+    Post.delete(deletePosts[index])
+  }
+}
+
+const createPost = (listCreatePosts, ipfsHash: Bytes): void => {
+  if(listCreatePosts.indexOf(ipfsHash) !== -1){
+    let post = new Post(ipfsHash.toString());
+    post.ipfsHash = ipfsHash;
+    getIpfsPostData(post);
+    post.save();
+  }
+}
+
+export function indexingDocumentation(comunityId: BigInt, createPosts: string[]): void {
+  const documentation = CommunityDocumentation.load(comunityId.toString());
+  if (documentation == null || documentation.ipfsHash == null)
+    return;
+
+  let result = convertIpfsHash(documentation.ipfsHash)
 
   documentation.documentationJSON = '{'
 
@@ -404,13 +493,10 @@ export function indexingDocumentation(comunityId: BigInt): void {
 
       documentation.documentationJSON += '"pinnedPost":{"id": "'
       const pinnedId = ipfsObj.get('pinnedId');
+      const pinnedTitle = ipfsObj.get('title');
       if (!pinnedId.isNull()) {
-        const post = Post.load(pinnedId.toString());
-        if (post != null) {
-          documentation.documentationJSON += pinnedId.toString() + '", "title": "' + post.title;
-        } else {
-          documentation.documentationJSON += '", "title": "';
-        }
+        createPost(createPosts, pinnedId)
+        documentation.documentationJSON += pinnedId.toString() + '", "title": "' + pinnedTitle;
       } else {
         documentation.documentationJSON += '", "title": "';
       }
@@ -424,23 +510,18 @@ export function indexingDocumentation(comunityId: BigInt): void {
         for (let i = 0; i < documentationsArray.length; i++) {
           const documentationObject = documentationsArray[i];
           const id = documentationObject.toObject().get('id');
-
+          const title = documentationObject.toObject().get('title');
           if (!id.isNull()) {
-            const post = Post.load(id.toString());
-            if (post != null) {
-              documentation.documentationJSON += '{"id": "' + id.toString() + '",' + ' "title": "' + post.title + '", "children": [';
+            createPost(createPosts, id)
+            documentation.documentationJSON += '{"id": "' + id.toString() + '",' + ' "title": "' + title + '", "children": [';
+            let children = documentationObject.toObject().get('children');
 
-              let children = documentationObject.toObject().get('children');
-
-              if (!children.isNull()) {
-                if (children.toArray().length > 0) {
-                  documentation = indexingJson(documentation, children.toArray());
-                }
+            if (!children.isNull()) {
+              if (children.toArray().length > 0) {
+                documentation = indexingJson(createPosts, documentation, children.toArray());
               }
-              documentation.documentationJSON += ']}';
-            } else {
-              documentation.documentationJSON += '{"id": "", "title": "", "children": []}';
             }
+            documentation.documentationJSON += ']}';
           } else {
             documentation.documentationJSON += '{"id": "", "title": "", "children": []}';
           }
@@ -455,23 +536,22 @@ export function indexingDocumentation(comunityId: BigInt): void {
   documentation.save();
 }
 
-function indexingJson(documentation: CommunityDocumentation | null, children: JSONValue[]): CommunityDocumentation | null {
+function indexingJson(createPosts: string[], documentation: CommunityDocumentation | null, children: JSONValue[]): CommunityDocumentation | null {
   const childrenLength = children.length;
   for (let i = 0; i < childrenLength; i++) {
     const id = children[i].toObject().get("id");
+    const title = children[i].toObject().get("title");
     if (!id.isNull()) {
-      const post = Post.load(id.toString());
-      if (post != null) {
-        documentation.documentationJSON += '{"id": "' + id.toString() + '",' + ' "title": "' + post.title + '", "children": ['
-        if (!children[i].toObject().get("children").isNull()) {
-          if (children[i].toObject().get("children").toArray().length > 0)
-            documentation = indexingJson(documentation, children[i].toObject().get("children").toArray());
-        }
-        documentation.documentationJSON += ']}';
-
-        if (i < childrenLength - 1)
-          documentation.documentationJSON += ', ';
+      createPost(createPosts, id);
+      documentation.documentationJSON += '{"id": "' + id.toString() + '",' + ' "title": "' + title + '", "children": ['
+      if (!children[i].toObject().get("children").isNull()) {
+        if (children[i].toObject().get("children").toArray().length > 0)
+          documentation = indexingJson(createPosts, documentation, children[i].toObject().get("children").toArray());
       }
+      documentation.documentationJSON += ']}';
+
+      if (i < childrenLength - 1)
+        documentation.documentationJSON += ', ';
     }
   }
 

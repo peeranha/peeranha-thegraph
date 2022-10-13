@@ -35,6 +35,5 @@ export function getPeeranhaNFT(): PeeranhaNFT {
 export enum PostType {
   ExpertPost,
   CommonPost,
-  Tutorial,
-  Documentation
+  Tutorial
 }
