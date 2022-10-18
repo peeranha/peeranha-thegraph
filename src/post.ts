@@ -383,7 +383,7 @@ export function updatePostContent(postId: BigInt): void {
   post.save();
 }
 
-const convertIpfsHash = (ipfsHash: Bytes): Bytes => { //to utils
+const convertIpfsHash = (ipfsHash: Bytes | null): Bytes => { //to utils
   let hashstr = ipfsHash.toHexString();
   let hashHex = '1220' + hashstr.slice(2);
   let ipfsBytes = ByteArray.fromHexString(hashHex);
@@ -392,7 +392,7 @@ const convertIpfsHash = (ipfsHash: Bytes): Bytes => { //to utils
   return result;
 };
 
-const getChildrenPostsByDocumentation = (posts: string[], children: JSONValue[]): string[] => {
+function getChildrenPostsByDocumentation(posts: string[], children: JSONValue[]): string[] {
   const childrenLength = children.length;
   for (let i = 0; i < childrenLength; i++) {
     const id = children[i].toObject().get("id");
@@ -446,37 +446,54 @@ const getPostByDocumentation = (result: Bytes): string[] => {
   return posts;
 }
 
+function massiveSubtraction(massive:string[], subtrahendMassive:string[]): string[] {
+  let result: string[] = [];
+
+  for (let index = 0; index < massive.length; index++) {
+    if (subtrahendMassive.indexOf(massive[index]) === -1){
+      result.push(massive[index]);
+    }
+  }
+
+  return result;
+}
+
 export function generateDocumentationPosts(
-  comunityId: BigInt, 
+  comunityId: BigInt,
+  userAddr: Address,
   oldDocumentationIpfsHash: Bytes | null, 
   newDocumentationIpfsHash: Bytes
 ): void {
-  if (newDocumentationIpfsHash == null) // oldDocumentationIpfsHash == null || 
+  if (newDocumentationIpfsHash === null)
     return;
-  const oldResult = oldDocumentationIpfsHash ? convertIpfsHash(oldDocumentationIpfsHash) : null;
+
+  let oldPosts: string[] = [];
+
+  if (oldDocumentationIpfsHash !== null) {
+    const oldResult = convertIpfsHash(oldDocumentationIpfsHash);
+    oldPosts = getPostByDocumentation(oldResult);
+  }
   const newResult = convertIpfsHash(newDocumentationIpfsHash);
-  const oldPosts = oldResult ? getPostByDocumentation(oldResult) : [];
   const newPosts = getPostByDocumentation(newResult);
+  const createPosts = massiveSubtraction(newPosts, oldPosts);
+  const deletePosts = massiveSubtraction(oldPosts, newPosts);
+  indexingDocumentation(comunityId, userAddr, createPosts);
 
-  const createPosts = newPosts.filter(id=>oldPosts.indexOf(id) === -1);
-  indexingDocumentation(comunityId, createPosts);
-
-  const deletePosts = oldPosts.filter(id=>newPosts.indexOf(id) === -1);
   for (let index = 0; index < deletePosts.length; index++) {
-    Post.delete(deletePosts[index])
+    Post.delete(deletePosts[index]);
   }
 }
 
-const createPost = (listCreatePosts, ipfsHash: Bytes): void => {
-  if(listCreatePosts.indexOf(ipfsHash) !== -1){
+const createPost = (listCreatePosts: string[], userAddr: Address, ipfsHash: JSONValue | null): void => {
+  if(listCreatePosts.indexOf(ipfsHash.toString()) !== -1){
     let post = new Post(ipfsHash.toString());
-    post.ipfsHash = ipfsHash;
+    post.author = userAddr.toString();
     getIpfsPostData(post);
     post.save();
   }
 }
 
-export function indexingDocumentation(comunityId: BigInt, createPosts: string[]): void {
+export function indexingDocumentation(comunityId: BigInt, userAddr: Address, createPosts: string[]): void {
   const documentation = CommunityDocumentation.load(comunityId.toString());
   if (documentation == null || documentation.ipfsHash == null)
     return;
@@ -494,9 +511,9 @@ export function indexingDocumentation(comunityId: BigInt, createPosts: string[])
       documentation.documentationJSON += '"pinnedPost":{"id": "'
       const pinnedId = ipfsObj.get('pinnedId');
       const pinnedTitle = ipfsObj.get('title');
-      if (!pinnedId.isNull()) {
-        createPost(createPosts, pinnedId)
-        documentation.documentationJSON += pinnedId.toString() + '", "title": "' + pinnedTitle;
+      if (!pinnedId.isNull() && !pinnedTitle.isNull()) {
+        createPost(createPosts, userAddr, pinnedId)
+        documentation.documentationJSON += pinnedId.toString() + '", "title": "' + pinnedTitle.toString();
       } else {
         documentation.documentationJSON += '", "title": "';
       }
@@ -511,14 +528,14 @@ export function indexingDocumentation(comunityId: BigInt, createPosts: string[])
           const documentationObject = documentationsArray[i];
           const id = documentationObject.toObject().get('id');
           const title = documentationObject.toObject().get('title');
-          if (!id.isNull()) {
-            createPost(createPosts, id)
-            documentation.documentationJSON += '{"id": "' + id.toString() + '",' + ' "title": "' + title + '", "children": [';
+          if (!id.isNull() && !title.isNull()) {
+            createPost(createPosts, userAddr, id)
+            documentation.documentationJSON += '{"id": "' + id.toString() + '",' + ' "title": "' + title.toString() + '", "children": [';
             let children = documentationObject.toObject().get('children');
 
             if (!children.isNull()) {
               if (children.toArray().length > 0) {
-                documentation = indexingJson(createPosts, documentation, children.toArray());
+                documentation = indexingJson(createPosts, userAddr, documentation, children.toArray());
               }
             }
             documentation.documentationJSON += ']}';
@@ -536,17 +553,17 @@ export function indexingDocumentation(comunityId: BigInt, createPosts: string[])
   documentation.save();
 }
 
-function indexingJson(createPosts: string[], documentation: CommunityDocumentation | null, children: JSONValue[]): CommunityDocumentation | null {
+function indexingJson(createPosts: string[], userAddr: Address, documentation: CommunityDocumentation | null, children: JSONValue[]): CommunityDocumentation | null {
   const childrenLength = children.length;
   for (let i = 0; i < childrenLength; i++) {
     const id = children[i].toObject().get("id");
     const title = children[i].toObject().get("title");
-    if (!id.isNull()) {
-      createPost(createPosts, id);
-      documentation.documentationJSON += '{"id": "' + id.toString() + '",' + ' "title": "' + title + '", "children": ['
+    if (!id.isNull() && !title.isNull()) {
+      createPost(createPosts, userAddr, id);
+      documentation.documentationJSON += '{"id": "' + id.toString() + '",' + ' "title": "' + title.toString() + '", "children": ['
       if (!children[i].toObject().get("children").isNull()) {
         if (children[i].toObject().get("children").toArray().length > 0)
-          documentation = indexingJson(createPosts, documentation, children[i].toObject().get("children").toArray());
+          documentation = indexingJson(createPosts, userAddr, documentation, children[i].toObject().get("children").toArray());
       }
       documentation.documentationJSON += ']}';
 

@@ -515,9 +515,9 @@ export function handlerSetDocumentationTree(event: SetDocumentationTree): void {
   documentation.save();
 
   generateDocumentationPosts(
-    event.params.communityId, 
+    event.params.communityId,
+    event.params.userAddr, 
     oldDocumentationIpfsHash, 
     communityDocumentation.hash
   )
-  // indexingDocumentation(event.params.communityId);
 }
