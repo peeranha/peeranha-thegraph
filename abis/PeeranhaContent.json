@@ -304,6 +304,11 @@
         "internalType": "bytes32",
         "name": "ipfsHash",
         "type": "bytes32"
+      },
+      {
+        "internalType": "bool",
+        "name": "isOfficialReply",
+        "type": "bool"
       }
     ],
     "name": "editReply",
