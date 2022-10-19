@@ -104,6 +104,8 @@ dataSources:
           handler: handleDeletedPost
         - event: ChangePostType(indexed address,indexed uint256,uint8)
           handler: handleChangedTypePost
+        - event: ChangeCommunityId(indexed address,indexed uint256)
+          handler: handleChangedCommunityId
         - event: ReplyCreated(indexed address,indexed uint256,uint16,uint16)
           handler: handleNewReply
         - event: ReplyEdited(indexed address,indexed uint256,uint16)

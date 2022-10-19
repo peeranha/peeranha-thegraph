@@ -8,7 +8,6 @@ export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigIn
   let peeranhaPost = getPeeranhaContent().getPost(postId);
   if (peeranhaPost == null) return;
 
-  post.communityId = peeranhaPost.communityId;
   post.author = peeranhaPost.author.toHex();
   post.rating = peeranhaPost.rating;
   post.postTime = peeranhaPost.postTime
@@ -72,7 +71,12 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
   post.tags = peeranhaPost.tags;
   post.ipfsHash = peeranhaPost.ipfsDoc.hash;
   post.ipfsHash2 = peeranhaPost.ipfsDoc.hash2;
-  post.postType = peeranhaPost.postType;
+  post.communityId = peeranhaPost.communityId;
+  let oldPostType = post.postType;
+  if (oldPostType != null && oldPostType != peeranhaPost.postType) {
+    updatePostUsersRatings(post);
+    post.postType = peeranhaPost.postType;
+  }
 
   getIpfsPostData(post);
 }
