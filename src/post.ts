@@ -461,6 +461,7 @@ function massiveSubtraction(massive:string[], subtrahendMassive:string[]): strin
 export function generateDocumentationPosts(
   comunityId: BigInt,
   userAddr: Address,
+  blockTimestamp: BigInt,
   oldDocumentationIpfsHash: Bytes | null, 
   newDocumentationIpfsHash: Bytes
 ): void {
@@ -477,23 +478,43 @@ export function generateDocumentationPosts(
   const newPosts = getPostByDocumentation(newResult);
   const createPosts = massiveSubtraction(newPosts, oldPosts);
   const deletePosts = massiveSubtraction(oldPosts, newPosts);
-  indexingDocumentation(comunityId, userAddr, createPosts);
-
-  for (let index = 0; index < deletePosts.length; index++) {
-    Post.delete(deletePosts[index]);
-  }
+  indexingDocumentation(comunityId, userAddr, blockTimestamp, createPosts);
 }
 
-const createPost = (listCreatePosts: string[], userAddr: Address, ipfsHash: JSONValue | null): void => {
+const createPost = (
+  listCreatePosts: string[], 
+  comunityId: BigInt, 
+  userAddr: Address, 
+  blockTimestamp: BigInt, 
+  ipfsHash: JSONValue | null
+): void => {
   if(listCreatePosts.indexOf(ipfsHash.toString()) !== -1){
     let post = new Post(ipfsHash.toString());
-    post.author = userAddr.toString();
+    post.author = userAddr.toHex();
+    post.communityId = comunityId;
+    let community = getCommunity(post.communityId);
+    community.postCount++;
+    community.save();
+
+    let user = getUser(userAddr);
+    if (user == null) {
+      newUser(user, userAddr, blockTimestamp);
+    }
+    user.postCount++;
+    user.save();
+
     getIpfsPostData(post);
+    updateStartUserRating(Address.fromString(post.author), post.communityId);
     post.save();
   }
 }
 
-export function indexingDocumentation(comunityId: BigInt, userAddr: Address, createPosts: string[]): void {
+export function indexingDocumentation(
+  comunityId: BigInt, 
+  userAddr: Address, 
+  blockTimestamp: BigInt, 
+  createPosts: string[]
+): void {
   const documentation = CommunityDocumentation.load(comunityId.toString());
   if (documentation == null || documentation.ipfsHash == null)
     return;
@@ -512,7 +533,7 @@ export function indexingDocumentation(comunityId: BigInt, userAddr: Address, cre
       const pinnedId = ipfsObj.get('pinnedId');
       const pinnedTitle = ipfsObj.get('title');
       if (!pinnedId.isNull() && !pinnedTitle.isNull()) {
-        createPost(createPosts, userAddr, pinnedId)
+        createPost(createPosts, comunityId, userAddr, blockTimestamp, pinnedId);
         documentation.documentationJSON += pinnedId.toString() + '", "title": "' + pinnedTitle.toString();
       } else {
         documentation.documentationJSON += '", "title": "';
@@ -529,13 +550,20 @@ export function indexingDocumentation(comunityId: BigInt, userAddr: Address, cre
           const id = documentationObject.toObject().get('id');
           const title = documentationObject.toObject().get('title');
           if (!id.isNull() && !title.isNull()) {
-            createPost(createPosts, userAddr, id)
+            createPost(createPosts, comunityId, userAddr, blockTimestamp, id);
             documentation.documentationJSON += '{"id": "' + id.toString() + '",' + ' "title": "' + title.toString() + '", "children": [';
             let children = documentationObject.toObject().get('children');
 
             if (!children.isNull()) {
               if (children.toArray().length > 0) {
-                documentation = indexingJson(createPosts, userAddr, documentation, children.toArray());
+                documentation = indexingJson(
+                  createPosts, 
+                  comunityId, 
+                  userAddr, 
+                  blockTimestamp, 
+                  documentation, 
+                  children.toArray()
+                );
               }
             }
             documentation.documentationJSON += ']}';
@@ -553,17 +581,31 @@ export function indexingDocumentation(comunityId: BigInt, userAddr: Address, cre
   documentation.save();
 }
 
-function indexingJson(createPosts: string[], userAddr: Address, documentation: CommunityDocumentation | null, children: JSONValue[]): CommunityDocumentation | null {
+function indexingJson(
+  createPosts: string[], 
+  comunityId: BigInt, 
+  userAddr: Address, 
+  blockTimestamp: BigInt,  
+  documentation: CommunityDocumentation | null, 
+  children: JSONValue[]
+): CommunityDocumentation | null {
   const childrenLength = children.length;
   for (let i = 0; i < childrenLength; i++) {
     const id = children[i].toObject().get("id");
     const title = children[i].toObject().get("title");
     if (!id.isNull() && !title.isNull()) {
-      createPost(createPosts, userAddr, id);
+      createPost(createPosts, comunityId, userAddr, blockTimestamp, id);
       documentation.documentationJSON += '{"id": "' + id.toString() + '",' + ' "title": "' + title.toString() + '", "children": ['
       if (!children[i].toObject().get("children").isNull()) {
         if (children[i].toObject().get("children").toArray().length > 0)
-          documentation = indexingJson(createPosts, userAddr, documentation, children[i].toObject().get("children").toArray());
+          documentation = indexingJson(
+            createPosts, 
+            comunityId, 
+            userAddr, 
+            blockTimestamp, 
+            documentation, 
+            children[i].toObject().get("children").toArray()
+          );
       }
       documentation.documentationJSON += ']}';
 
