@@ -1,9 +1,9 @@
 {
   "network": "mumbai",
-  "userAddress": "0xc39B489c60CF500c5e81901968f31C037aA0B10b",
-  "communityAddress": "0x71C117c5058eB04619481e006E69F0218Edd06da",
-  "contentAddress": "0x46B8DE510F629224baabD44d7d1a898eA1c13345",
-  "tokenAddress": "0x4AabFa34fd8BDa6e9186F2a23e254F807ce38e07",
-  "nftAddress": "0xD95C403418912a1a44A98c51343515f41e38da74",
-  "startBlock": 26736280
+  "userAddress": "0x9b53B80F03D4191Be79085C07FfEdDa3671f6A46",
+  "communityAddress": "0x11C0eAF9B163caECa5DA9932187892e72f508b97",
+  "contentAddress": "0xfC65F146B6a7ED57E802E5E1F9aD329F40D26d3B",
+  "tokenAddress": "0xbCf7A789abC7f6D8aAEf378586326668757b7216",
+  "nftAddress": "0x06B65F0583F4D9E534fc96EA0D777fC7267a0bF3",
+  "startBlock": 28738784
 }
