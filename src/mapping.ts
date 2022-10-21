@@ -1,4 +1,4 @@
-import { Address, BigInt, log } from '@graphprotocol/graph-ts'
+import { Address, BigInt, Bytes, log } from '@graphprotocol/graph-ts'
 import { store } from '@graphprotocol/graph-ts'
 import { ethereum } from '@graphprotocol/graph-ts'
 import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity, RoleGranted, RoleRevoked } from '../generated/PeeranhaUser/PeeranhaUser'
@@ -19,7 +19,7 @@ import { USER_ADDRESS } from './config'
 import { getPeeranhaUser, getPeeranhaToken, getPeeranhaContent, PostType } from './utils'
 
 import { newPost, addDataToPost, deletePost, newReply, addDataToReply, deleteReply,
-  newComment, addDataToComment, deleteComment, updatePostContent, updatePostUsersRatings, indexingDocumentation } from './post'
+  newComment, addDataToComment, deleteComment, updatePostContent, updatePostUsersRatings, generateDocumentationPosts } from './post'
 import { newCommunity, addDataToCommunity, newTag, addDataToTag, getCommunity } from './community-tag'
 import { newUser, addDataToUser, updateUserRating} from './user'
 import { addDataToAchievement, giveAchievement, newAchievement } from './achievement'
@@ -226,10 +226,6 @@ export function handleEditedPost(event: PostEdited): void {
     addDataToPost(post, event.params.postId);
   }
   post.save();
-
-  if (post.postType == PostType.Documentation && post.title != oldPostTitle) {
-    indexingDocumentation(post.communityId);
-  }
 
   let postId = event.params.postId;
   updatePostContent(postId);
@@ -507,15 +503,51 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
   indexingPeriods();
 }
 
+// export function handlerSetDocumentationTree(event: SetDocumentationTree): void {
+//   const documentation = new CommunityDocumentation(event.params.communityId.toString());
+
+//   let communityDocumentation = getPeeranhaContent().getDocumentationTree(event.params.communityId);
+//   if (communityDocumentation.hash == new Address(0) || documentation.ipfsHash === communityDocumentation.hash)
+//     return;
+  
+//   const oldDocumentationIpfsHash = documentation.ipfsHash;
+//   documentation.ipfsHash = communityDocumentation.hash;
+//   documentation.save();
+
+//   generateDocumentationPosts(
+//     event.params.communityId,
+//     event.params.userAddr, 
+//     event.block.timestamp,
+//     oldDocumentationIpfsHash, 
+//     communityDocumentation.hash
+//   )
+// }
+
 export function handlerSetDocumentationTree(event: SetDocumentationTree): void {
+  const oldDocumentation = CommunityDocumentation.load(event.params.communityId.toString());
   const documentation = new CommunityDocumentation(event.params.communityId.toString());
 
   let communityDocumentation = getPeeranhaContent().getDocumentationTree(event.params.communityId);
+
   if (communityDocumentation.hash == new Address(0))
     return;
-  
+
+  let oldDocumentationIpfsHash: Bytes | null = null;
+  if (oldDocumentation != null){
+    if(oldDocumentation.ipfsHash == communityDocumentation.hash){
+      return;
+    }
+    oldDocumentationIpfsHash = oldDocumentation.ipfsHash;
+  }
+
   documentation.ipfsHash = communityDocumentation.hash;
   documentation.save();
 
-  indexingDocumentation(event.params.communityId);
+  generateDocumentationPosts(
+    event.params.communityId,
+    event.params.userAddr, 
+    event.block.timestamp,
+    oldDocumentationIpfsHash,
+    communityDocumentation.hash
+  )
 }
