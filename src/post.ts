@@ -392,90 +392,7 @@ const convertIpfsHash = (ipfsHash: Bytes | null): Bytes => { //to utils
   return result;
 };
 
-function getChildrenPostsByDocumentation(posts: string[], children: JSONValue[]): string[] {
-  const childrenLength = children.length;
-  for (let i = 0; i < childrenLength; i++) {
-    const id = children[i].toObject().get("id");
-    if (!id.isNull() && id.kind !== JSONValueKind.NUMBER) {
-      let sgetChildrenPostsByDocumentation = "";
-      for (let index = 0; index < posts.length; index++) {
-        sgetChildrenPostsByDocumentation += "newPost - ";
-        sgetChildrenPostsByDocumentation += posts[index];
-        sgetChildrenPostsByDocumentation += "; ";
-      }
-      log.error("sgetChildrenPostsByDocumentation:{}", [sgetChildrenPostsByDocumentation]);
-      posts.push(id.toString())
-      if (!children[i].toObject().get("children").isNull()) {
-        if (children[i].toObject().get("children").toArray().length > 0)
-          posts = getChildrenPostsByDocumentation(posts, children[i].toObject().get("children").toArray());
-      }
-    }
-  }
-  return posts;
-}
-
-const getPostByDocumentation = (result: Bytes): string[] => {
-  let posts: string[] = [];
-  posts.splice(0,posts.length);
-  // log.info("result:{}", [result.toString()]);
-  let aagetChildrenPostsByDocumentation = "";
-  for (let index = 0; index < posts.length; index++) {
-    aagetChildrenPostsByDocumentation += "newPost - ";
-    aagetChildrenPostsByDocumentation += posts[index];
-    aagetChildrenPostsByDocumentation += "; ";
-  }
-  log.error("aagetChildrenPostsByDocumentation:{}", [aagetChildrenPostsByDocumentation]);
-  if (result != null) {
-    let ipfsData = json.fromBytes(result);
-  
-    if (isValidIPFS(ipfsData)) {
-      let ipfsObj = ipfsData.toObject()
-
-      const pinnedPost = ipfsObj.get('pinnedPost');
-      if (!pinnedPost.isNull()){
-        const pinnedId = pinnedPost.toObject().get('id');
-        if(!pinnedId.isNull() && pinnedId.kind !== JSONValueKind.NUMBER){
-          if(pinnedId.toString() !== ""){
-            posts.push(pinnedId.toString())
-
-            // log.info("pinnedId:{}", [pinnedId.toString()]);
-          }
-        }
-      }
-      const documentations = ipfsObj.get('documentations');
-      if (!documentations.isNull()) {
-        const documentationsArray = documentations.toArray();
-
-        for (let i = 0; i < documentationsArray.length; i++) {
-          const documentationObject = documentationsArray[i];
-          const id = documentationObject.toObject().get('id');
-
-          if (!id.isNull() && id.kind !== JSONValueKind.NUMBER) {
-            posts.push(id.toString())        
-            let children = documentationObject.toObject().get('children');
-            // let aagetChildrenPostsByDocumentation = "";
-            // for (let index = 0; index < posts.length; index++) {
-            //   aagetChildrenPostsByDocumentation += "newPost - ";
-            //   aagetChildrenPostsByDocumentation += posts[index];
-            //   aagetChildrenPostsByDocumentation += "; ";
-            // }
-            // log.error("aagetChildrenPostsByDocumentation:{}", [aagetChildrenPostsByDocumentation]);
-            if (!children.isNull()) {
-              if (children.toArray().length > 0) {
-                posts = getChildrenPostsByDocumentation(posts, children.toArray());
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  return posts;
-}
-
-// let oldPosts: string[] = [];
-// let newPosts: string[] = [];
-let posts2: string[] = [];
+let posts: string[] = [];
 let uniqueChars: string[] = [];
 let uniqueChars2: string[] = [];
 
@@ -486,24 +403,15 @@ export function generateDocumentationPosts(
   oldDocumentationIpfsHash: Bytes | null, 
   newDocumentationIpfsHash: Bytes
 ): void {
-  // log.info("documentation2:{}", [newDocumentationIpfsHash.toString()]);
-  // log.info("oldDocumentationIpfsHash2:{}", [oldDocumentationIpfsHash.toString()]);
   if (newDocumentationIpfsHash === null)
     return;
 
-  // let oldPosts: string[] = [];
-
-  // if (oldDocumentationIpfsHash !== null) {
-  //   const oldResult = convertIpfsHash(oldDocumentationIpfsHash);
-  //   oldPosts = getPostByDocumentation(oldResult);
-  // }
   let newPosts: string[] = []
   let oldPosts: string[] = []
   if (oldDocumentationIpfsHash !== null) {
-    // const oldResult = convertIpfsHash(oldDocumentationIpfsHash);
     const oldDocumentation = indexingDocumentation(comunityId, oldDocumentationIpfsHash);
-    for (let index = 0; index < posts2.length; index++) {
-      oldPosts.push(posts2[index]);
+    for (let index = 0; index < posts.length; index++) {
+      oldPosts.push(posts[index]);
     }
   }
   const newDoc = indexingDocumentation(comunityId, newDocumentationIpfsHash);
@@ -517,8 +425,8 @@ export function generateDocumentationPosts(
       }
   });
   oldPosts = uniqueChars;
-  for (let index = 0; index < posts2.length; index++) {
-    newPosts.push(posts2[index]);
+  for (let index = 0; index < posts.length; index++) {
+    newPosts.push(posts[index]);
   }
   uniqueChars2.splice(0,uniqueChars2.length);;
   newPosts.forEach((element) => {
@@ -539,98 +447,8 @@ export function generateDocumentationPosts(
       deletePosts.push(oldPosts[index]);
     }
   }
-  // for (let index = 0; index < newPosts.length; index++) {
-  //   newPostsStr += "newPost - ";
-  //   newPostsStr += newPosts[index];
-  //   newPostsStr += "; ";
-  // }
-  // for (let index = 0; index < oldPosts.length; index++) {
-  //   oldPostsStr += "oldPost - ";
-  //   oldPostsStr += oldPosts[index];
-  //   oldPostsStr += "; ";
-  // }
-  // log.info("empty1:{}", [""])
-  // log.info("newPostsStr:{}", [newPostsStr])
-  // log.info("empty2:{}", [""])
-  // log.info("oldPostsStr:{}", [oldPostsStr])
-  // log.info("empty3:{}", [""])
-  // const deletePosts = massiveSubtraction(oldPosts, newPosts);
-  // const createPosts = massiveSubtraction(newPosts, oldPosts);
-  // let createdPosts: string[] = []
-  // let deletePosts: string[] = []
-  // for (let index = 0; index < newPosts.length; index++) {
-  //   if (oldPosts.indexOf(newPosts[index]) !== -1){
-  //     createdPosts.push(newPosts[index]);
-  //   }
-  // }
-  // for (let index = 0; index < oldPosts.length; index++) {
-  //   if (newPosts.indexOf(oldPosts[index]) === -1){
-  //     deletePosts.push(oldPosts[index]);
-  //   }
-  // }
-  // createPosts = newPosts.filter(x=>oldPosts.indexOf(x)===-1);
-  // deletePosts = oldPosts.filter(x=>newPosts.indexOf(x)==-1);
-  // let createPostsStr = "";
-  // let deletePostsStr = "";
-  // for (let index = 0; index < newPosts.length; index++) {
-  //   createPostsStr += "newPosts - ";
-  //   createPostsStr += newPosts[index];
-  //   createPostsStr += "; ";
-  // }
-  // for (let index = 0; index < oldPosts.length; index++) {
-  //   deletePostsStr += "oldPosts - ";
-  //   deletePostsStr += oldPosts[index];
-  //   deletePostsStr += "; ";
-  // }
-  // let a: string[] = ["1","2","3","4"]
-  // let b: string[] = ["3","4","5","6"]
-  // let strA = massiveSubtraction(a, b);
-  // let strB = massiveSubtraction(b, a);
-
-  // let strA: string[] = [];
-  // let strB: string[] = [];
-  // let strAStr = ""
-  // let strBStr = ""
-  // for (let index = 0; index < a.length; index++) {
-  //   if (b.indexOf(a[index]) === -1){
-  //     strA.push(a[index]);
-  //   }
-  // }
-  // for (let index = 0; index < b.length; index++) {
-  //   if (a.indexOf(b[index]) === -1){
-  //     strB.push(b[index]);
-  //   }
-  // }
-
-  // let strAStr = ""
-  // let strBStr = ""
-  // for (let index = 0; index < strA.length; index++) {
-  //   strAStr += "strAStr - ";
-  //   strAStr += strA[index];
-  //   strAStr += "; ";
-  // }
-  // for (let index = 0; index < strB.length; index++) {
-  //   strBStr += "strBStr - ";
-  //   strBStr += strB[index];
-  //   strBStr += "; ";
-  // }
-  // log.warning("strAStr:{}", [strAStr])
-  // log.warning("strBStr:{}", [strBStr])
-  // log.info("empty111:{}", [""])
-  // log.info("newPostsStr:{}", [createPostsStr])
-  // log.info("empty222:{}", [""])
-  // log.info("oldPostsStr:{}", [deletePostsStr])
-  // log.info("empty333:{}", [""])
-  // for (let index = 0; index < createPosts.length; index++) {
-  //   log.info("createPosts:{}", [createPosts[index]])
-  // }
-  // const deletePosts = oldPosts.filter(x=>newPosts.indexOf(x)===-1);
-  // for (let index = 0; index < deletePosts.length; index++) {
-  //   log.warning("deletePosts:{}", [deletePosts[index]])
-  // }
+  // creating Posts
   for (let index = 0; index < newPosts.length; index++) {
-    log.warning("321", []);
-    // createPost(comunityId, userAddr, blockTimestamp, createPosts[index])
     if(newPosts[index] != "" && createdPosts.indexOf(newPosts[index]) === -1){ 
       let post = new Post(newPosts[index]);
       post.author = userAddr.toHex();
@@ -652,8 +470,8 @@ export function generateDocumentationPosts(
       post.save();
     }
   }
+  // deleting Posts
   for (let index = 0; index < deletePosts.length; index++) {
-    log.warning("123", []);
     let community = getCommunity(comunityId);
     community.postCount--;
     community.save();
@@ -668,39 +486,11 @@ export function generateDocumentationPosts(
   }
 }
 
-const createPost = (
-  comunityId: BigInt, 
-  userAddr: Address, 
-  blockTimestamp: BigInt, 
-  ipfsHash: string
-): void => {
-  if(ipfsHash != ""){ 
-    let post = new Post(ipfsHash);
-    post.author = userAddr.toHex();
-    post.communityId = comunityId;
-    post.ipfsHash = ByteArray.fromHexString(ipfsHash) as Bytes;
-    let community = getCommunity(post.communityId);
-    community.postCount++;
-    community.save();
-
-    let user = getUser(userAddr);
-    if (user == null) {
-      newUser(user, userAddr, blockTimestamp);
-    }
-    user.postCount++;
-    user.save();
-
-    getIpfsPostData(post);
-    updateStartUserRating(Address.fromString(post.author), post.communityId);
-    post.save();
-  }
-}
-
 export function indexingDocumentation(
   comunityId: BigInt,
   ipfsHash: Bytes | null,
 ): CommunityDocumentation | null {
-  posts2.splice(0,posts2.length);
+  posts.splice(0,posts.length);
   const documentation = CommunityDocumentation.load(comunityId.toString());
   documentation.ipfsHash = ipfsHash;
   if (documentation == null || documentation.ipfsHash == null)
@@ -722,18 +512,12 @@ export function indexingDocumentation(
         if(!pinnedId.isNull() && !pinnedTitle.isNull()){
           if(pinnedId.toString() !== ""){
             documentation.documentationJSON += pinnedId.toString() + '", "title": "' + pinnedTitle.toString();
-            posts2.push(pinnedId.toString());
+            posts.push(pinnedId.toString());
           }
         } else {
           documentation.documentationJSON += '", "title": "';
         }
       }
-      // if (!pinnedId.isNull() && pinnedId.kind !== JSONValueKind.NUMBER && !pinnedTitle.isNull()) {
-      //   createPost(createPosts, comunityId, userAddr, blockTimestamp, pinnedId);
-      //   documentation.documentationJSON += pinnedId.toString() + '", "title": "' + pinnedTitle.toString();
-      // } else {
-      //   documentation.documentationJSON += '", "title": "';
-      // }
       documentation.documentationJSON += '"},';
       const documentations = ipfsObj.get('documentations');
 
@@ -748,7 +532,7 @@ export function indexingDocumentation(
           if (!id.isNull() && id.kind !== JSONValueKind.NUMBER && !title.isNull()) {
             documentation.documentationJSON += '{"id": "' + id.toString() + '",' + ' "title": "' + title.toString() + '", "children": [';
             let children = documentationObject.toObject().get('children');
-            posts2.push(id.toString())
+            posts.push(id.toString())
             if (!children.isNull()) {
               if (children.toArray().length > 0) {
                 documentation = indexingJson(documentation, children.toArray());
@@ -767,7 +551,6 @@ export function indexingDocumentation(
       documentation.documentationJSON += ']';
     }
   }
-  // log.info("result:{}", [result.toString()]);
   documentation.documentationJSON += '}';
   return documentation;
 }
@@ -781,23 +564,9 @@ function indexingJson(
     const id = children[i].toObject().get("id");
     const title = children[i].toObject().get("title");
     if (!id.isNull() && id.kind !== JSONValueKind.NUMBER && !title.isNull()) {
-      log.warning("123123:{}",[""])
-      // let listCreatePostsStr = "";
-      // for (let index = 0; index < createPosts.length; index++) {
-      //   listCreatePostsStr += "newPost - ";
-      //   listCreatePostsStr += createPosts[index];
-      //   listCreatePostsStr += "; ";
-      // }
-      // log.error("createPostslistCreatePostsStr:{}",[listCreatePostsStr])
       documentation.documentationJSON += '{"id": "' + id.toString() + '",' + ' "title": "' + title.toString() + '", "children": ['
-      posts2.push(id.toString());
-      let aagetChildrenPostsByDocumentation = "";
-      for (let index = 0; index < posts2.length; index++) {
-        aagetChildrenPostsByDocumentation += "indexingJson - ";
-        aagetChildrenPostsByDocumentation += posts2[index];
-        aagetChildrenPostsByDocumentation += "; ";
-      }
-      log.error("indexingJson:{}", [aagetChildrenPostsByDocumentation]);
+      posts.push(id.toString());
+
       if (!children[i].toObject().get("children").isNull()) {
         if (children[i].toObject().get("children").toArray().length > 0)
           documentation = indexingJson(documentation, children[i].toObject().get("children").toArray());
