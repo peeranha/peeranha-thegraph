@@ -522,7 +522,7 @@ export function indexingDocumentation(
       const documentations = ipfsObj.get('documentations');
 
       documentation.documentationJSON += '"documentations":['
-      if (!documentations.isNull()) {
+      if (documentations.toString() !== '') {
         const documentationsArray = documentations.toArray();
 
         for (let i = 0; i < documentationsArray.length; i++) {
