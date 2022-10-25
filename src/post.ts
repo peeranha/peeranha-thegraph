@@ -399,7 +399,6 @@ let uniqueNewPosts: string[] = [];
 export function generateDocumentationPosts(
   comunityId: BigInt,
   userAddr: Address,
-  blockTimestamp: BigInt,
   oldDocumentationIpfsHash: Bytes | null, 
   newDocumentationIpfsHash: Bytes
 ): void {
@@ -418,7 +417,7 @@ export function generateDocumentationPosts(
   if(newDoc){
     newDoc.save();
   }
-  uniqueOldPosts.splice(0,uniqueOldPosts.length);;
+  uniqueOldPosts.splice(0,uniqueOldPosts.length);
   oldPosts.forEach((element) => {
       if (!uniqueOldPosts.includes(element)) {
           uniqueOldPosts.push(element);
@@ -454,34 +453,13 @@ export function generateDocumentationPosts(
       post.author = userAddr.toHex();
       post.communityId = comunityId;
       post.ipfsHash = ByteArray.fromHexString(newPosts[index]) as Bytes;
-      let community = getCommunity(post.communityId);
-      community.postCount++;
-      community.save();
-  
-      let user = getUser(userAddr);
-      if (user == null) {
-        newUser(user, userAddr, blockTimestamp);
-      }
-      user.postCount++;
-      user.save();
   
       getIpfsPostData(post);
-      updateStartUserRating(Address.fromString(post.author), post.communityId);
       post.save();
     }
   }
   // deleting Posts
   for (let index = 0; index < listDeletePosts.length; index++) {
-    let community = getCommunity(comunityId);
-    community.postCount--;
-    community.save();
-
-    let user = getUser(userAddr);
-    if (user !== null) {
-      user.postCount--;
-      user.save();
-    }
-    updateStartUserRating(Address.fromString(userAddr.toHex()), comunityId);
     store.remove("Post", listDeletePosts[index]);
   }
 }
@@ -496,8 +474,7 @@ export function indexingDocumentation(
   if (documentation == null || documentation.ipfsHash == null)
     return null;
   let result = convertIpfsHash(documentation.ipfsHash)
-
-  documentation.documentationJSON = '{'
+  documentation.documentationJSON = result.toString();
 
   if (result != null) {
     let ipfsData = json.fromBytes(result);
@@ -505,7 +482,6 @@ export function indexingDocumentation(
     if (isValidIPFS(ipfsData)) {
       let ipfsObj = ipfsData.toObject()
 
-      documentation.documentationJSON += '"pinnedPost":{"id": "'
       const pinnedPost = ipfsObj.get('pinnedPost');
       if (!pinnedPost.isNull() && pinnedPost.kind == JSONValueKind.OBJECT){
         const pinnedId = pinnedPost.toObject().get('id');
@@ -517,19 +493,16 @@ export function indexingDocumentation(
           pinnedTitle.kind == JSONValueKind.STRING
         ){
           if(pinnedId.toString() !== "" && pinnedTitle.toString() !== ""){
-            documentation.documentationJSON += pinnedId.toString() + '", "title": "' + pinnedTitle.toString();
             posts.push(pinnedId.toString());
           } else {
-            documentation.documentationJSON += '", "title": "';
+            log.error("id or/and title of pinned post is empty", []);
           }
         } else {
-          documentation.documentationJSON += '", "title": "';
+          log.error("id or/and title of pinned post not found or not a string", []);
         }
       }
-      documentation.documentationJSON += '"},';
       const documentations = ipfsObj.get('documentations');
 
-      documentation.documentationJSON += '"documentations":['
       if (!documentations.isNull() && documentations.kind == JSONValueKind.ARRAY) {
         const documentationsArray = documentations.toArray();
 
@@ -544,7 +517,6 @@ export function indexingDocumentation(
             title.kind == JSONValueKind.STRING
           ){
             if(id.toString() !== "" && title.toString() !== ""){
-              documentation.documentationJSON += '{"id": "' + id.toString() + '",' + ' "title": "' + title.toString() + '", "children": [';
               let children = documentationObject.toObject().get('children');
               posts.push(id.toString())
               if (!children.isNull() && children.kind == JSONValueKind.ARRAY) {
@@ -553,22 +525,17 @@ export function indexingDocumentation(
                 }
               }
             } else {
-              documentation.documentationJSON += '{"id": "", "title": "", "children": []}';
+              log.error("id or/and title of post is empty", []);
             }
-            documentation.documentationJSON += ']}';
           } else {
-            documentation.documentationJSON += '{"id": "", "title": "", "children": []}';
+            log.error("id or/and title of post not found or not a string", []);
           }
-          if (i < documentationsArray.length - 1)
-            documentation.documentationJSON += ', ';
         }
       } else {
-        documentation.documentationJSON += '{"id": "", "title": "", "children": []}';
+        log.error("'documentations' not found or not a array", []);
       }
-      documentation.documentationJSON += ']';
     }
   }
-  documentation.documentationJSON += '}';
   return documentation;
 }
 
@@ -587,29 +554,27 @@ function indexingJson(
       title.kind == JSONValueKind.STRING
     ) {
       if(id.toString() !== "" && title.toString() !== ""){
-        documentation.documentationJSON += '{"id": "' + id.toString() + '",' + ' "title": "' + title.toString() + '", "children": ['
         posts.push(id.toString());
         if(children[i].kind == JSONValueKind.OBJECT){
           if(
             !children[i].toObject().get("children").isNull() && 
             children[i].toObject().get("children").kind == JSONValueKind.ARRAY
           ) {
-            if (children[i].toObject().get("children").toArray().length > 0)
-              documentation = indexingJson(documentation, children[i].toObject().get("children").toArray());
-            else {
-              documentation.documentationJSON += '{"id": "", "title": "", "children": ['
-            }
-          } else {
-            documentation.documentationJSON += '{"id": "", "title": "", "children": ['
+
+              if (children[i].toObject().get("children").toArray().length > 0)
+                documentation = indexingJson(documentation, children[i].toObject().get("children").toArray());
+          
+            } else {
+            log.error("field 'children' in children post is empty or not an array", []);
           }
         } else {
-          documentation.documentationJSON += '{"id": "", "title": "", "children": ['
+          log.error("children post is not an object", []);
         }
-        documentation.documentationJSON += ']}';
-
-        if (i < childrenLength - 1)
-          documentation.documentationJSON += ', ';
+      } else {
+        log.error("id or/and title of children post is empty", []);
       }
+    } else {
+      log.error("id or/and title of children post not found or not a string", []);
     }
   }
 
