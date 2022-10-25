@@ -393,8 +393,8 @@ const convertIpfsHash = (ipfsHash: Bytes | null): Bytes => { //to utils
 };
 
 let posts: string[] = [];
-let uniqueChars: string[] = [];
-let uniqueChars2: string[] = [];
+let uniqueOldPosts: string[] = [];
+let uniqueNewPosts: string[] = [];
 
 export function generateDocumentationPosts(
   comunityId: BigInt,
@@ -418,38 +418,38 @@ export function generateDocumentationPosts(
   if(newDoc){
     newDoc.save();
   }
-  uniqueChars.splice(0,uniqueChars.length);;
+  uniqueOldPosts.splice(0,uniqueOldPosts.length);;
   oldPosts.forEach((element) => {
-      if (!uniqueChars.includes(element)) {
-          uniqueChars.push(element);
+      if (!uniqueOldPosts.includes(element)) {
+          uniqueOldPosts.push(element);
       }
   });
-  oldPosts = uniqueChars;
+  oldPosts = uniqueOldPosts;
   for (let index = 0; index < posts.length; index++) {
     newPosts.push(posts[index]);
   }
-  uniqueChars2.splice(0,uniqueChars2.length);;
+  uniqueNewPosts.splice(0,uniqueNewPosts.length);;
   newPosts.forEach((element) => {
-      if (!uniqueChars2.includes(element)) {
-          uniqueChars2.push(element);
+      if (!uniqueNewPosts.includes(element)) {
+          uniqueNewPosts.push(element);
       }
   });
-  newPosts = uniqueChars2;
-  let createdPosts: string[] = []
-  let deletePosts: string[] = []
+  newPosts = uniqueNewPosts;
+  let listCreatePosts: string[] = []
+  let listDeletePosts: string[] = []
   for (let index = 0; index < newPosts.length; index++) {
     if (oldPosts.indexOf(newPosts[index]) !== -1){
-      createdPosts.push(newPosts[index]);
+      listCreatePosts.push(newPosts[index]);
     }
   }
   for (let index = 0; index < oldPosts.length; index++) {
     if (newPosts.indexOf(oldPosts[index]) === -1){
-      deletePosts.push(oldPosts[index]);
+      listDeletePosts.push(oldPosts[index]);
     }
   }
   // creating Posts
   for (let index = 0; index < newPosts.length; index++) {
-    if(newPosts[index] != "" && createdPosts.indexOf(newPosts[index]) === -1){ 
+    if(newPosts[index] != "" && listCreatePosts.indexOf(newPosts[index]) === -1){ 
       let post = new Post(newPosts[index]);
       post.author = userAddr.toHex();
       post.communityId = comunityId;
@@ -471,7 +471,7 @@ export function generateDocumentationPosts(
     }
   }
   // deleting Posts
-  for (let index = 0; index < deletePosts.length; index++) {
+  for (let index = 0; index < listDeletePosts.length; index++) {
     let community = getCommunity(comunityId);
     community.postCount--;
     community.save();
@@ -482,7 +482,7 @@ export function generateDocumentationPosts(
       user.save();
     }
     updateStartUserRating(Address.fromString(userAddr.toHex()), comunityId);
-    store.remove("Post", deletePosts[index]);
+    store.remove("Post", listDeletePosts[index]);
   }
 }
 
@@ -501,18 +501,26 @@ export function indexingDocumentation(
 
   if (result != null) {
     let ipfsData = json.fromBytes(result);
+  
     if (isValidIPFS(ipfsData)) {
       let ipfsObj = ipfsData.toObject()
 
       documentation.documentationJSON += '"pinnedPost":{"id": "'
       const pinnedPost = ipfsObj.get('pinnedPost');
-      if (!pinnedPost.isNull()){
+      if (!pinnedPost.isNull() && pinnedPost.kind == JSONValueKind.OBJECT){
         const pinnedId = pinnedPost.toObject().get('id');
         const pinnedTitle = pinnedPost.toObject().get('title');
-        if(!pinnedId.isNull() && !pinnedTitle.isNull()){
-          if(pinnedId.toString() !== ""){
+        if(
+          !pinnedId.isNull() && 
+          !pinnedTitle.isNull() && 
+          pinnedId.kind == JSONValueKind.STRING && 
+          pinnedTitle.kind == JSONValueKind.STRING
+        ){
+          if(pinnedId.toString() !== "" && pinnedTitle.toString() !== ""){
             documentation.documentationJSON += pinnedId.toString() + '", "title": "' + pinnedTitle.toString();
             posts.push(pinnedId.toString());
+          } else {
+            documentation.documentationJSON += '", "title": "';
           }
         } else {
           documentation.documentationJSON += '", "title": "';
@@ -522,21 +530,30 @@ export function indexingDocumentation(
       const documentations = ipfsObj.get('documentations');
 
       documentation.documentationJSON += '"documentations":['
-      if (!documentations.isNull()) {
+      if (!documentations.isNull() && documentations.kind == JSONValueKind.ARRAY) {
         const documentationsArray = documentations.toArray();
 
         for (let i = 0; i < documentationsArray.length; i++) {
           const documentationObject = documentationsArray[i];
           const id = documentationObject.toObject().get('id');
           const title = documentationObject.toObject().get('title');
-          if (!id.isNull() && id.kind !== JSONValueKind.NUMBER && !title.isNull()) {
-            documentation.documentationJSON += '{"id": "' + id.toString() + '",' + ' "title": "' + title.toString() + '", "children": [';
-            let children = documentationObject.toObject().get('children');
-            posts.push(id.toString())
-            if (!children.isNull()) {
-              if (children.toArray().length > 0) {
-                documentation = indexingJson(documentation, children.toArray());
+          if(
+            !id.isNull() && 
+            !title.isNull() && 
+            id.kind == JSONValueKind.STRING && 
+            title.kind == JSONValueKind.STRING
+          ){
+            if(id.toString() !== "" && title.toString() !== ""){
+              documentation.documentationJSON += '{"id": "' + id.toString() + '",' + ' "title": "' + title.toString() + '", "children": [';
+              let children = documentationObject.toObject().get('children');
+              posts.push(id.toString())
+              if (!children.isNull() && children.kind == JSONValueKind.ARRAY) {
+                if (children.toArray().length > 0) {
+                  documentation = indexingJson(documentation, children.toArray());
+                }
               }
+            } else {
+              documentation.documentationJSON += '{"id": "", "title": "", "children": []}';
             }
             documentation.documentationJSON += ']}';
           } else {
@@ -563,18 +580,36 @@ function indexingJson(
   for (let i = 0; i < childrenLength; i++) {
     const id = children[i].toObject().get("id");
     const title = children[i].toObject().get("title");
-    if (!id.isNull() && id.kind !== JSONValueKind.NUMBER && !title.isNull()) {
-      documentation.documentationJSON += '{"id": "' + id.toString() + '",' + ' "title": "' + title.toString() + '", "children": ['
-      posts.push(id.toString());
+    if(
+      !id.isNull() && 
+      !title.isNull() && 
+      id.kind == JSONValueKind.STRING && 
+      title.kind == JSONValueKind.STRING
+    ) {
+      if(id.toString() !== "" && title.toString() !== ""){
+        documentation.documentationJSON += '{"id": "' + id.toString() + '",' + ' "title": "' + title.toString() + '", "children": ['
+        posts.push(id.toString());
+        if(children[i].kind == JSONValueKind.OBJECT){
+          if(
+            !children[i].toObject().get("children").isNull() && 
+            children[i].toObject().get("children").kind == JSONValueKind.ARRAY
+          ) {
+            if (children[i].toObject().get("children").toArray().length > 0)
+              documentation = indexingJson(documentation, children[i].toObject().get("children").toArray());
+            else {
+              documentation.documentationJSON += '{"id": "", "title": "", "children": ['
+            }
+          } else {
+            documentation.documentationJSON += '{"id": "", "title": "", "children": ['
+          }
+        } else {
+          documentation.documentationJSON += '{"id": "", "title": "", "children": ['
+        }
+        documentation.documentationJSON += ']}';
 
-      if (!children[i].toObject().get("children").isNull()) {
-        if (children[i].toObject().get("children").toArray().length > 0)
-          documentation = indexingJson(documentation, children[i].toObject().get("children").toArray());
+        if (i < childrenLength - 1)
+          documentation.documentationJSON += ', ';
       }
-      documentation.documentationJSON += ']}';
-
-      if (i < childrenLength - 1)
-        documentation.documentationJSON += ', ';
     }
   }
 

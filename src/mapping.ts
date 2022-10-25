@@ -503,26 +503,6 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
   indexingPeriods();
 }
 
-// export function handlerSetDocumentationTree(event: SetDocumentationTree): void {
-//   const documentation = new CommunityDocumentation(event.params.communityId.toString());
-
-//   let communityDocumentation = getPeeranhaContent().getDocumentationTree(event.params.communityId);
-//   if (communityDocumentation.hash == new Address(0) || documentation.ipfsHash === communityDocumentation.hash)
-//     return;
-  
-//   const oldDocumentationIpfsHash = documentation.ipfsHash;
-//   documentation.ipfsHash = communityDocumentation.hash;
-//   documentation.save();
-
-//   generateDocumentationPosts(
-//     event.params.communityId,
-//     event.params.userAddr, 
-//     event.block.timestamp,
-//     oldDocumentationIpfsHash, 
-//     communityDocumentation.hash
-//   )
-// }
-
 export function handlerSetDocumentationTree(event: SetDocumentationTree): void {
   const oldDocumentation = CommunityDocumentation.load(event.params.communityId.toString());
   const documentation = new CommunityDocumentation(event.params.communityId.toString());
