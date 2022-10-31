@@ -255,7 +255,7 @@ export function handleDeletedPost(event: PostDeleted): void {
 }
 
 export function handleNewReply(event: ReplyCreated): void {
-  let replyId = BigInt.fromI32(event.params.replyId);
+  let replyId = event.params.replyId;
   let reply = new Reply(event.params.postId.toString() + "-" + replyId.toString());
   newReply(reply, event.params.postId, replyId, event.block.timestamp);
   reply.save();
@@ -265,7 +265,7 @@ export function handleNewReply(event: ReplyCreated): void {
 }
 
 export function handleEditedReply(event: ReplyEdited): void { 
-  let replyId = BigInt.fromI32(event.params.replyId);
+  let replyId = event.params.replyId;
   let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString());
 
   if (reply == null) {
@@ -417,7 +417,7 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
   post.save();
   
   if (previousBestReply) {
-    let previousReplyId = BigInt.fromI32(previousBestReply);
+    let previousReplyId = previousBestReply;
     let previousReply = Reply.load(event.params.postId.toString() + "-" + previousReplyId.toString())
 
     if (previousReply == null) {
@@ -431,7 +431,7 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
 
   let reply: Reply | null;
   if (event.params.replyId != 0) {    // fix  (if reply does not exist -> getReply() call erray)
-    let replyId = BigInt.fromI32(event.params.replyId);
+    let replyId = event.params.replyId;
     reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
 
     if (reply == null) {
@@ -468,14 +468,14 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
     comment.save();
     
   } else if (event.params.replyId != 0) {
-    let replyId = BigInt.fromI32(event.params.replyId);
+    let replyId = event.params.replyId;
     let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
 
     if (reply == null) {
       reply = new Reply(event.params.postId.toString() + "-" + replyId.toString());
       newReply(reply, event.params.postId, replyId, event.block.timestamp);
     } else {
-      let peeranhaReply = getPeeranhaContent().getReply(event.params.postId, replyId.toI32());
+      let peeranhaReply = getPeeranhaContent().getReply(event.params.postId, replyId);
       if (peeranhaReply == null) return;
       reply.rating = peeranhaReply.rating;
     }

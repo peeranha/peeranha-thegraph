@@ -9,7 +9,8 @@
     "build": "graph build",
     "deploy:test": "npm run prepare:test & graph deploy --product hosted-service peeranha/peeranha-test-2",
     "deploy:staging": "npm run prepare:staging & graph deploy --product hosted-service peeranha/peeranha-staging",
-    "deploy:prod": "npm run prepare:prod & graph deploy --product hosted-service peeranha/peeranha"
+    "deploy:prod": "npm run prepare:prod & graph deploy --product hosted-service peeranha/peeranha",
+    "auth": "graph auth --product hosted-service <ACCESS_TOKEN>"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "0.21.1",
