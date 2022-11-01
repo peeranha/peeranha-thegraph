@@ -10,7 +10,7 @@ import { PostCreated, PostEdited, PostDeleted,
   ReplyCreated, ReplyEdited, ReplyDeleted,
   CommentCreated, CommentEdited, CommentDeleted,
   ForumItemVoted, SetDocumentationTree,
-  ChangePostType, ChangeCommunityId,
+  ChangePostType,
   StatusBestReplyChanged,
 } from '../generated/PeeranhaContent/PeeranhaContent'
 
@@ -244,16 +244,6 @@ export function handleChangedTypePost(event: ChangePostType): void {
   if (post != null) {
     post.postType = event.params.newPostType;
     updatePostUsersRatings(post);
-    post.save();
-  }
-}
-
-export function handleChangedCommunityId(event: ChangeCommunityId): void {
-  let post = Post.load(event.params.postId.toString())
-  let peeranhaPost = getPeeranhaContent().getPost(event.params.postId);
-
-  if (post != null && peeranhaPost != null) {
-    post.communityId = peeranhaPost.communityId;
     post.save();
   }
 }

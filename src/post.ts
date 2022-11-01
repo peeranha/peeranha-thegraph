@@ -59,7 +59,7 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
       let oldTag = postTagsBuf.pop();
 
       if(!peeranhaPost.tags.includes(oldTag)) {
-        let tag = Tag.load(peeranhaPost.communityId.toString() + '-' + oldTag.toString());
+        let tag = Tag.load(post.communityId.toString() + '-' + oldTag.toString());
         if (tag != null) {
           tag.postCount--;
           tag.save();
