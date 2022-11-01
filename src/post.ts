@@ -12,9 +12,9 @@ export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigIn
   post.author = peeranhaPost.author.toHex();
   post.rating = peeranhaPost.rating;
   post.postTime = peeranhaPost.postTime
-  post.commentCount = peeranhaPost.commentCount;
-  post.replyCount = peeranhaPost.replyCount;
-  post.officialReply = peeranhaPost.officialReply;
+  post.commentCount = 0;
+  post.replyCount = 0;
+  post.officialReply = 0;
   post.bestReply = peeranhaPost.bestReply;
   post.isDeleted = false;
   post.replies = [];
@@ -150,9 +150,8 @@ export function updatePostUsersRatings(post: Post | null): void {
   }
 }
 
-export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt, blockTimestamp: BigInt): void {
-  let peeranhaReply = getPeeranhaContent().getReply(postId, replyId.toI32());
-  let peeranhaPost = getPeeranhaContent().getPost(postId);
+export function newReply(reply: Reply | null, postId: BigInt, replyId: i32, blockTimestamp: BigInt): void {
+  let peeranhaReply = getPeeranhaContent().getReply(postId, replyId);
   if (peeranhaReply == null || reply == null) return;
 
   reply.author = peeranhaReply.author.toHex();
@@ -160,10 +159,10 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt, b
   reply.rating = peeranhaReply.rating;
   reply.postId = postId;
   reply.parentReplyId = peeranhaReply.parentReplyId;
-  reply.commentCount = peeranhaReply.commentCount;
+  reply.commentCount = 0;
   reply.isFirstReply = peeranhaReply.isFirstReply;
   reply.isQuickReply = peeranhaReply.isQuickReply;
-  reply.isOfficialReply = peeranhaPost.officialReply == replyId.toI32();
+  reply.isOfficialReply = false;
   reply.isDeleted = false;
   reply.comments = [];
   reply.isBestReply = false;
@@ -177,9 +176,6 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt, b
 
       replies.push(postId.toString() + '-' + replyId.toString())
       post.replies = replies;
-      if (peeranhaPost.officialReply == replyId.toI32()) {
-        post.officialReply = replyId.toI32();
-      }
 
       let community = getCommunity(post.communityId);
       community.replyCount++;
@@ -197,16 +193,17 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: BigInt, b
   if (peeranhaReply.isFirstReply || peeranhaReply.isQuickReply) {
     updateUserRating(peeranhaReply.author, post.communityId);
   }
-  addDataToReply(reply, postId, replyId);
   updateStartUserRating(Address.fromString(reply.author), post.communityId);
   post.postContent += ' ' + reply.content;
   post.save();
+  addDataToReply(reply, postId, replyId);
 }
 
-export function addDataToReply(reply: Reply | null, postId: BigInt, replyId: BigInt): void {
-  let peeranhaReply = getPeeranhaContent().getReply(postId, replyId.toI32());
+export function addDataToReply(reply: Reply | null, postId: BigInt, replyId: i32): void {
+  const peeranhaReply = getPeeranhaContent().getReply(postId, replyId);
   if (peeranhaReply == null) return;
 
+  changedStatusOfficialReply(reply, postId, replyId);
   reply.ipfsHash = peeranhaReply.ipfsDoc.hash;
   reply.ipfsHash2 = peeranhaReply.ipfsDoc.hash2;
   
@@ -255,8 +252,11 @@ export function deleteReply(reply: Reply | null, postId: BigInt): void {
 
   if (reply.isBestReply) {
     post.bestReply = 0;
-    post.save();
   }
+  if (reply.isOfficialReply) {
+    post.officialReply = 0;
+  }
+  post.save();
 
   let user = getUser(Address.fromString(reply.author));
   user.replyCount--;
@@ -347,6 +347,7 @@ export function deleteComment(comment: Comment | null, postId: BigInt): void {
 
 export function updatePostContent(postId: BigInt): void {
   let post = Post.load(postId.toString());
+  if (post == null) return;
   post.postContent = '';
   
   let peeranhaPost = getPeeranhaContent().getPost(postId);
@@ -381,6 +382,33 @@ export function updatePostContent(postId: BigInt): void {
     }
   }
   post.save();
+}
+
+function changedStatusOfficialReply(reply: Reply | null, postId: BigInt, replyId: i32): void {
+  let post = Post.load(postId.toString())
+  const peeranhaPost = getPeeranhaContent().getPost(postId);
+  if (post == null || peeranhaPost == null) return;
+
+  let previousOfficialReplyId = 0;
+  if (peeranhaPost.officialReply == replyId && post.officialReply != replyId) {
+    previousOfficialReplyId = post.officialReply;
+    post.officialReply = replyId;
+    reply.isOfficialReply = true;
+
+  } else if (peeranhaPost.officialReply == 0 && post.officialReply == replyId) {
+    reply.isOfficialReply = false;
+    post.officialReply = 0;
+  }
+  post.save();
+
+  if (previousOfficialReplyId != 0) {
+    let previousOfficialReply = Reply.load(postId.toString() + "-" + previousOfficialReplyId.toString())
+
+    if (previousOfficialReply != null) {
+      previousOfficialReply.isOfficialReply = false;
+    }
+    previousOfficialReply.save();
+  }
 }
 
 const convertIpfsHash = (ipfsHash: Bytes | null): Bytes => { //to utils
@@ -498,7 +526,6 @@ export function indexingDocumentation(
 
   if (result != null) {
     let ipfsData = json.fromBytes(result);
-  
     if (isValidIPFS(ipfsData)) {
       let ipfsObj = ipfsData.toObject()
 
@@ -547,9 +574,12 @@ export function indexingDocumentation(
             } else {
               log.error("id or/and title of post is empty", []);
             }
+            documentation.documentationJSON += ']}';
           } else {
             log.error("id or/and title of post not found or not a string", []);
           }
+          if (i < documentationsArray.length - 1)
+            documentation.documentationJSON += ', ';
         }
       } else {
         log.error("'documentations' not found or not a array", []);
