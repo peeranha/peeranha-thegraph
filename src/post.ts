@@ -1,6 +1,6 @@
 import { json, Bytes, ipfs, BigInt, Address, ByteArray, log, store, JSONValue, JSONValueKind } from '@graphprotocol/graph-ts'
 import { Post, Reply, Comment, Tag, CommunityDocumentation } from '../generated/schema'
-import { getPeeranhaContent, ERROR_IPFS, isValidIPFS } from './utils'
+import { getPeeranhaContent, ERROR_IPFS, isValidIPFS, PostType } from './utils'
 import { updateUserRating, updateStartUserRating, getUser, newUser } from './user'
 import { getCommunity } from './community-tag'
 
@@ -405,6 +405,25 @@ export function generateDocumentationPosts(
   if (newDocumentationIpfsHash === null)
     return;
 
+  const test = 0
+  if(test == null){
+    log.warning('result:{}', ['test == null']);
+  } else {
+    log.warning('result:{}', ['not test == null']);
+  }
+
+  if(test != null){
+    log.warning('result:{}', ['test != null']);
+  } else {
+    log.warning('result:{}', ['not test != null']);
+  }
+
+  if(test){
+    log.warning('result:{}', ['null']);
+  } else {
+    log.warning('result:{}', ['not null']);
+  }
+
   let newPosts: string[] = []
   let oldPosts: string[] = []
   if (oldDocumentationIpfsHash !== null) {
@@ -452,6 +471,7 @@ export function generateDocumentationPosts(
       let post = new Post(newPosts[index]);
       post.author = userAddr.toHex();
       post.communityId = comunityId;
+      post.postType = PostType.Documentation;
       post.ipfsHash = ByteArray.fromHexString(newPosts[index]) as Bytes;
   
       getIpfsPostData(post);
