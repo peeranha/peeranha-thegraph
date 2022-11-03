@@ -8,6 +8,8 @@ export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigIn
   let peeranhaPost = getPeeranhaContent().getPost(postId);
   if (peeranhaPost == null) return;
 
+  post.communityId = peeranhaPost.communityId;
+  post.postType = peeranhaPost.postType;
   post.author = peeranhaPost.author.toHex();
   post.rating = peeranhaPost.rating;
   post.postTime = peeranhaPost.postTime
@@ -65,13 +67,22 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
           tag.save();
         }
       }
-   }
+    }
   }
   
   post.tags = peeranhaPost.tags;
   post.ipfsHash = peeranhaPost.ipfsDoc.hash;
   post.ipfsHash2 = peeranhaPost.ipfsDoc.hash2;
-  post.communityId = peeranhaPost.communityId;
+  if (post.communityId != peeranhaPost.communityId) {
+    const oldCommunity = getCommunity(post.communityId);
+    oldCommunity.postCount--;
+    oldCommunity.save();
+
+    const newCommunity = getCommunity(peeranhaPost.communityId);
+    newCommunity.postCount++;
+    newCommunity.save();
+    post.communityId = peeranhaPost.communityId;
+  }
   let oldPostType = post.postType;
   if (oldPostType != null && oldPostType != peeranhaPost.postType) {
     updatePostUsersRatings(post);
