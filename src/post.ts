@@ -574,12 +574,9 @@ export function indexingDocumentation(
             } else {
               log.error("id or/and title of post is empty", []);
             }
-            documentation.documentationJSON += ']}';
           } else {
             log.error("id or/and title of post not found or not a string", []);
           }
-          if (i < documentationsArray.length - 1)
-            documentation.documentationJSON += ', ';
         }
       } else {
         log.error("'documentations' not found or not a array", []);
