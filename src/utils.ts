@@ -31,3 +31,10 @@ export function getPeeranhaToken(): PeeranhaToken {
 export function getPeeranhaNFT(): PeeranhaNFT {
   return PeeranhaNFT.bind(Address.fromString(NFT_ADDRESS));
 }
+
+export enum PostType {
+  ExpertPost,
+  CommonPost,
+  Tutorial,
+  Documentation = 1000
+}

@@ -62,6 +62,7 @@ enum PostType {
   ExpertPost
   CommonPost
   Tutorial
+  Documentation
 }
 
 type _Schema_
@@ -177,3 +178,8 @@ type History @entity {
   timeStamp: BigInt
 }
 
+type CommunityDocumentation @entity {
+  id: ID!
+  documentationJSON: String
+  ipfsHash: Bytes
+}

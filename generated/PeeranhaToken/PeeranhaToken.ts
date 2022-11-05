@@ -931,6 +931,21 @@ export class PeeranhaToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
+  getVersion(): BigInt {
+    let result = super.call("getVersion", "getVersion():(uint256)", []);
+
+    return result[0].toBigInt();
+  }
+
+  try_getVersion(): ethereum.CallResult<BigInt> {
+    let result = super.tryCall("getVersion", "getVersion():(uint256)", []);
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
+  }
+
   hasRole(role: Bytes, account: Address): boolean {
     let result = super.call("hasRole", "hasRole(bytes32,address):(bool)", [
       ethereum.Value.fromFixedBytes(role),
@@ -1159,36 +1174,6 @@ export class ApproveCall__Outputs {
 
   get value0(): boolean {
     return this._call.outputValues[0].value.toBoolean();
-  }
-}
-
-export class ClaimRewardCall extends ethereum.Call {
-  get inputs(): ClaimRewardCall__Inputs {
-    return new ClaimRewardCall__Inputs(this);
-  }
-
-  get outputs(): ClaimRewardCall__Outputs {
-    return new ClaimRewardCall__Outputs(this);
-  }
-}
-
-export class ClaimRewardCall__Inputs {
-  _call: ClaimRewardCall;
-
-  constructor(call: ClaimRewardCall) {
-    this._call = call;
-  }
-
-  get period(): i32 {
-    return this._call.inputValues[0].value.toI32();
-  }
-}
-
-export class ClaimRewardCall__Outputs {
-  _call: ClaimRewardCall;
-
-  constructor(call: ClaimRewardCall) {
-    this._call = call;
   }
 }
 

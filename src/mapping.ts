@@ -1,4 +1,4 @@
-import { Address, BigInt, log } from '@graphprotocol/graph-ts'
+import { Address, BigInt, Bytes, log } from '@graphprotocol/graph-ts'
 import { store } from '@graphprotocol/graph-ts'
 import { ethereum } from '@graphprotocol/graph-ts'
 import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity, RoleGranted, RoleRevoked } from '../generated/PeeranhaUser/PeeranhaUser'
@@ -9,17 +9,17 @@ import {
 import { PostCreated, PostEdited, PostDeleted,
   ReplyCreated, ReplyEdited, ReplyDeleted,
   CommentCreated, CommentEdited, CommentDeleted,
-  ForumItemVoted, ChangePostType,
-  StatusOfficialReplyChanged, StatusBestReplyChanged,
+  ForumItemVoted, SetDocumentationTree,
+  ChangePostType, StatusBestReplyChanged,
 } from '../generated/PeeranhaContent/PeeranhaContent'
 
 import { GetReward } from '../generated/PeeranhaToken/PeeranhaToken'
-import { User, Community, Tag, Post, Reply, Comment, Achievement, ContractInfo, UserReward, Period, History, UserPermission } from '../generated/schema'
+import { User, Community, Tag, Post, Reply, Comment, Achievement, ContractInfo, UserReward, Period, History, UserPermission, CommunityDocumentation } from '../generated/schema'
 import { USER_ADDRESS } from './config'
-import { getPeeranhaUser, getPeeranhaToken, getPeeranhaContent } from './utils'
+import { getPeeranhaUser, getPeeranhaToken, getPeeranhaContent, PostType } from './utils'
 
 import { newPost, addDataToPost, deletePost, newReply, addDataToReply, deleteReply,
-  newComment, addDataToComment, deleteComment, updatePostContent, updatePostUsersRatings } from './post'
+  newComment, addDataToComment, deleteComment, updatePostContent, updatePostUsersRatings, generateDocumentationPosts } from './post'
 import { newCommunity, addDataToCommunity, newTag, addDataToTag, getCommunity } from './community-tag'
 import { newUser, addDataToUser, updateUserRating} from './user'
 import { addDataToAchievement, giveAchievement, newAchievement } from './achievement'
@@ -75,6 +75,7 @@ export function handleUpdatedUser(event: UserUpdated): void {
   
   indexingPeriods();
 }
+
 export function handlerGrantedRole(event: RoleGranted): void {
   let userPermission = new UserPermission(event.params.account.toHex() + '-' + event.params.role.toHex());
   userPermission.user = event.params.account.toHex();
@@ -215,11 +216,13 @@ export function handleNewPost(event: PostCreated): void {
 }
 
 export function handleEditedPost(event: PostEdited): void {
-  let post = Post.load(event.params.postId.toString())
+  let post = Post.load(event.params.postId.toString());
+  let oldPostTitle: string | null = '';
   if (post == null) {
     post = new Post(event.params.postId.toString())
     newPost(post, event.params.postId, event.block.timestamp);
   } else {
+    oldPostTitle = post.title;
     addDataToPost(post, event.params.postId);
   }
   post.save();
@@ -252,7 +255,7 @@ export function handleDeletedPost(event: PostDeleted): void {
 }
 
 export function handleNewReply(event: ReplyCreated): void {
-  let replyId = BigInt.fromI32(event.params.replyId);
+  let replyId = event.params.replyId;
   let reply = new Reply(event.params.postId.toString() + "-" + replyId.toString());
   newReply(reply, event.params.postId, replyId, event.block.timestamp);
   reply.save();
@@ -262,7 +265,7 @@ export function handleNewReply(event: ReplyCreated): void {
 }
 
 export function handleEditedReply(event: ReplyEdited): void { 
-  let replyId = BigInt.fromI32(event.params.replyId);
+  let replyId = event.params.replyId;
   let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString());
 
   if (reply == null) {
@@ -401,44 +404,6 @@ export function handleGetReward(event: GetReward): void {
   }
 }
 
-export function handlerChangedStatusOfficialReply(event: StatusOfficialReplyChanged): void {
-  let post = Post.load(event.params.postId.toString())
-  let previousOfficialReply = 0;
-  if (post == null) {
-    post = new Post(event.params.postId.toString())
-    newPost(post, event.params.postId, event.block.timestamp);
-  } else {
-    previousOfficialReply = post.officialReply;
-    post.officialReply = event.params.replyId;
-  }
-  post.save();
-  
-  if (previousOfficialReply) {
-    let replyId = BigInt.fromI32(previousOfficialReply);
-    let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
-
-    if (reply == null) {
-      newReply(reply, event.params.postId, replyId, event.block.timestamp);
-    } else {
-      reply.isOfficialReply = false;
-    }
-
-    reply.save();
-  }
-
-  let replyId = BigInt.fromI32(event.params.replyId);
-  let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
-
-  if (reply == null) {
-    newReply(reply, event.params.postId, replyId, event.block.timestamp);
-  }
-
-  reply.isOfficialReply = true;
-  reply.save();
-
-  indexingPeriods();
-}
-
 export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): void {
   let post = Post.load(event.params.postId.toString())
   let previousBestReply = 0;
@@ -452,7 +417,7 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
   post.save();
   
   if (previousBestReply) {
-    let previousReplyId = BigInt.fromI32(previousBestReply);
+    let previousReplyId = previousBestReply;
     let previousReply = Reply.load(event.params.postId.toString() + "-" + previousReplyId.toString())
 
     if (previousReply == null) {
@@ -466,7 +431,7 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
 
   let reply: Reply | null;
   if (event.params.replyId != 0) {    // fix  (if reply does not exist -> getReply() call erray)
-    let replyId = BigInt.fromI32(event.params.replyId);
+    let replyId = event.params.replyId;
     reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
 
     if (reply == null) {
@@ -503,14 +468,14 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
     comment.save();
     
   } else if (event.params.replyId != 0) {
-    let replyId = BigInt.fromI32(event.params.replyId);
+    let replyId = event.params.replyId;
     let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
 
     if (reply == null) {
       reply = new Reply(event.params.postId.toString() + "-" + replyId.toString());
       newReply(reply, event.params.postId, replyId, event.block.timestamp);
     } else {
-      let peeranhaReply = getPeeranhaContent().getReply(event.params.postId, replyId.toI32());
+      let peeranhaReply = getPeeranhaContent().getReply(event.params.postId, replyId);
       if (peeranhaReply == null) return;
       reply.rating = peeranhaReply.rating;
     }
@@ -536,4 +501,52 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
   }
 
   indexingPeriods();
+}
+
+// export function handlerSetDocumentationTree(event: SetDocumentationTree): void {
+//   const documentation = new CommunityDocumentation(event.params.communityId.toString());
+
+//   let communityDocumentation = getPeeranhaContent().getDocumentationTree(event.params.communityId);
+//   if (communityDocumentation.hash == new Address(0) || documentation.ipfsHash === communityDocumentation.hash)
+//     return;
+  
+//   const oldDocumentationIpfsHash = documentation.ipfsHash;
+//   documentation.ipfsHash = communityDocumentation.hash;
+//   documentation.save();
+
+//   generateDocumentationPosts(
+//     event.params.communityId,
+//     event.params.userAddr, 
+//     event.block.timestamp,
+//     oldDocumentationIpfsHash, 
+//     communityDocumentation.hash
+//   )
+// }
+
+export function handlerSetDocumentationTree(event: SetDocumentationTree): void {
+  const oldDocumentation = CommunityDocumentation.load(event.params.communityId.toString());
+  const documentation = new CommunityDocumentation(event.params.communityId.toString());
+
+  let communityDocumentation = getPeeranhaContent().getDocumentationTree(event.params.communityId);
+
+  if (communityDocumentation.hash == new Address(0))
+    return;
+
+  let oldDocumentationIpfsHash: Bytes | null = null;
+  if (oldDocumentation != null){
+    if(oldDocumentation.ipfsHash == communityDocumentation.hash){
+      return;
+    }
+    oldDocumentationIpfsHash = oldDocumentation.ipfsHash;
+  }
+
+  documentation.ipfsHash = communityDocumentation.hash;
+  documentation.save();
+
+  generateDocumentationPosts(
+    event.params.communityId,
+    event.params.userAddr,
+    oldDocumentationIpfsHash,
+    communityDocumentation.hash
+  )
 }
