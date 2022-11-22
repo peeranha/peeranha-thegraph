@@ -1,5 +1,5 @@
 import { json, Bytes, ipfs, BigInt, Address, ByteArray, log, store, JSONValue, JSONValueKind } from '@graphprotocol/graph-ts'
-import { Post, Reply, Comment, Tag, CommunityDocumentation } from '../generated/schema'
+import { Post, Reply, Comment, Tag, CommunityDocumentation, PostTranslation, ReplyTranslation, CommentTranslation, TagTranslation } from '../generated/schema'
 import { getPeeranhaContent, ERROR_IPFS, isValidIPFS, PostType } from './utils'
 import { updateUserRating, updateStartUserRating, getUser, newUser } from './user'
 import { getCommunity } from './community-tag'
@@ -19,6 +19,7 @@ export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigIn
   post.isDeleted = false;
   post.replies = [];
   post.comments = [];
+  post.translations = [];
   post.postContent = '';
 
   let community = getCommunity(post.communityId);
@@ -66,13 +67,15 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
           tag.save();
         }
       }
-   }
+    }
   }
   
   post.tags = peeranhaPost.tags;
   post.ipfsHash = peeranhaPost.ipfsDoc.hash;
   post.ipfsHash2 = peeranhaPost.ipfsDoc.hash2;
   post.postType = peeranhaPost.postType;
+  let postLanguage = getPeeranhaContent().getItemLanguage(postId, 0, 0);
+  post.language = postLanguage;
 
   getIpfsPostData(post);
 }
@@ -165,6 +168,7 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: i32, bloc
   reply.isOfficialReply = false;
   reply.isDeleted = false;
   reply.comments = [];
+  reply.translations = [];
   reply.isBestReply = false;
 
   let post = Post.load(postId.toString())
@@ -206,6 +210,8 @@ export function addDataToReply(reply: Reply | null, postId: BigInt, replyId: i32
   changedStatusOfficialReply(reply, postId, replyId);
   reply.ipfsHash = peeranhaReply.ipfsDoc.hash;
   reply.ipfsHash2 = peeranhaReply.ipfsDoc.hash2;
+  let replyLanguage = getPeeranhaContent().getItemLanguage(postId, replyId, 0);
+  reply.language = replyLanguage;
   
   getIpfsReplyData(reply);
 }
@@ -273,6 +279,7 @@ export function newComment(comment: Comment | null, postId: BigInt, parentReplyI
   comment.rating = peeranhaComment.rating;
   comment.parentReplyId = parentReplyId.toI32();  
   comment.isDeleted = false;
+  comment.translations = [];
   let post = Post.load(postId.toString());
   let commentFullId = postId.toString() + '-' + parentReplyId.toString() +  '-' + commentId.toString();
   if (parentReplyId == BigInt.fromI32(0)) {
@@ -310,6 +317,8 @@ export function addDataToComment(comment: Comment | null, postId: BigInt, parent
 
   comment.ipfsHash = peeranhaComment.ipfsDoc.hash;
   comment.ipfsHash2 = peeranhaComment.ipfsDoc.hash2;
+  let commentLanguage = getPeeranhaContent().getItemLanguage(postId, parentReplyId.toI32(), commentId.toI32());
+  comment.language = commentLanguage;
   
   getIpfsCommentData(comment);
 }
@@ -345,6 +354,172 @@ export function deleteComment(comment: Comment | null, postId: BigInt): void {
   }
 }
 
+export function newPostTranslation(postTranslation: PostTranslation | null, postId: BigInt, language: BigInt): void {
+  let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, 0, 0, language.toI32());
+  if (peeranhaTranslation == null) return;
+  postTranslation.postId = postId.toString() + "-0-0";
+  postTranslation.language = language;
+  postTranslation.author = peeranhaTranslation.author.toHex();
+
+  addDataToPostTranslation(postTranslation, postId, language);
+
+  let post = Post.load(postId.toString())
+  if (post != null) {
+    let postTranslations = post.translations;
+    postTranslations.push(postTranslation.id);
+    post.translations = postTranslations;
+    post.postContent += ' ' + postTranslation.title + ' ' + postTranslation.content
+    post.save();
+  }
+}
+
+export function addDataToPostTranslation(postTranslation: PostTranslation | null, postId: BigInt, language: BigInt): void {
+  let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, 0, 0, language.toI32());
+  if (peeranhaTranslation == null) return;
+
+  postTranslation.ipfsHash = peeranhaTranslation.ipfsDoc.hash;
+  getIpfsPostTranslationData(postTranslation);
+}
+
+function getIpfsPostTranslationData(postTranslation: PostTranslation | null): void {
+  let hashstr = postTranslation.ipfsHash.toHexString();
+  let hashHex = '1220' + hashstr.slice(2);
+  let ipfsBytes = ByteArray.fromHexString(hashHex);
+  let ipfsHashBase58 = ipfsBytes.toBase58();
+  let result = ipfs.cat(ipfsHashBase58) as Bytes;
+  
+  if (result != null) {
+    let ipfsData = json.fromBytes(result);
+  
+    if (isValidIPFS(ipfsData)) {
+      let ipfsObj = ipfsData.toObject()
+      let title = ipfsObj.get('title');
+      if (!title.isNull()) {
+        postTranslation.title = title.toString();
+      }
+  
+      let content = ipfsObj.get('content');
+      if (!content.isNull()) {
+        postTranslation.content = content.toString();
+      }
+    } else {
+      postTranslation.title = ERROR_IPFS;
+      postTranslation.content = ERROR_IPFS;
+    }
+  }
+}
+
+export function newReplyTranslation(replyTranslation: ReplyTranslation | null, postId: BigInt, replyId: BigInt, language: BigInt): void {
+  let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, replyId.toI32(), 0, language.toI32());
+  if (peeranhaTranslation == null) return;
+  replyTranslation.replyId = replyId.toString() + "-" + replyId.toString() + "-0";
+  replyTranslation.language = language;
+  replyTranslation.author = peeranhaTranslation.author.toHex();
+
+  addDataToReplyTranslation(replyTranslation, postId, replyId, language);
+
+  let reply = Reply.load(postId.toString() + "-" + replyId.toString());
+  if (reply != null) {
+    let replyTranslations = reply.translations;
+    replyTranslations.push(replyTranslation.id);
+    reply.translations = replyTranslations;
+    reply.save();
+
+    let post = Post.load(postId.toString())
+    if (post != null) {
+      post.postContent += ' ' + replyTranslation.content;
+      post.save();
+    }
+  }
+}
+
+export function addDataToReplyTranslation(replyTranslation: ReplyTranslation | null, postId: BigInt, replyId: BigInt, language: BigInt): void {
+  let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, replyId.toI32(), 0, language.toI32());
+  if (peeranhaTranslation == null) return;
+
+  replyTranslation.ipfsHash = peeranhaTranslation.ipfsDoc.hash;
+
+  getIpfsReplyTranslationData(replyTranslation);
+}
+
+function getIpfsReplyTranslationData(replyTranslation: ReplyTranslation | null): void {
+  let hashstr = replyTranslation.ipfsHash.toHexString();
+  let hashHex = '1220' + hashstr.slice(2);
+  let ipfsBytes = ByteArray.fromHexString(hashHex);
+  let ipfsHashBase58 = ipfsBytes.toBase58();
+  let result = ipfs.cat(ipfsHashBase58) as Bytes;
+  
+  if (result != null) {
+    let ipfsData = json.fromBytes(result);
+  
+    if (isValidIPFS(ipfsData)) {
+      let ipfsObj = ipfsData.toObject();
+  
+      let content = ipfsObj.get('content');
+      if (!content.isNull()) {
+        replyTranslation.content = content.toString();
+      }
+    } else {
+      replyTranslation.content = ERROR_IPFS;
+    }
+  }
+}
+
+export function newCommentTranslation(commentTranslation: CommentTranslation | null, postId: BigInt, parentReplyId: BigInt, commentId: BigInt, language: BigInt): void {
+  let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, parentReplyId.toI32(), commentId.toI32(), language.toI32());
+  if (peeranhaTranslation == null) return;
+  commentTranslation.commentId = parentReplyId.toString() + "-" + parentReplyId.toString() + "-" + commentId.toString();
+  commentTranslation.language = language;
+  commentTranslation.author = peeranhaTranslation.author.toHex();
+
+  addDataToCommentTranslation(commentTranslation, postId, parentReplyId, commentId, language);
+
+  let comment = Comment.load(postId.toString() + "-" + parentReplyId.toString() + "-" +  commentId.toString());
+  if (comment != null) {
+    let commentTranslations = comment.translations;
+    commentTranslations.push(commentTranslation.id);
+    comment.translations = commentTranslations;
+    comment.save();
+
+    let post = Post.load(postId.toString())
+    if (post != null) {
+      post.postContent += ' ' + commentTranslation.content;
+      post.save();
+    }
+  }
+}
+
+export function addDataToCommentTranslation(commentTranslation: CommentTranslation | null, postId: BigInt, parentReplyId: BigInt, commentId: BigInt, language: BigInt): void {
+  let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, parentReplyId.toI32(), commentId.toI32(), language.toI32());
+  if (peeranhaTranslation == null) return;
+
+  commentTranslation.ipfsHash = peeranhaTranslation.ipfsDoc.hash;
+  getIpfsCommentTranslationData(commentTranslation);
+}
+
+function getIpfsCommentTranslationData(commentTranslation: CommentTranslation | null): void {
+  let hashstr = commentTranslation.ipfsHash.toHexString();
+  let hashHex = '1220' + hashstr.slice(2);
+  let ipfsBytes = ByteArray.fromHexString(hashHex);
+  let ipfsHashBase58 = ipfsBytes.toBase58();
+  let result = ipfs.cat(ipfsHashBase58) as Bytes;
+  
+  if (result != null) {
+    let ipfsData = json.fromBytes(result);
+  
+    if (isValidIPFS(ipfsData)) {
+      let ipfsObj = ipfsData.toObject();
+  
+      let content = ipfsObj.get('content');
+      if (!content.isNull()) {
+        commentTranslation.content = content.toString();
+      }
+    } else {
+      commentTranslation.content = ERROR_IPFS;
+    }
+  }
+}
+
 export function updatePostContent(postId: BigInt): void {
   let post = Post.load(postId.toString());
   if (post == null) return;
@@ -358,19 +533,54 @@ export function updatePostContent(postId: BigInt): void {
     let tag = Tag.load(post.communityId.toString() + '-' + tagId.toString());
     if (tag != null) {
       post.postContent += ' ' + tag.name;
+
+      let tagTranslationsBuf = tag.translations;
+      for (let i = 0; i < tag.translations.length; i++) {
+        let translationsId = tagTranslationsBuf.pop();
+        let translation = TagTranslation.load(translationsId);
+        if (translation != null) {
+          post.postContent += ' ' + translation.name;
+        }
+      }
     }
   }
   post.postContent += ' ' + post.title;
   post.postContent += ' ' + post.content;
+
+  let postTranslationsBuf = post.translations;
+  for (let i = 0; i < post.translations.length; i++) {
+    let translationsId = postTranslationsBuf.pop();
+    let translation = PostTranslation.load(translationsId);
+    if (translation != null) {
+      post.postContent += ' ' + translation.title + ' ' + translation.content;
+    }
+  }
+
   for (let replyId = 1; replyId <= post.replyCount; replyId++) {
     let reply = Reply.load(postId.toString() + '-' + replyId.toString());
     if (reply != null && !reply.isDeleted) {
       post.postContent += ' ' + reply.content;
+      let replyTranslationsBuf = reply.translations;
+      for (let i = 0; i < reply.translations.length; i++) {
+        let translationsId = replyTranslationsBuf.pop();
+        let translation = ReplyTranslation.load(translationsId);
+        if (translation != null) {
+          post.postContent += ' ' + translation.content;
+        }
+      }
     
       for (let commentId = 1; commentId <= reply.commentCount; commentId++) {
         let comment = Comment.load(postId.toString() + '-' + replyId.toString() + '-' +  commentId.toString());
         if (comment != null && !comment.isDeleted) {
           post.postContent += ' ' + comment.content;
+          let commentTranslationsBuf = comment.translations;
+          for (let i = 0; i < comment.translations.length; i++) {
+            let translationsId = commentTranslationsBuf.pop();
+            let translation = CommentTranslation.load(translationsId);
+            if (translation != null) {
+              post.postContent += ' ' + translation.content;
+            }
+          }
         }
       }
     }
@@ -379,6 +589,14 @@ export function updatePostContent(postId: BigInt): void {
     let comment = Comment.load(postId.toString() + '-' + '0' + '-' +  commentId.toString());
     if (comment != null && !comment.isDeleted) {
       post.postContent += ' ' + comment.content;
+      let commentTranslationsBuf = comment.translations;
+      for (let i = 0; i < comment.translations.length; i++) {
+        let translationsId = commentTranslationsBuf.pop();
+        let translation = CommentTranslation.load(translationsId);
+        if (translation != null) {
+          post.postContent += ' ' + translation.content;
+        }
+      }
     }
   }
   post.save();

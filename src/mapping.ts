@@ -11,14 +11,20 @@ import { PostCreated, PostEdited, PostDeleted,
   CommentCreated, CommentEdited, CommentDeleted,
   ForumItemVoted, SetDocumentationTree,
   ChangePostType, StatusBestReplyChanged,
+  TranslationCreated, TranslationEdited, TranslationDeleted
 } from '../generated/PeeranhaContent/PeeranhaContent'
 
 import { GetReward } from '../generated/PeeranhaToken/PeeranhaToken'
-import { User, Community, Tag, Post, Reply, Comment, Achievement, ContractInfo, UserReward, Period, History, UserPermission, CommunityDocumentation } from '../generated/schema'
+import { 
+  User, Community, Tag, Post, Reply, Comment, Achievement, ContractInfo, UserReward, Period, History, UserPermission, CommunityDocumentation,
+  PostTranslation, ReplyTranslation, CommentTranslation
+} from '../generated/schema'
 import { USER_ADDRESS } from './config'
 import { getPeeranhaUser, getPeeranhaToken, getPeeranhaContent, PostType } from './utils'
 
 import { newPost, addDataToPost, deletePost, newReply, addDataToReply, deleteReply,
+  newPostTranslation, newReplyTranslation, newCommentTranslation,
+  addDataToPostTranslation, addDataToReplyTranslation, addDataToCommentTranslation,
   newComment, addDataToComment, deleteComment, updatePostContent, updatePostUsersRatings, generateDocumentationPosts } from './post'
 import { newCommunity, addDataToCommunity, newTag, addDataToTag, getCommunity } from './community-tag'
 import { newUser, addDataToUser, updateUserRating} from './user'
@@ -208,6 +214,7 @@ export function createHistory<T1, T2>(item: T1,  event: T2,  eventEntity: string
 
 export function handleNewPost(event: PostCreated): void {
   let post = new Post(event.params.postId.toString());
+
   newPost(post, event.params.postId, event.block.timestamp);
   post.save();
   createHistory(post, event, 'Post', 'Create');
@@ -217,12 +224,10 @@ export function handleNewPost(event: PostCreated): void {
 
 export function handleEditedPost(event: PostEdited): void {
   let post = Post.load(event.params.postId.toString());
-  let oldPostTitle: string | null = '';
   if (post == null) {
     post = new Post(event.params.postId.toString())
     newPost(post, event.params.postId, event.block.timestamp);
   } else {
-    oldPostTitle = post.title;
     addDataToPost(post, event.params.postId);
   }
   post.save();
@@ -232,15 +237,6 @@ export function handleEditedPost(event: PostEdited): void {
   createHistory(post, event, 'Post', 'Edit');
 
   indexingPeriods();
-}
-
-export function handleChangedTypePost(event: ChangePostType): void {
-  let post = Post.load(event.params.postId.toString())
-  if (post != null) {
-    post.postType = event.params.newPostType;
-    updatePostUsersRatings(post);
-    post.save();
-  }
 }
 
 export function handleDeletedPost(event: PostDeleted): void {
@@ -254,9 +250,19 @@ export function handleDeletedPost(event: PostDeleted): void {
   indexingPeriods();
 }
 
+export function handleChangedTypePost(event: ChangePostType): void {
+  let post = Post.load(event.params.postId.toString());
+  if (post != null) {
+    post.postType = event.params.newPostType;
+    updatePostUsersRatings(post);
+    post.save();
+  }
+}
+
 export function handleNewReply(event: ReplyCreated): void {
   let replyId = event.params.replyId;
   let reply = new Reply(event.params.postId.toString() + "-" + replyId.toString());
+
   newReply(reply, event.params.postId, replyId, event.block.timestamp);
   reply.save();
   createHistory(reply, event, 'Reply', 'Create');
@@ -549,4 +555,75 @@ export function handlerSetDocumentationTree(event: SetDocumentationTree): void {
     oldDocumentationIpfsHash,
     communityDocumentation.hash
   )
+}
+
+export function handlerCreatedTranslation(event: TranslationCreated): void {
+  const itemLanguage = BigInt.fromI32(event.params.language);
+  const postId = event.params.postId;
+  const replyId = BigInt.fromI32(event.params.replyId);
+  const commentId = BigInt.fromI32(event.params.commentId);
+
+  if (commentId != BigInt.fromI32(0)) {
+    let commentTranslation = new CommentTranslation(postId.toString() + "-" + replyId.toString() + "-" + commentId.toString() + "-" + itemLanguage.toString());
+    newCommentTranslation(commentTranslation, postId, replyId, commentId, itemLanguage)
+    commentTranslation.save();
+    
+  } else if (replyId != BigInt.fromI32(0)) {
+    let replyTranslation = new ReplyTranslation(postId.toString() + "-" + replyId.toString() + "-0-" + itemLanguage.toString());
+    newReplyTranslation(replyTranslation, postId, replyId, itemLanguage)
+    replyTranslation.save();
+
+  } else { 
+    let postTranslation = new PostTranslation(postId.toString() + "-0-0-" + itemLanguage.toString());
+    newPostTranslation(postTranslation, postId, itemLanguage)
+    postTranslation.save();
+  }
+  indexingPeriods();
+}
+
+export function handlerEditTranslation(event: TranslationEdited): void {
+  const itemLanguage = BigInt.fromI32(event.params.language);
+  const postId = event.params.postId;
+  const replyId = BigInt.fromI32(event.params.replyId);
+  const commentId = BigInt.fromI32(event.params.commentId);
+
+  if (commentId != BigInt.fromI32(0)) {
+    let commentTranslation = new CommentTranslation(postId.toString() + "-" + replyId.toString() + "-" + commentId.toString() + "-" + itemLanguage.toString());
+    addDataToCommentTranslation(commentTranslation, postId, replyId, commentId, itemLanguage)
+    commentTranslation.save();
+
+  } else if (replyId != BigInt.fromI32(0)) {
+    let replyTranslation = new ReplyTranslation(postId.toString() + "-" + replyId.toString() + "-0-" + itemLanguage.toString());
+    addDataToReplyTranslation(replyTranslation, postId, replyId, itemLanguage)
+    replyTranslation.save();
+
+  } else {  
+    let postTranslation = new PostTranslation(postId.toString() + "-0-0-" + itemLanguage.toString());
+    addDataToPostTranslation(postTranslation, postId, itemLanguage)
+    postTranslation.save();
+  }
+  updatePostContent(postId);
+  indexingPeriods();
+}
+
+export function handlerDeleteTranslation(event: TranslationDeleted): void {
+  const itemLanguage = BigInt.fromI32(event.params.language);
+  const postId = event.params.postId;
+  const replyId = BigInt.fromI32(event.params.replyId);
+  const commentId = BigInt.fromI32(event.params.commentId);
+
+  if (commentId != BigInt.fromI32(0)) {
+    let id = postId.toString() + "-" + replyId.toString() + "-" + commentId.toString() + "-" + itemLanguage.toString();
+    store.remove('CommentTranslation', id);
+
+  } else if (replyId != BigInt.fromI32(0)) {
+    let id = postId.toString() + "-" + replyId.toString() + "-0-" + itemLanguage.toString();
+    store.remove('ReplyTranslation', id);
+
+  } else {  
+    let id = postId.toString() + "-0-0-" + itemLanguage.toString();
+    store.remove('PostTranslation', id);
+  }
+  updatePostContent(postId);
+  indexingPeriods();
 }
