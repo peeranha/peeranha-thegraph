@@ -34,6 +34,7 @@ type Community @entity {
   name: String
   description: String
   website: String
+  communitySite: String
   language: String
   avatar: String
   isFrozen: Boolean

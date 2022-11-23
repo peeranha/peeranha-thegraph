@@ -63,6 +63,11 @@ function getIpfsCommunityData(community: Community | null): void {
       if (!website.isNull()) {
         community.website = website.toString();
       }
+
+      let communitySite = ipfsObj.get('communitySite');
+      if (!communitySite.isNull()) {
+        community.communitySite = communitySite.toString();
+      }
   
       let language = ipfsObj.get('language');
       if (!language.isNull()) {
