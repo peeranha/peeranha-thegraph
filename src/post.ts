@@ -9,6 +9,7 @@ export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigIn
   if (peeranhaPost == null) return;
 
   post.communityId = peeranhaPost.communityId;
+  post.postType = peeranhaPost.postType;
   post.author = peeranhaPost.author.toHex();
   post.rating = peeranhaPost.rating;
   post.postTime = peeranhaPost.postTime
@@ -60,19 +61,33 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
       let oldTag = postTagsBuf.pop();
 
       if(!peeranhaPost.tags.includes(oldTag)) {
-        let tag = Tag.load(peeranhaPost.communityId.toString() + '-' + oldTag.toString());
+        let tag = Tag.load(post.communityId.toString() + '-' + oldTag.toString());
         if (tag != null) {
           tag.postCount--;
           tag.save();
         }
       }
-   }
+    }
   }
   
   post.tags = peeranhaPost.tags;
   post.ipfsHash = peeranhaPost.ipfsDoc.hash;
   post.ipfsHash2 = peeranhaPost.ipfsDoc.hash2;
-  post.postType = peeranhaPost.postType;
+  if (post.communityId != peeranhaPost.communityId) {
+    const oldCommunity = getCommunity(post.communityId);
+    oldCommunity.postCount--;
+    oldCommunity.save();
+
+    const newCommunity = getCommunity(peeranhaPost.communityId);
+    newCommunity.postCount++;
+    newCommunity.save();
+    post.communityId = peeranhaPost.communityId;
+  }
+  let oldPostType = post.postType;
+  if (oldPostType != null && oldPostType != peeranhaPost.postType) {
+    updatePostUsersRatings(post);
+    post.postType = peeranhaPost.postType;
+  }
 
   getIpfsPostData(post);
 }
