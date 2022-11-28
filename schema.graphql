@@ -82,6 +82,7 @@ type Post @entity {
   author: User!
   rating: Int
   postTime: BigInt
+  lastmod: BigInt
   communityId: BigInt!
   title: String
   content: String
