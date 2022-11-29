@@ -12,7 +12,8 @@ export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigIn
   post.postType = peeranhaPost.postType;
   post.author = peeranhaPost.author.toHex();
   post.rating = peeranhaPost.rating;
-  post.postTime = peeranhaPost.postTime
+  post.postTime = peeranhaPost.postTime;
+  post.lastmod = peeranhaPost.postTime;
   post.commentCount = 0;
   post.replyCount = 0;
   post.officialReply = 0;
@@ -447,25 +448,6 @@ export function generateDocumentationPosts(
 ): void {
   if (newDocumentationIpfsHash === null)
     return;
-
-  const test = 0
-  if(test == null){
-    log.warning('result:{}', ['test == null']);
-  } else {
-    log.warning('result:{}', ['not test == null']);
-  }
-
-  if(test != null){
-    log.warning('result:{}', ['test != null']);
-  } else {
-    log.warning('result:{}', ['not test != null']);
-  }
-
-  if(test){
-    log.warning('result:{}', ['null']);
-  } else {
-    log.warning('result:{}', ['not null']);
-  }
 
   let newPosts: string[] = []
   let oldPosts: string[] = []
