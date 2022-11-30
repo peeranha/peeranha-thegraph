@@ -10,7 +10,8 @@ import { PostCreated, PostEdited, PostDeleted,
   ReplyCreated, ReplyEdited, ReplyDeleted,
   CommentCreated, CommentEdited, CommentDeleted,
   ForumItemVoted, SetDocumentationTree,
-  ChangePostType, StatusBestReplyChanged,
+  ChangePostType,
+  StatusBestReplyChanged,
 } from '../generated/PeeranhaContent/PeeranhaContent'
 
 import { GetReward } from '../generated/PeeranhaToken/PeeranhaToken'
