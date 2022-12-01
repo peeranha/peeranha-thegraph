@@ -35,7 +35,6 @@ export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigIn
   user.save();
 
   addDataToPost(post, postId);
-  updateStartUserRating(Address.fromString(post.author), post.communityId);
 }
 
 export function addDataToPost(post: Post | null, postId: BigInt): void {
@@ -91,6 +90,7 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
   }
 
   getIpfsPostData(post);
+  updateStartUserRating(Address.fromString(post.author), post.communityId);
 }
 
 function getIpfsPostData(post: Post | null): void {
