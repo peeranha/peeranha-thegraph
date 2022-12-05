@@ -21,6 +21,7 @@ export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigIn
   post.isDeleted = false;
   post.replies = [];
   post.comments = [];
+  post.tagsName = [];
   post.postContent = '';
 
   let community = getCommunity(post.communityId);
@@ -42,12 +43,18 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
   let peeranhaPost = getPeeranhaContent().getPost(postId);
   if (peeranhaPost == null) return;
 
+  post.tagsName = [];
+  let tagsName = post.tagsName;
   let postTagsBuf = peeranhaPost.tags;
   for (let i = 0; i < peeranhaPost.tags.length; i++) {
     let newTag = postTagsBuf.pop();
+    let tag = Tag.load(peeranhaPost.communityId.toString() + '-' + newTag.toString());
+    tagsName.push(tag.name)
+    ///
+    // tagName reverse to tagId
+    ///
 
     if(!post.tags.includes(newTag)) {
-      let tag = Tag.load(peeranhaPost.communityId.toString() + '-' + newTag.toString());
       if (tag != null) {
         post.postContent += ' ' + tag.name;
         tag.postCount++;
@@ -55,6 +62,7 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
       }
     }
   }
+  post.tagsName = tagsName;
 
   if(peeranhaPost.tags.length != 0) {
     let postTagsBuf = post.tags;
@@ -189,7 +197,6 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: i32, bloc
       post.replyCount++;
 
       let replies = post.replies;
-
       replies.push(postId.toString() + '-' + replyId.toString())
       post.replies = replies;
 

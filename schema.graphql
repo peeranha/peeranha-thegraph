@@ -77,6 +77,7 @@ type _Schema_
 type Post @entity {
   id: ID!
   tags: [Int!]
+  tagsName: [String!]
   ipfsHash: Bytes
   ipfsHash2: Bytes
   postType: Int
