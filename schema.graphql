@@ -185,3 +185,15 @@ type CommunityDocumentation @entity {
   documentationJSON: String
   ipfsHash: Bytes
 }
+
+type Statistic @entity {
+  id: ID!
+  actionUser: Bytes
+  transactionHash: Bytes
+  timeStamp: BigInt
+  eventName: String
+  communityId: BigInt
+  postId: BigInt
+  replyId: Int
+  commentId: Int
+}
