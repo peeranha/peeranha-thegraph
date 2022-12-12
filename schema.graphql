@@ -118,6 +118,8 @@ type Reply @entity {
   isQuickReply: Boolean
   properties: [Bytes!]
   comments: [Comment!]
+  handle: String
+  messengerType: Int
 }
 
 type Comment @entity {
