@@ -34,6 +34,7 @@ type Community @entity {
   name: String
   description: String
   website: String
+  communitySite: String
   avatar: String
   isFrozen: Boolean
   creationTime: BigInt
@@ -101,6 +102,7 @@ type Post @entity {
   author: User!
   rating: Int
   postTime: BigInt
+  lastmod: BigInt
   communityId: BigInt!
   title: String
   content: String

@@ -228,6 +228,7 @@ export function handleEditedPost(event: PostEdited): void {
     post = new Post(event.params.postId.toString())
     newPost(post, event.params.postId, event.block.timestamp);
   } else {
+    post.lastmod = event.block.timestamp;
     addDataToPost(post, event.params.postId);
   }
   post.save();
@@ -237,6 +238,16 @@ export function handleEditedPost(event: PostEdited): void {
   createHistory(post, event, 'Post', 'Edit');
 
   indexingPeriods();
+}
+
+export function handleChangedTypePost(event: ChangePostType): void {
+  let post = Post.load(event.params.postId.toString())
+  if (post != null) {
+    post.lastmod = event.block.timestamp;
+    post.postType = event.params.newPostType;
+    updatePostUsersRatings(post);
+    post.save();
+  }
 }
 
 export function handleDeletedPost(event: PostDeleted): void {
@@ -250,15 +261,6 @@ export function handleDeletedPost(event: PostDeleted): void {
   indexingPeriods();
 }
 
-export function handleChangedTypePost(event: ChangePostType): void {
-  let post = Post.load(event.params.postId.toString());
-  if (post != null) {
-    post.postType = event.params.newPostType;
-    updatePostUsersRatings(post);
-    post.save();
-  }
-}
-
 export function handleNewReply(event: ReplyCreated): void {
   let replyId = event.params.replyId;
   let reply = new Reply(event.params.postId.toString() + "-" + replyId.toString());
@@ -266,6 +268,12 @@ export function handleNewReply(event: ReplyCreated): void {
   newReply(reply, event.params.postId, replyId, event.block.timestamp);
   reply.save();
   createHistory(reply, event, 'Reply', 'Create');
+
+  let post = Post.load(event.params.postId.toString());
+  if(post){
+    post.lastmod = event.block.timestamp;
+    post.save();
+  }
 
   indexingPeriods();
 }
@@ -286,6 +294,12 @@ export function handleEditedReply(event: ReplyEdited): void {
   updatePostContent(postId);
   createHistory(reply, event, 'Reply', 'Edit');
 
+  let post = Post.load(event.params.postId.toString());
+  if(post){
+    post.lastmod = event.block.timestamp;
+    post.save();
+  }
+
   indexingPeriods();
 }
 
@@ -301,6 +315,12 @@ export function handleDeletedReply(event: ReplyDeleted): void {
   updatePostContent(postId);
   createHistory(reply, event, 'Reply', 'Delete');
 
+  let post = Post.load(event.params.postId.toString());
+  if(post){
+    post.lastmod = event.block.timestamp;
+    post.save();
+  }
+
   indexingPeriods();
 }
 
@@ -312,6 +332,12 @@ export function handleNewComment(event: CommentCreated): void {
   newComment(comment, event.params.postId, BigInt.fromI32(event.params.parentReplyId), commentId);  //без конвертации
   comment.save();
   createHistory(comment, event, 'Comment', 'Create');
+
+  let post = Post.load(event.params.postId.toString());
+  if(post){
+    post.lastmod = event.block.timestamp;
+    post.save();
+  }
 
   indexingPeriods();
 }
@@ -334,6 +360,12 @@ export function handleEditedComment(event: CommentEdited): void {
   let postId = event.params.postId;
   updatePostContent(postId);
 
+  let post = Post.load(event.params.postId.toString());
+  if(post){
+    post.lastmod = event.block.timestamp;
+    post.save();
+  }
+
   indexingPeriods();
 }
 
@@ -349,6 +381,12 @@ export function handleDeletedComment(event: CommentDeleted): void {
   let postId = event.params.postId;
   updatePostContent(postId);
   createHistory(comment, event, 'Comment', 'Delete');
+
+  let post = Post.load(event.params.postId.toString());
+  if(post){
+    post.lastmod = event.block.timestamp;
+    post.save();
+  }
 
   indexingPeriods();
 }

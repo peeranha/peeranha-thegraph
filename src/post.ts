@@ -9,9 +9,11 @@ export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigIn
   if (peeranhaPost == null) return;
 
   post.communityId = peeranhaPost.communityId;
+  post.postType = peeranhaPost.postType;
   post.author = peeranhaPost.author.toHex();
   post.rating = peeranhaPost.rating;
-  post.postTime = peeranhaPost.postTime
+  post.postTime = peeranhaPost.postTime;
+  post.lastmod = peeranhaPost.postTime;
   post.commentCount = 0;
   post.replyCount = 0;
   post.officialReply = 0;
@@ -34,7 +36,6 @@ export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigIn
   user.save();
 
   addDataToPost(post, postId);
-  updateStartUserRating(Address.fromString(post.author), post.communityId);
 }
 
 export function addDataToPost(post: Post | null, postId: BigInt): void {
@@ -61,7 +62,7 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
       let oldTag = postTagsBuf.pop();
 
       if(!peeranhaPost.tags.includes(oldTag)) {
-        let tag = Tag.load(peeranhaPost.communityId.toString() + '-' + oldTag.toString());
+        let tag = Tag.load(post.communityId.toString() + '-' + oldTag.toString());
         if (tag != null) {
           tag.postCount--;
           tag.save();
@@ -73,11 +74,27 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
   post.tags = peeranhaPost.tags;
   post.ipfsHash = peeranhaPost.ipfsDoc.hash;
   post.ipfsHash2 = peeranhaPost.ipfsDoc.hash2;
-  post.postType = peeranhaPost.postType;
   let postLanguage = getPeeranhaContent().getItemLanguage(postId, 0, 0);
   post.language = postLanguage;
 
+  if (post.communityId != peeranhaPost.communityId) {
+    const oldCommunity = getCommunity(post.communityId);
+    oldCommunity.postCount--;
+    oldCommunity.save();
+
+    const newCommunity = getCommunity(peeranhaPost.communityId);
+    newCommunity.postCount++;
+    newCommunity.save();
+    post.communityId = peeranhaPost.communityId;
+  }
+  let oldPostType = post.postType;
+  if (oldPostType != null && oldPostType != peeranhaPost.postType) {
+    updatePostUsersRatings(post);
+    post.postType = peeranhaPost.postType;
+  }
+
   getIpfsPostData(post);
+  updateStartUserRating(Address.fromString(post.author), post.communityId);
 }
 
 function getIpfsPostData(post: Post | null): void {
@@ -650,25 +667,6 @@ export function generateDocumentationPosts(
 ): void {
   if (newDocumentationIpfsHash === null)
     return;
-
-  const test = 0
-  if(test == null){
-    log.warning('result:{}', ['test == null']);
-  } else {
-    log.warning('result:{}', ['not test == null']);
-  }
-
-  if(test != null){
-    log.warning('result:{}', ['test != null']);
-  } else {
-    log.warning('result:{}', ['not test != null']);
-  }
-
-  if(test){
-    log.warning('result:{}', ['null']);
-  } else {
-    log.warning('result:{}', ['not null']);
-  }
 
   let newPosts: string[] = []
   let oldPosts: string[] = []
