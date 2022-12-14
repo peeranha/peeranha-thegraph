@@ -83,8 +83,7 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
     newCommunity.save();
     post.communityId = peeranhaPost.communityId;
   }
-  let oldPostType = post.postType;
-  if (oldPostType != peeranhaPost.postType) {
+  if (post.postType != peeranhaPost.postType) {
     updatePostUsersRatings(post);
     post.postType = peeranhaPost.postType;
   }
