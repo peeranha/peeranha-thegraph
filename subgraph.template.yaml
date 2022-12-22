@@ -168,3 +168,53 @@ dataSources:
           handler: handleGetReward
 
       file: ./src/mapping.ts
+  
+  - kind: ethereum/contract
+    name: PeeranhaCommunityTokenFactory
+    network: "{{network}}"
+    source:
+      address: "{{communityTokenFactoryAddress}}"
+      abi: PeeranhaCommunityTokenFactory
+      startBlock: {{startBlockTokenFactory}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - PeeranhaCommunityTokenFactory
+        - PeeranhaUser
+      abis:
+        - name: PeeranhaCommunityTokenFactory
+          file: ./abis/PeeranhaCommunityTokenFactory.json
+        - name: PeeranhaUser
+          file: ./abis/PeeranhaUser.json
+      eventHandlers:
+        - event: CommunityTokenCreated(indexed address,indexed uint32)
+          handler: handleNewCommunityToken
+        - event: CommunityRewardSettingsUpdated(indexed address)
+          handler: handleUpdateCommunityRewardSettings
+        - event: SetCommunityTokenPool(indexed uint16)
+          handler: handleSetCommunityTokenPool
+        - event: GetCommunityReward(indexed address,indexed uint16)
+          handler: handleGetCommunityReward
+      file: ./src/mapping.ts
+
+templates:
+  - name: PeeranhaCommunityToken
+    kind: ethereum/contract
+    network: {{network}}
+    source:
+      abi: PeeranhaCommunityToken
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - PeeranhaCommunityToken
+      abis:
+        - name: PeeranhaCommunityToken
+          file: ./abis/PeeranhaCommunityToken.json
+      eventHandlers:
+        - event: AddBalance(indexed uint256)
+          handler: handleAddBalance
+      file: ./src/mapping.ts
