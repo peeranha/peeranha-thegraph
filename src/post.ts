@@ -376,7 +376,6 @@ export function newPostTranslation(postTranslation: PostTranslation | null, post
   if (peeranhaTranslation == null) return;
   postTranslation.postId = postId.toString() + "-0-0";
   postTranslation.language = language;
-  postTranslation.author = peeranhaTranslation.author.toHex();
 
   addDataToPostTranslation(postTranslation, postId, language);
 
@@ -394,6 +393,7 @@ export function addDataToPostTranslation(postTranslation: PostTranslation | null
   let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, 0, 0, language.toI32());
   if (peeranhaTranslation == null) return;
 
+  postTranslation.author = peeranhaTranslation.author.toHex();
   postTranslation.ipfsHash = peeranhaTranslation.ipfsDoc.hash;
   getIpfsPostTranslationData(postTranslation);
 }
@@ -431,7 +431,6 @@ export function newReplyTranslation(replyTranslation: ReplyTranslation | null, p
   if (peeranhaTranslation == null) return;
   replyTranslation.replyId = replyId.toString() + "-" + replyId.toString() + "-0";
   replyTranslation.language = language;
-  replyTranslation.author = peeranhaTranslation.author.toHex();
 
   addDataToReplyTranslation(replyTranslation, postId, replyId, language);
 
@@ -454,6 +453,7 @@ export function addDataToReplyTranslation(replyTranslation: ReplyTranslation | n
   let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, replyId.toI32(), 0, language.toI32());
   if (peeranhaTranslation == null) return;
 
+  replyTranslation.author = peeranhaTranslation.author.toHex();
   replyTranslation.ipfsHash = peeranhaTranslation.ipfsDoc.hash;
 
   getIpfsReplyTranslationData(replyTranslation);
@@ -487,7 +487,6 @@ export function newCommentTranslation(commentTranslation: CommentTranslation | n
   if (peeranhaTranslation == null) return;
   commentTranslation.commentId = parentReplyId.toString() + "-" + parentReplyId.toString() + "-" + commentId.toString();
   commentTranslation.language = language;
-  commentTranslation.author = peeranhaTranslation.author.toHex();
 
   addDataToCommentTranslation(commentTranslation, postId, parentReplyId, commentId, language);
 
@@ -510,6 +509,7 @@ export function addDataToCommentTranslation(commentTranslation: CommentTranslati
   let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, parentReplyId.toI32(), commentId.toI32(), language.toI32());
   if (peeranhaTranslation == null) return;
 
+  commentTranslation.author = peeranhaTranslation.author.toHex();
   commentTranslation.ipfsHash = peeranhaTranslation.ipfsDoc.hash;
   getIpfsCommentTranslationData(commentTranslation);
 }
