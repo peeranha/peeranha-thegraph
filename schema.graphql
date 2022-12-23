@@ -199,7 +199,7 @@ type CommunityToken @entity {
   maxRewardPerUser: BigInt
   tokenContractAddress: String
   sumDepositTokens: BigInt
-  sumPools: BigInt
+  frezeTokens: BigInt
   balance: BigInt
   createTime: BigInt
   communityId: BigInt

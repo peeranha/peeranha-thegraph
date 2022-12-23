@@ -158,9 +158,7 @@ export function updatePostUsersRatings(post: Post | null): void {
     if (
     (reply != null && !reply.isDeleted) && 
     (reply.isFirstReply || reply.isQuickReply || reply.rating != 0 || reply.isBestReply)) {
-
       updateUserRating(Address.fromString(reply.author), post.communityId);
-
     }
   }
 }

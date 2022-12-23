@@ -427,9 +427,7 @@ export function handleAddBalance(event: AddBalance): void {
     return;
   }
 
-  communityToken.sumDepositTokens = communityToken.sumDepositTokens.plus(event.params.amount);
-  communityToken.balance = communityToken.balance.plus(event.params.amount);
-
+  communityToken.balance = getPeeranhaCommunityToken(Address.fromString(communityToken.id)).getBalance();
   communityToken.save();
 }
 
@@ -465,14 +463,14 @@ export function handleSetCommunityTokenPool(event: SetCommunityTokenPool): void 
         userReward.isPaid = isPaid.id;
         userReward.save();
       }
-      const communityTokenPool = getPeeranhaCommunityToken(contractsCommunityToken[communityTokenAdresses]).getTotalPeriodReward(period);
       let communityToken = CommunityToken.load(contractsCommunityToken[communityTokenAdresses].toHex());
       if(communityToken == null) {
         return;
       }
 
-      communityToken.balance = communityToken.balance.minus(communityTokenPool);
-      communityToken.sumPools = communityToken.sumPools.plus(communityTokenPool);
+      let communityTokenData = getPeeranhaCommunityToken(Address.fromString(communityToken.id)).getCommunityTokenData();
+      communityToken.balance = getPeeranhaCommunityToken(Address.fromString(communityToken.id)).getBalance();
+      communityToken.frezeTokens = communityTokenData.frezeTokens;
       communityToken.save();
     }
   }
