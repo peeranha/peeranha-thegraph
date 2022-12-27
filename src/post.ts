@@ -209,9 +209,9 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: i32, bloc
     updateUserRating(peeranhaReply.author, post.communityId);
   }
   updateStartUserRating(Address.fromString(reply.author), post.communityId);
+  addDataToReply(reply, postId, replyId);
   post.postContent += ' ' + reply.content;
   post.save();
-  addDataToReply(reply, postId, replyId);
 }
 
 export function addDataToReply(reply: Reply | null, postId: BigInt, replyId: i32): void {
@@ -314,7 +314,6 @@ export function newComment(comment: Comment | null, postId: BigInt, parentReplyI
 
   addDataToComment(comment, postId, parentReplyId, commentId);
   updateStartUserRating(Address.fromString(post.author), post.communityId);
-
   post.postContent += ' ' + comment.content;
   post.save();
 }
