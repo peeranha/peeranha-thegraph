@@ -14,7 +14,7 @@ import { PostCreated, PostEdited, PostDeleted,
   StatusBestReplyChanged,
 } from '../generated/PeeranhaContent/PeeranhaContent'
 import { GetReward } from '../generated/PeeranhaToken/PeeranhaToken'
-import { CommunityTokenCreated, SetCommunityTokenPool, CommunityRewardSettingsUpdated, GetCommunityReward } from '../generated/PeeranhaCommunityTokenFactory/PeeranhaCommunityTokenFactory'
+import { CommunityTokenCreated, SetCommunityTokenPool, CommunityRewardSettingsUpdated, PayCommunityRewards } from '../generated/PeeranhaCommunityTokenFactory/PeeranhaCommunityTokenFactory'
 import { PeeranhaCommunityToken } from '../generated/templates'
 import { AddBalance } from '../generated/templates/PeeranhaCommunityToken/PeeranhaCommunityToken'
 
@@ -476,7 +476,7 @@ export function handleSetCommunityTokenPool(event: SetCommunityTokenPool): void 
   }
 }
 
-export function handleGetCommunityReward(event: GetCommunityReward): void {
+export function handlePayCommunityRewards(event: PayCommunityRewards): void {
   const isPaid = IsPaid.load(BigInt.fromI32(event.params.period).toString() + '-' + event.params.user.toHex());
   if (isPaid != null) {
     isPaid.isPaid = false;

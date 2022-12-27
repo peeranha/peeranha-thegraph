@@ -184,7 +184,6 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: i32, bloc
   if (peeranhaReply.parentReplyId == 0) {
     if (post != null) {
       post.replyCount++;
-
       let replies = post.replies;
 
       replies.push(postId.toString() + '-' + replyId.toString())
@@ -312,7 +311,6 @@ export function newComment(comment: Comment | null, postId: BigInt, parentReplyI
 
   addDataToComment(comment, postId, parentReplyId, commentId);
   updateStartUserRating(Address.fromString(post.author), post.communityId);
-
   post.postContent += ' ' + comment.content;
   post.save();
 }

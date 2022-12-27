@@ -195,8 +195,8 @@ dataSources:
           handler: handleUpdateCommunityRewardSettings
         - event: SetCommunityTokenPool(indexed uint16)
           handler: handleSetCommunityTokenPool
-        - event: GetCommunityReward(indexed address,indexed uint16)
-          handler: handleGetCommunityReward
+        - event: PayCommunityRewards(indexed address,indexed uint16)
+          handler: handlePayCommunityRewards
       file: ./src/mapping.ts
 
 templates:
