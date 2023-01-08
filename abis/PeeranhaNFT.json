@@ -53,19 +53,6 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "uint64",
-        "name": "achievementId",
-        "type": "uint64"
-      }
-    ],
-    "name": "ConfigureNewAchievementNFT",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
         "indexed": false,
         "internalType": "uint8",
         "name": "version",
@@ -201,84 +188,8 @@
     "type": "event"
   },
   {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "bytes",
-        "name": "metaData",
-        "type": "bytes"
-      }
-    ],
-    "name": "TransferWithMetadata",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256[]",
-        "name": "tokenIds",
-        "type": "uint256[]"
-      }
-    ],
-    "name": "WithdrawnBatch",
-    "type": "event"
-  },
-  {
-    "inputs": [],
-    "name": "BATCH_LIMIT",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [],
     "name": "DEFAULT_ADMIN_ROLE",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "DEPOSITOR_ROLE",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -304,7 +215,7 @@
   },
   {
     "inputs": [],
-    "name": "OWNER_MINTER_ROLE",
+    "name": "PREDICATE_ROLE",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -355,71 +266,6 @@
   {
     "inputs": [
       {
-        "internalType": "uint64",
-        "name": "achievementId",
-        "type": "uint64"
-      },
-      {
-        "internalType": "uint64",
-        "name": "maxCount",
-        "type": "uint64"
-      },
-      {
-        "internalType": "string",
-        "name": "achievementURI",
-        "type": "string"
-      },
-      {
-        "internalType": "enum AchievementCommonLib.AchievementsType",
-        "name": "achievementsType",
-        "type": "uint8"
-      }
-    ],
-    "name": "configureNewAchievementNFT",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes",
-        "name": "depositData",
-        "type": "bytes"
-      }
-    ],
-    "name": "deposit",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "encodeTokenMetadata",
-    "outputs": [
-      {
-        "internalType": "bytes",
-        "name": "",
-        "type": "bytes"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address",
         "name": "userAddress",
         "type": "address"
@@ -459,39 +305,17 @@
   {
     "inputs": [
       {
-        "internalType": "uint64",
-        "name": "achievementId",
-        "type": "uint64"
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
       }
     ],
-    "name": "getAchievementsNFTConfig",
+    "name": "exists",
     "outputs": [
       {
-        "components": [
-          {
-            "internalType": "uint64",
-            "name": "factCount",
-            "type": "uint64"
-          },
-          {
-            "internalType": "uint64",
-            "name": "maxCount",
-            "type": "uint64"
-          },
-          {
-            "internalType": "string",
-            "name": "achievementURI",
-            "type": "string"
-          },
-          {
-            "internalType": "enum AchievementCommonLib.AchievementsType",
-            "name": "achievementsType",
-            "type": "uint8"
-          }
-        ],
-        "internalType": "struct NFTLib.AchievementNFTsConfigs",
+        "internalType": "bool",
         "name": "",
-        "type": "tuple"
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -588,62 +412,6 @@
         "type": "bytes32"
       },
       {
-        "internalType": "uint256",
-        "name": "index",
-        "type": "uint256"
-      }
-    ],
-    "name": "getRoleMember",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
-      }
-    ],
-    "name": "getRoleMemberCount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getVersion",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "role",
-        "type": "bytes32"
-      },
-      {
         "internalType": "address",
         "name": "account",
         "type": "address"
@@ -682,22 +450,17 @@
     "inputs": [
       {
         "internalType": "string",
-        "name": "name",
+        "name": "name_",
         "type": "string"
       },
       {
         "internalType": "string",
-        "name": "symbol",
+        "name": "symbol_",
         "type": "string"
       },
       {
         "internalType": "address",
-        "name": "peeranhaUserContractAddress",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "childChainManager",
+        "name": "predicateProxyAddress",
         "type": "address"
       }
     ],
@@ -738,9 +501,9 @@
         "type": "address"
       },
       {
-        "internalType": "uint64",
-        "name": "achievementId",
-        "type": "uint64"
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
       }
     ],
     "name": "mint",
@@ -759,6 +522,11 @@
         "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
+      },
+      {
+        "internalType": "bytes",
+        "name": "metaData",
+        "type": "bytes"
       }
     ],
     "name": "mint",
@@ -1031,64 +799,6 @@
     "name": "transferFrom",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "withdraw",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256[]",
-        "name": "tokenIds",
-        "type": "uint256[]"
-      }
-    ],
-    "name": "withdrawBatch",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "withdrawWithMetadata",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "withdrawnTokens",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   }
 ]
