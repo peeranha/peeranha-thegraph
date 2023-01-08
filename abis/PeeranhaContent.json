@@ -53,41 +53,10 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "postId",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
       },
-      {
-        "internalType": "uint32",
-        "name": "communityId",
-        "type": "uint32"
-      }
-    ],
-    "name": "changeCommunityId",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "postId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "enum PostLib.PostType",
-        "name": "postType",
-        "type": "uint8"
-      }
-    ],
-    "name": "changePostType",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
       {
         "internalType": "uint256",
         "name": "postId",
@@ -106,6 +75,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
       {
         "internalType": "uint256",
         "name": "postId",
@@ -129,6 +103,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
       {
         "internalType": "uint32",
         "name": "communityId",
@@ -157,6 +136,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
       {
         "internalType": "uint256",
         "name": "postId",
@@ -191,33 +175,33 @@
         "type": "uint256"
       },
       {
-        "internalType": "uint16",
-        "name": "replyId",
-        "type": "uint16"
-      },
-      {
-        "internalType": "uint8",
-        "name": "commentId",
-        "type": "uint8"
-      },
-      {
-        "internalType": "enum PostLib.Language",
-        "name": "language",
-        "type": "uint8"
-      },
-      {
         "internalType": "bytes32",
         "name": "ipfsHash",
         "type": "bytes32"
+      },
+      {
+        "internalType": "enum CommonLib.MessengerType",
+        "name": "messengerType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "string",
+        "name": "handle",
+        "type": "string"
       }
     ],
-    "name": "createTranslation",
+    "name": "createReplyByBot",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
       {
         "internalType": "uint256",
         "name": "postId",
@@ -252,6 +236,11 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
         "name": "postId",
         "type": "uint256"
@@ -275,6 +264,11 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
         "name": "postId",
         "type": "uint256"
@@ -287,6 +281,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
       {
         "internalType": "uint256",
         "name": "postId",
@@ -306,33 +305,10 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "postId",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
       },
-      {
-        "internalType": "uint16",
-        "name": "replyId",
-        "type": "uint16"
-      },
-      {
-        "internalType": "uint8",
-        "name": "commentId",
-        "type": "uint8"
-      },
-      {
-        "internalType": "enum PostLib.Language",
-        "name": "language",
-        "type": "uint8"
-      }
-    ],
-    "name": "deleteTranslation",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
       {
         "internalType": "uint256",
         "name": "postId",
@@ -362,6 +338,11 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
         "name": "postId",
         "type": "uint256"
@@ -389,6 +370,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
       {
         "internalType": "uint256",
         "name": "postId",
@@ -423,6 +409,11 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
         "internalType": "uint256",
         "name": "postId",
         "type": "uint256"
@@ -451,38 +442,10 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "postId",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
       },
-      {
-        "internalType": "uint16",
-        "name": "replyId",
-        "type": "uint16"
-      },
-      {
-        "internalType": "uint8",
-        "name": "commentId",
-        "type": "uint8"
-      },
-      {
-        "internalType": "enum PostLib.Language",
-        "name": "language",
-        "type": "uint8"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "ipfsHash",
-        "type": "bytes32"
-      }
-    ],
-    "name": "editTranslation",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
       {
         "internalType": "uint256",
         "name": "postId",
@@ -673,6 +636,40 @@
   {
     "inputs": [],
     "name": "getDomainSeperator",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint8",
+        "name": "propertyId",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint16",
+        "name": "replyId",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint8",
+        "name": "commentId",
+        "type": "uint8"
+      }
+    ],
+    "name": "getItemProperty",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -1102,6 +1099,11 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
         "internalType": "uint32",
         "name": "communityId",
         "type": "uint32"
@@ -1119,6 +1121,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
       {
         "internalType": "uint256",
         "name": "postId",
@@ -1144,25 +1151,6 @@
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "postId",
-        "type": "uint256"
-      }
-    ],
-    "name": "ChangeCommunityId",
-    "type": "event"
   },
   {
     "anonymous": false,
