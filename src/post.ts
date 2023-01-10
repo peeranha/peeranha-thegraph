@@ -368,8 +368,8 @@ export function updatePostContent(postId: BigInt): void {
   if (post == null) return;
   post.postContent = '';
   
-  // let peeranhaPost = getPeeranhaContent().getPost(postId);
-  // if (peeranhaPost == null) return;
+  let peeranhaPost = getPeeranhaContent().getPost(postId);
+  if (peeranhaPost == null) return;
   let postTagsBuf = post.tags;
   for (let i = 0; i < post.tags.length; i++) {
     let tagId = postTagsBuf.pop();
