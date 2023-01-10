@@ -167,7 +167,6 @@ export function updatePostUsersRatings(post: Post | null): void {
 
 export function newReply(reply: Reply | null, postId: BigInt, replyId: i32, blockTimestamp: BigInt): void {
   let peeranhaReply = getPeeranhaContent().getReply(postId, replyId);
-  let messengerUserData = getPeeranhaContent().getItemProperty(ReplyProperties.MessengerSender, postId, replyId, 0);
   if (peeranhaReply == null || reply == null) return;
 
   reply.author = peeranhaReply.author.toHex();
@@ -182,8 +181,13 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: i32, bloc
   reply.isDeleted = false;
   reply.comments = [];
   reply.isBestReply = false;
-  reply.handle = messengerUserData.toString().slice(0, messengerUserData.length - 1);
-  reply.messengerType = messengerUserData[messengerUserData.length - 1];
+
+  const messengerUserDataResult = getPeeranhaContent().try_getItemProperty(ReplyProperties.MessengerSender, postId, replyId, 0);
+  if (!messengerUserDataResult.reverted) {
+    const messengerUserData = messengerUserDataResult.value;
+    reply.handle = messengerUserData.toString().slice(0, messengerUserData.length - 1);
+    reply.messengerType = messengerUserData[messengerUserData.length - 1];
+  }
 
   let post = Post.load(postId.toString())
   if (peeranhaReply.parentReplyId == 0) {
