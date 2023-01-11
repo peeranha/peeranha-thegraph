@@ -48,10 +48,11 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
   postTags = [];
   for (let i = 0; i < peeranhaPost.tags.length; i++) {
     let newTag = postTagsBuf.pop();
-    postTags.push(peeranhaPost.communityId.toString() + '-' + newTag.toString());
+    let tagId = peeranhaPost.communityId.toString() + '-' + newTag.toString();
+    postTags.push(tagId);
 
-    if(!oldPostTags.includes(peeranhaPost.communityId.toString() + '-' + newTag.toString())) {
-      let tag = Tag.load(peeranhaPost.communityId.toString() + '-' + newTag.toString());
+    if(!oldPostTags.includes(tagId)) {
+      let tag = Tag.load(tagId);
       if (tag != null) {
         post.postContent += ' ' + tag.name;
         tag.postCount++;
