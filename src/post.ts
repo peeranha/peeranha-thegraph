@@ -441,6 +441,7 @@ let uniqueNewPosts: string[] = [];
 export function generateDocumentationPosts(
   comunityId: BigInt,
   userAddr: Address,
+  lastmodTimestamp: BigInt,
   oldDocumentationIpfsHash: Bytes | null, 
   newDocumentationIpfsHash: Bytes
 ): void {
@@ -494,6 +495,7 @@ export function generateDocumentationPosts(
       let post = new Post(newPosts[index]);
       post.author = userAddr.toHex();
       post.communityId = comunityId;
+      post.lastmod = lastmodTimestamp;
       post.postType = PostType.Documentation;
       post.ipfsHash = ByteArray.fromHexString(newPosts[index]) as Bytes;
   

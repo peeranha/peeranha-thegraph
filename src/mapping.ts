@@ -585,6 +585,7 @@ export function handlerSetDocumentationTree(event: SetDocumentationTree): void {
   generateDocumentationPosts(
     event.params.communityId,
     event.params.userAddr,
+    event.block.timestamp,
     oldDocumentationIpfsHash,
     communityDocumentation.hash
   )
