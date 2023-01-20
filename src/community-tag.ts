@@ -72,8 +72,8 @@ function getIpfsCommunityData(community: Community | null): void {
       }
   
       let language = ipfsObj.get('language');
-      if (!language.isNull() && language.kind == JSONValueKind.NUMBER) {
-        community.language = language.toBigInt();
+      if (!language.isNull() && language.kind == JSONValueKind.STRING) {
+        community.language = language.toString();
       }
 
       let avatar = ipfsObj.get('avatar');
@@ -90,13 +90,14 @@ function getIpfsCommunityData(community: Community | null): void {
         for (let i = 0; i < translationsLength; i++) {
           const translationsObject = translationsArray[i].toObject();
           const name = translationsObject.get("name");
+          const enableAutotranslation = translationsObject.get("enableAutotranslation");
           const description = translationsObject.get("description");
           const translationLanguage = translationsObject.get("language");
-          if (translationLanguage.isNull() || translationLanguage.kind != JSONValueKind.NUMBER) { continue; }
+          if (translationLanguage.isNull() || translationLanguage.kind != JSONValueKind.STRING) { continue; }
 
-          let communityTranslation = CommunityTranslation.load(community.id + "-" + translationLanguage.toBigInt().toString());
+          let communityTranslation = CommunityTranslation.load(community.id + "-" + translationLanguage.toString());
           if (communityTranslation == null) {
-            communityTranslation = new CommunityTranslation(community.id + "-" + translationLanguage.toBigInt().toString());
+            communityTranslation = new CommunityTranslation(community.id + "-" + translationLanguage.toString());
             let communityTranslations = community.translations;
             communityTranslations.push(communityTranslation.id);
             community.translations = communityTranslations;
@@ -108,8 +109,11 @@ function getIpfsCommunityData(community: Community | null): void {
           if (!description.isNull() && description.kind == JSONValueKind.STRING) {
             communityTranslation.description = description.toString();
           }
+          if (!enableAutotranslation.isNull() && enableAutotranslation.kind == JSONValueKind.BOOL) {
+            communityTranslation.enableAutotranslation = enableAutotranslation.toBool();
+          }
 
-          communityTranslation.language = translationLanguage.toBigInt();
+          communityTranslation.language = translationLanguage.toString();
           communityTranslation.communityId = community.id;
           communityTranslation.save();
         }

@@ -45,7 +45,7 @@ type Community @entity {
   followingUsers: Int
   ipfsHash: Bytes
   ipfsHash2: Bytes
-  language: BigInt
+  language: String
   translations: [CommunityTranslation!]
 }
 
@@ -54,7 +54,8 @@ type CommunityTranslation @entity {
   communityId: String
   name: String
   description: String
-  language: BigInt
+  language: String
+  enableAutotranslation: Boolean
 }
 
 type Tag @entity {
