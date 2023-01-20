@@ -86,6 +86,7 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
     newCommunity.postCount++;
     newCommunity.save();
     post.communityId = peeranhaPost.communityId;
+    updatePostUsersRatings(post);
   }
   if (post.postType != peeranhaPost.postType) {
     updatePostUsersRatings(post);
