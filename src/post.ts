@@ -80,10 +80,12 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
   if (post.communityId != peeranhaPost.communityId) {
     const oldCommunity = getCommunity(post.communityId);
     oldCommunity.postCount--;
+    oldCommunity.replyCount -= post.replyCount;
     oldCommunity.save();
 
     const newCommunity = getCommunity(peeranhaPost.communityId);
     newCommunity.postCount++;
+    newCommunity.replyCount += post.replyCount;
     newCommunity.save();
     post.communityId = peeranhaPost.communityId;
     updatePostUsersRatings(post);
@@ -131,8 +133,18 @@ export function deletePost(post: Post | null, postId: BigInt): void {
   post.isDeleted = true;
 
   updateUserRating(Address.fromString(post.author), post.communityId);
-
   let community = getCommunity(post.communityId);
+
+  let tagsLength = post.tags.length;
+  let postTagsBuf = post.tags;
+  for (let i = 0; i < tagsLength; i++) {
+    let tagBuf = postTagsBuf.pop();
+    let tag = Tag.load(tagBuf);
+    if (tag != null) {
+      tag.deletedPostCount++;
+      tag.save();
+    }
+  }
 
   for (let i = 1; i <= post.replyCount; i++) {
     let reply = Reply.load(postId.toString() + '-' + i.toString());
@@ -165,7 +177,6 @@ export function updatePostUsersRatings(post: Post | null): void {
     (reply.isFirstReply || reply.isQuickReply || reply.rating != 0 || reply.isBestReply)) {
 
       updateUserRating(Address.fromString(reply.author), post.communityId);
-
     }
   }
 }
