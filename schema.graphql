@@ -98,6 +98,8 @@ type Post @entity {
   replies: [Reply!]
   comments: [Comment!]
   tags: [Tag!]
+  handle: String
+  messengerType: Int
 }
 
 type Reply @entity {

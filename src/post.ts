@@ -24,6 +24,13 @@ export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigIn
   post.tags = [];
   post.postContent = '';
 
+  const messengerUserDataResult = getPeeranhaContent().try_getItemProperty(ReplyProperties.MessengerSender, postId, 0, 0);
+  if (!messengerUserDataResult.reverted) {
+    const messengerUserData = messengerUserDataResult.value;
+    post.handle = messengerUserData.toString().slice(0, messengerUserData.length - 1);
+    post.messengerType = messengerUserData[messengerUserData.length - 1];
+  }
+
   let community = getCommunity(post.communityId);
   community.postCount++;
   community.save();
