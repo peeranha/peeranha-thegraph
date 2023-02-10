@@ -45,10 +45,10 @@ function getIpfsAchievementData(achievement: Achievement | null): void {
           achievement.description = description.toString();
         }
 
-        let attributes = ipfsObj.get('attributes');
-        if (!attributes.isNull()) {
-          achievement.attributes = attributes.toString();
-        }
+        // let attributes = ipfsObj.get('attributes');
+        // if (!attributes.isNull()) {
+        //   achievement.attributes = attributes.toString();
+        // }
 
         let image = ipfsObj.get('image');
         if (!image.isNull()) {
