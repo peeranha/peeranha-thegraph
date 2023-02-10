@@ -13,16 +13,20 @@ import { PostCreated, PostEdited, PostDeleted,
   ChangePostType,
   StatusBestReplyChanged,
 } from '../generated/PeeranhaContent/PeeranhaContent'
-
 import { GetReward } from '../generated/PeeranhaToken/PeeranhaToken'
-import { User, Community, Tag, Post, Reply, Comment, Achievement, ContractInfo, UserReward, Period, History, UserPermission, CommunityDocumentation } from '../generated/schema'
+import { CommunityTokenCreated, SetCommunityTokenPool, CommunityRewardSettingsUpdated, PayCommunityRewards } from '../generated/PeeranhaCommunityTokenFactory/PeeranhaCommunityTokenFactory'
+import { PeeranhaCommunityToken } from '../generated/templates'
+import { AddBalance } from '../generated/templates/PeeranhaCommunityToken/PeeranhaCommunityToken'
+
+import { User, Community, Tag, Post, Reply, Comment, Achievement, ContractInfo, UserReward, UserCommunityReward, Period, History, UserPermission, CommunityDocumentation, CommunityToken, IsPaid } from '../generated/schema'
 import { USER_ADDRESS } from './config'
-import { getPeeranhaUser, getPeeranhaToken, getPeeranhaContent, PostType } from './utils'
+import { getPeeranhaUser, getPeeranhaToken, getPeeranhaContent, getPeeranhaCommunityTokenFactory, getPeeranhaCommunityToken, PostType } from './utils'
 
 import { newPost, addDataToPost, deletePost, newReply, addDataToReply, deleteReply,
   newComment, addDataToComment, deleteComment, updatePostContent, updatePostUsersRatings, generateDocumentationPosts } from './post'
 import { newCommunity, addDataToCommunity, newTag, addDataToTag, getCommunity } from './community-tag'
 import { newUser, addDataToUser, updateUserRating} from './user'
+import { newCommunityToken, addDataToCommunityToken} from './community-token'
 import { addDataToAchievement, giveAchievement, newAchievement } from './achievement'
 import { ConfigureNewAchievementNFT, Transfer } from '../generated/PeeranhaNFT/PeeranhaNFT'
 
@@ -133,6 +137,12 @@ export function handleNewCommunity(event: CommunityCreated): void {
 
   newCommunity(community, communityiD);
   community.save();
+
+  let contractInfo = ContractInfo.load(USER_ADDRESS)
+  if (contractInfo == null) {
+    contractInfo.communitiesCount++;
+    contractInfo.save();
+  }
 
   indexingPeriods();
 }
@@ -265,7 +275,7 @@ export function handleNewReply(event: ReplyCreated): void {
   createHistory(reply, event, 'Reply', 'Create');
 
   let post = Post.load(event.params.postId.toString());
-  if(post){
+  if (post) {
     post.lastmod = event.block.timestamp;
     post.save();
   }
@@ -290,7 +300,7 @@ export function handleEditedReply(event: ReplyEdited): void {
   createHistory(reply, event, 'Reply', 'Edit');
 
   let post = Post.load(event.params.postId.toString());
-  if(post){
+  if (post) {
     post.lastmod = event.block.timestamp;
     post.save();
   }
@@ -311,7 +321,7 @@ export function handleDeletedReply(event: ReplyDeleted): void {
   createHistory(reply, event, 'Reply', 'Delete');
 
   let post = Post.load(event.params.postId.toString());
-  if(post){
+  if (post) {
     post.lastmod = event.block.timestamp;
     post.save();
   }
@@ -329,7 +339,7 @@ export function handleNewComment(event: CommentCreated): void {
   createHistory(comment, event, 'Comment', 'Create');
 
   let post = Post.load(event.params.postId.toString());
-  if(post){
+  if (post) {
     post.lastmod = event.block.timestamp;
     post.save();
   }
@@ -356,7 +366,7 @@ export function handleEditedComment(event: CommentEdited): void {
   updatePostContent(postId);
 
   let post = Post.load(event.params.postId.toString());
-  if(post){
+  if (post) {
     post.lastmod = event.block.timestamp;
     post.save();
   }
@@ -384,6 +394,94 @@ export function handleDeletedComment(event: CommentDeleted): void {
   }
 
   indexingPeriods();
+}
+
+export function handleNewCommunityToken(event: CommunityTokenCreated): void {
+  let communityToken = new CommunityToken(event.params.communityTokenContractAddress.toHex());
+
+  newCommunityToken(communityToken, event.params.communityId);
+  communityToken.save();
+  
+  PeeranhaCommunityToken.create(event.params.communityTokenContractAddress)
+  
+  indexingPeriods();
+}
+
+export function handleUpdateCommunityRewardSettings(event: CommunityRewardSettingsUpdated): void {
+  let communityToken = CommunityToken.load(event.params.communityTokenContractAddress.toHex());
+  if (communityToken == null) {
+    // communityToken = new CommunityToken(event.params.communityTokenContractAddress.toHex());
+    // newCommunityToken(communityToken, event.params.communityId);           // where take community id?
+    return
+  }
+
+  addDataToCommunityToken(communityToken);
+  communityToken.save();
+  
+  indexingPeriods();
+}
+
+export function handleAddBalance(event: AddBalance): void {
+  let communityToken = CommunityToken.load(event.transaction.to.toHex());
+  if(communityToken == null) {
+    return;
+  }
+
+  communityToken.balance = getPeeranhaCommunityToken(Address.fromString(communityToken.id)).getBalance();
+  communityToken.save();
+}
+
+export function handleSetCommunityTokenPool(event: SetCommunityTokenPool): void {
+  let contractInfo = ContractInfo.load(USER_ADDRESS)
+  if (contractInfo == null) {
+    log.debug('ContractInfo not found', []);
+    return;
+  }
+
+  const communitiesCount = contractInfo.communitiesCount;
+  const period = event.params.period;
+  for (let communityIdNumber = 1; communityIdNumber <= communitiesCount; communityIdNumber++) {
+    const communityId = new BigInt(communityIdNumber)
+    const activeUsersInPeriod = getPeeranhaUser().getCommunityActiveUsersInPeriod(period, communityId);
+
+    const contractsCommunityToken = getPeeranhaCommunityTokenFactory().getContractsCommunityToken(communityId);
+    for (let communityTokenAdresses = 0; communityTokenAdresses < contractsCommunityToken.length; communityTokenAdresses++) {
+      for (let activeUsersIndex = 0; activeUsersIndex < activeUsersInPeriod.length; activeUsersIndex++) {
+        const tokenRewards = getPeeranhaCommunityTokenFactory().getUserCommunityRewardGraph(activeUsersInPeriod[activeUsersIndex], period, communityId, contractsCommunityToken[communityTokenAdresses]);
+        let userReward = new UserCommunityReward(period.toString() + '-' + activeUsersInPeriod[activeUsersIndex].toHex())
+        userReward.tokenToReward = tokenRewards;
+        userReward.period = period.toString();
+        userReward.communityId = communityId;
+        userReward.contractAddress = contractsCommunityToken[communityTokenAdresses].toHex();
+        userReward.user = activeUsersInPeriod[activeUsersIndex].toHex();
+        let isPaid = IsPaid.load(activeUsersInPeriod[activeUsersIndex].toHex() + '-' + period.toString());
+        if (isPaid == null) {
+          isPaid = new IsPaid(activeUsersInPeriod[activeUsersIndex].toHex() + '-' + period.toString());
+          isPaid.isPaid = false;
+        }
+        isPaid.save();
+        userReward.isPaid = isPaid.id;
+        userReward.save();
+      }
+      let communityToken = CommunityToken.load(contractsCommunityToken[communityTokenAdresses].toHex());
+      if(communityToken == null) {
+        return;
+      }
+
+      let communityTokenData = getPeeranhaCommunityToken(Address.fromString(communityToken.id)).getCommunityTokenData();
+      communityToken.balance = getPeeranhaCommunityToken(Address.fromString(communityToken.id)).getBalance();
+      communityToken.frezeTokens = communityTokenData.frezeTokens;
+      communityToken.save();
+    }
+  }
+}
+
+export function handlePayCommunityRewards(event: PayCommunityRewards): void {
+  const isPaid = IsPaid.load(BigInt.fromI32(event.params.period).toString() + '-' + event.params.user.toHex());
+  if (isPaid != null) {
+    isPaid.isPaid = false;
+    isPaid.save();
+  }
 }
 
 export function indexingPeriods(): void {

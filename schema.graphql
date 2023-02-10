@@ -170,6 +170,7 @@ type ContractInfo @entity {
   deployTime: BigInt
   periodLength: BigInt
   lastUpdatePeriod: Int
+  communitiesCount: Int
 }
 
 type History @entity {
@@ -188,4 +189,37 @@ type CommunityDocumentation @entity {
   id: ID!
   documentationJSON: String
   ipfsHash: Bytes
+}
+
+# id - PeernahaCommunityTokenAddress
+# tokenContractAddress - token address in blockchain
+# balance - sumDepositTokens - sumPools
+type CommunityToken @entity {
+  id: ID!
+  name: String
+  symbol: String
+  maxRewardPerPeriod: BigInt
+  activeUsersInPeriod: BigInt
+  maxRewardPerUser: BigInt
+  tokenContractAddress: String
+  sumDepositTokens: BigInt
+  frezeTokens: BigInt
+  balance: BigInt
+  createTime: BigInt
+  communityId: BigInt
+}
+
+type UserCommunityReward @entity {
+  id: ID!
+  period: Period
+  communityId: BigInt
+  contractAddress: String
+  user: User
+  tokenToReward: BigInt
+  isPaid: IsPaid
+}
+
+type IsPaid @entity {
+  id: ID!
+  isPaid: Boolean
 }

@@ -5,5 +5,7 @@
   "contentAddress": "0xfC65F146B6a7ED57E802E5E1F9aD329F40D26d3B",
   "tokenAddress": "0xbCf7A789abC7f6D8aAEf378586326668757b7216",
   "nftAddress": "0x06B65F0583F4D9E534fc96EA0D777fC7267a0bF3",
-  "startBlock": 28738784
+  "communityTokenFactoryAddress": "0xE648BB03ba49e3F6f155a89AC08ed45BDb102B1E",
+  "startBlock": 28738784,
+  "startBlockTokenFactory": 30012750
 }

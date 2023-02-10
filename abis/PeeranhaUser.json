@@ -480,6 +480,30 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "uint16",
+        "name": "period",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      }
+    ],
+    "name": "getCommunityActiveUsersInPeriod",
+    "outputs": [
+      {
+        "internalType": "address[]",
+        "name": "",
+        "type": "address[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "getContractInformation",
     "outputs": [
@@ -537,6 +561,42 @@
         "internalType": "uint16",
         "name": "",
         "type": "uint16"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint16",
+        "name": "period",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      }
+    ],
+    "name": "getPeriodCommunityRewardShares",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "totalRewardShares",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address[]",
+            "name": "activeUsersInPeriod",
+            "type": "address[]"
+          }
+        ],
+        "internalType": "struct RewardLib.PeriodRewardShares",
+        "name": "",
+        "type": "tuple"
       }
     ],
     "stateMutability": "view",
