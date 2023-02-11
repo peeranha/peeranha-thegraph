@@ -137,9 +137,12 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - PeeranhaNFT
+        - PeeranhaUser
       abis:
         - name: PeeranhaNFT
           file: ./abis/PeeranhaNFT.json
+        - name: PeeranhaUser
+          file: ./abis/PeeranhaUser.json
       eventHandlers:
         - event: ConfigureNewAchievementNFT(indexed uint64)
           handler: handleConfigureNewAchievement
