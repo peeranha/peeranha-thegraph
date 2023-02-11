@@ -140,6 +140,7 @@ type Achievement @entity {
   id: ID!
   factCount: BigInt
   maxCount: BigInt
+  lowerValue: BigInt
   achievementURI: String
   achievementsType: Int
   name: String
