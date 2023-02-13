@@ -83,6 +83,7 @@ function getIpfsCommunityData(community: Community | null): void {
 
       let oldCommunityTranslations = community.translations;
       let translations = ipfsObj.get('translations');
+      community.translations = [];
       if (!translations.isNull() && translations.kind == JSONValueKind.ARRAY) {
         const translationsArray = translations.toArray();
         const translationsLength = translationsArray.length;
@@ -98,10 +99,10 @@ function getIpfsCommunityData(community: Community | null): void {
           let communityTranslation = CommunityTranslation.load(community.id + "-" + translationLanguage.toString());
           if (communityTranslation == null) {
             communityTranslation = new CommunityTranslation(community.id + "-" + translationLanguage.toString());
-            let communityTranslations = community.translations;
-            communityTranslations.push(communityTranslation.id);
-            community.translations = communityTranslations;
           }
+          let communityTranslations = community.translations;
+          communityTranslations.push(communityTranslation.id);
+          community.translations = communityTranslations;
             
           if (!name.isNull() && name.kind == JSONValueKind.STRING) {
             communityTranslation.name = name.toString();
@@ -117,8 +118,6 @@ function getIpfsCommunityData(community: Community | null): void {
           communityTranslation.communityId = community.id;
           communityTranslation.save();
         }
-      } else {
-        community.translations = [];
       }
 
       // remove old community translations
@@ -186,6 +185,7 @@ function getIpfsTagData(tag: Tag | null): void {
 
       let oldTagTranslations = tag.translations;
       let translations = ipfsObj.get('translations');
+      tag.translations = [];
       if (!translations.isNull() && translations.kind == JSONValueKind.ARRAY) {
         const translationsArray = translations.toArray();
         const translationsLength = translationsArray.length;
@@ -200,10 +200,10 @@ function getIpfsTagData(tag: Tag | null): void {
           let tagTranslation = TagTranslation.load(tag.id + "-" + translationLanguage.toBigInt().toString());
           if (tagTranslation == null) {
             tagTranslation = new TagTranslation(tag.id + "-" + translationLanguage.toBigInt().toString());
-            let tagTranslations = tag.translations;
-            tagTranslations.push(tagTranslation.id);
-            tag.translations = tagTranslations;
           }
+          let tagTranslations = tag.translations;
+          tagTranslations.push(tagTranslation.id);
+          tag.translations = tagTranslations;
 
           if (!name.isNull() && name.kind == JSONValueKind.STRING) {
             tagTranslation.name = name.toString();
@@ -216,8 +216,6 @@ function getIpfsTagData(tag: Tag | null): void {
           tagTranslation.language = translationLanguage.toBigInt();
           tagTranslation.save();
         }
-      } else {
-        tag.translations = [];
       }
 
       // remove old tag translations
