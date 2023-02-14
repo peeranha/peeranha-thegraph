@@ -114,6 +114,19 @@
   },
   {
     "inputs": [],
+    "name": "BOT_ROLE",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "COMMUNITY_ADMIN_ROLE",
     "outputs": [
       {
@@ -141,6 +154,19 @@
   {
     "inputs": [],
     "name": "DEFAULT_ADMIN_ROLE",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "DISPATCHER_ROLE",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -289,6 +315,11 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
         "internalType": "bytes32",
         "name": "ipfsHash",
         "type": "bytes32"
@@ -340,6 +371,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
       {
         "internalType": "uint32",
         "name": "communityId",
@@ -822,17 +858,9 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "userAddr",
+        "name": "user",
         "type": "address"
-      }
-    ],
-    "name": "giveAdminPermission",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
+      },
       {
         "internalType": "address",
         "name": "userAddr",
@@ -851,6 +879,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
       {
         "internalType": "address",
         "name": "userAddr",
@@ -975,6 +1008,19 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "sender",
+        "type": "address"
+      }
+    ],
+    "name": "onlyDispatcher",
+    "outputs": [],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes32",
         "name": "role",
         "type": "bytes32"
@@ -994,17 +1040,9 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "userAddr",
+        "name": "user",
         "type": "address"
-      }
-    ],
-    "name": "revokeAdminPermission",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
+      },
       {
         "internalType": "address",
         "name": "userAddr",
@@ -1023,6 +1061,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
       {
         "internalType": "address",
         "name": "userAddr",
@@ -1088,6 +1131,24 @@
   {
     "inputs": [
       {
+        "internalType": "bytes32",
+        "name": "role",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "adminRole",
+        "type": "bytes32"
+      }
+    ],
+    "name": "setRoleAdmin",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes4",
         "name": "interfaceId",
         "type": "bytes4"
@@ -1107,6 +1168,11 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
         "internalType": "uint32",
         "name": "communityId",
         "type": "uint32"
@@ -1119,6 +1185,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
       {
         "internalType": "bytes32",
         "name": "ipfsHash",

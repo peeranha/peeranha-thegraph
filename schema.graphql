@@ -76,7 +76,6 @@ type _Schema_
 
 type Post @entity {
   id: ID!
-  tags: [Int!]
   ipfsHash: Bytes
   ipfsHash2: Bytes
   postType: Int
@@ -98,6 +97,7 @@ type Post @entity {
   properties: [BigInt!]
   replies: [Reply!]
   comments: [Comment!]
+  tags: [Tag!]
 }
 
 type Reply @entity {
@@ -118,6 +118,8 @@ type Reply @entity {
   isQuickReply: Boolean
   properties: [Bytes!]
   comments: [Comment!]
+  handle: String
+  messengerType: Int
 }
 
 type Comment @entity {

@@ -1,6 +1,6 @@
 import { json, Bytes, ipfs, BigInt, Address, ByteArray, log, store, JSONValue, JSONValueKind } from '@graphprotocol/graph-ts'
 import { Post, Reply, Comment, Tag, CommunityDocumentation } from '../generated/schema'
-import { getPeeranhaContent, ERROR_IPFS, isValidIPFS, PostType } from './utils'
+import { getPeeranhaContent, ERROR_IPFS, isValidIPFS, PostType, ReplyProperties, hexToUtf8, MessengerTypes } from './utils'
 import { updateUserRating, updateStartUserRating, getUser, newUser } from './user'
 import { getCommunity } from './community-tag'
 
@@ -21,6 +21,7 @@ export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigIn
   post.isDeleted = false;
   post.replies = [];
   post.comments = [];
+  post.tags = [];
   post.postContent = '';
 
   let community = getCommunity(post.communityId);
@@ -35,7 +36,6 @@ export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigIn
   user.save();
 
   addDataToPost(post, postId);
-  updateStartUserRating(Address.fromString(post.author), post.communityId);
 }
 
 export function addDataToPost(post: Post | null, postId: BigInt): void {
@@ -43,11 +43,16 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
   if (peeranhaPost == null) return;
 
   let postTagsBuf = peeranhaPost.tags;
+  let oldPostTags = post.tags;
+  let postTags = post.tags;
+  postTags = [];
   for (let i = 0; i < peeranhaPost.tags.length; i++) {
     let newTag = postTagsBuf.pop();
+    let tagId = peeranhaPost.communityId.toString() + '-' + newTag.toString();
+    postTags.push(tagId);
 
-    if(!post.tags.includes(newTag)) {
-      let tag = Tag.load(peeranhaPost.communityId.toString() + '-' + newTag.toString());
+    if(!oldPostTags.includes(tagId)) {
+      let tag = Tag.load(tagId);
       if (tag != null) {
         post.postContent += ' ' + tag.name;
         tag.postCount++;
@@ -55,23 +60,21 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
       }
     }
   }
+  post.tags = postTags;
 
-  if(peeranhaPost.tags.length != 0) {
-    let postTagsBuf = post.tags;
-    for (let i = 0; i < post.tags.length; i++) {
-      let oldTag = postTagsBuf.pop();
+  let oldPostTagsLength = oldPostTags.length;
+  for (let i = 0; i < oldPostTagsLength; i++) {
+    let oldTag = oldPostTags.pop();
 
-      if(!peeranhaPost.tags.includes(oldTag)) {
-        let tag = Tag.load(post.communityId.toString() + '-' + oldTag.toString());
-        if (tag != null) {
-          tag.postCount--;
-          tag.save();
-        }
+    if(!post.tags.includes(oldTag)) {
+      let tag = Tag.load(oldTag);
+      if (tag != null) {
+        tag.postCount--;
+        tag.save();
       }
     }
   }
   
-  post.tags = peeranhaPost.tags;
   post.ipfsHash = peeranhaPost.ipfsDoc.hash;
   post.ipfsHash2 = peeranhaPost.ipfsDoc.hash2;
   if (post.communityId != peeranhaPost.communityId) {
@@ -83,14 +86,15 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
     newCommunity.postCount++;
     newCommunity.save();
     post.communityId = peeranhaPost.communityId;
+    updatePostUsersRatings(post);
   }
-  let oldPostType = post.postType;
-  if (oldPostType != null && oldPostType != peeranhaPost.postType) {
+  if (post.postType != peeranhaPost.postType) {
     updatePostUsersRatings(post);
     post.postType = peeranhaPost.postType;
   }
 
   getIpfsPostData(post);
+  updateStartUserRating(Address.fromString(post.author), post.communityId);
 }
 
 function getIpfsPostData(post: Post | null): void {
@@ -183,13 +187,19 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: i32, bloc
   reply.comments = [];
   reply.isBestReply = false;
 
+  const messengerUserDataResult = getPeeranhaContent().try_getItemProperty(ReplyProperties.MessengerSender, postId, replyId, 0);
+  if (!messengerUserDataResult.reverted) {
+    const messengerUserData = messengerUserDataResult.value;
+    reply.handle = messengerUserData.toString().slice(0, messengerUserData.length - 1);
+    reply.messengerType = messengerUserData[messengerUserData.length - 1];
+  }
+
   let post = Post.load(postId.toString())
   if (peeranhaReply.parentReplyId == 0) {
     if (post != null) {
       post.replyCount++;
 
       let replies = post.replies;
-
       replies.push(postId.toString() + '-' + replyId.toString())
       post.replies = replies;
 
@@ -210,9 +220,9 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: i32, bloc
     updateUserRating(peeranhaReply.author, post.communityId);
   }
   updateStartUserRating(Address.fromString(reply.author), post.communityId);
+  addDataToReply(reply, postId, replyId);
   post.postContent += ' ' + reply.content;
   post.save();
-  addDataToReply(reply, postId, replyId);
 }
 
 export function addDataToReply(reply: Reply | null, postId: BigInt, replyId: i32): void {
@@ -315,7 +325,6 @@ export function newComment(comment: Comment | null, postId: BigInt, parentReplyI
 
   addDataToComment(comment, postId, parentReplyId, commentId);
   updateStartUserRating(Address.fromString(post.author), post.communityId);
-
   post.postContent += ' ' + comment.content;
   post.save();
 }
@@ -369,9 +378,9 @@ export function updatePostContent(postId: BigInt): void {
   let peeranhaPost = getPeeranhaContent().getPost(postId);
   if (peeranhaPost == null) return;
   let postTagsBuf = post.tags;
-  for (let i = 0; i < peeranhaPost.tags.length; i++) {
+  for (let i = 0; i < post.tags.length; i++) {
     let tagId = postTagsBuf.pop();
-    let tag = Tag.load(post.communityId.toString() + '-' + tagId.toString());
+    let tag = Tag.load(tagId);
     if (tag != null) {
       post.postContent += ' ' + tag.name;
     }
