@@ -628,14 +628,6 @@ export function handlerSetDocumentationTree(event: SetDocumentationTree): void {
   logTransaction(event, event.params.userAddr, 0, 0, event.params.communityId);
 }
 
-class Box<T> {
-  value: T;
-
-  constructor(value: T) {
-    this.value = value;
-  }
-}
-
 function logTransaction(
   event: ethereum.Event,
   actionUser: Address,
