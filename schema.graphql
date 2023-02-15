@@ -96,7 +96,6 @@ type _Schema_
 
 type Post @entity {
   id: ID!
-  tags: [Int!]
   ipfsHash: Bytes
   ipfsHash2: Bytes
   postType: Int
@@ -120,6 +119,9 @@ type Post @entity {
   comments: [Comment!]
   language: BigInt
   translations: [PostTranslation!]
+  tags: [Tag!]
+  handle: String
+  messengerType: Int
 }
 
 type PostTranslation @entity {
@@ -152,6 +154,8 @@ type Reply @entity {
   comments: [Comment!]
   language: BigInt
   translations: [ReplyTranslation!]
+  handle: String
+  messengerType: Int
 }
 
 type ReplyTranslation @entity {
@@ -192,6 +196,7 @@ type Achievement @entity {
   id: ID!
   factCount: BigInt
   maxCount: BigInt
+  lowerValue: BigInt
   achievementURI: String
   achievementsType: Int
   name: String
@@ -238,4 +243,16 @@ type CommunityDocumentation @entity {
   id: ID!
   documentationJSON: String
   ipfsHash: Bytes
+}
+
+type Statistic @entity {
+  id: ID!
+  actionUser: User
+  transactionHash: Bytes
+  timeStamp: BigInt
+  eventName: String
+  communityId: BigInt
+  postId: BigInt
+  replyId: Int
+  commentId: Int
 }

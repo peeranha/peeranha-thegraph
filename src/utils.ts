@@ -38,3 +38,19 @@ export enum PostType {
   Tutorial,
   Documentation = 1000
 }
+
+export enum ReplyProperties { MessengerSender }
+
+export enum MessengerTypes {
+  Unknown = 0,
+  Telegram = 1,
+  Discord = 2,
+  Slack = 3,
+}
+
+export function hexToUtf8(str: string): string
+{
+  return decodeURIComponent(
+     str.replace(/[0-9a-f]{2}/g, '%$&')
+  );
+}
