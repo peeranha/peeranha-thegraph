@@ -1,6 +1,4 @@
-import { Address, BigInt, Bytes, log } from '@graphprotocol/graph-ts'
-import { store } from '@graphprotocol/graph-ts'
-import { ethereum } from '@graphprotocol/graph-ts'
+import { Address, BigInt, Bytes, log, store, ethereum } from '@graphprotocol/graph-ts'
 import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity, RoleGranted, RoleRevoked } from '../generated/PeeranhaUser/PeeranhaUser'
 import { 
   CommunityCreated, CommunityUpdated, CommunityFrozen, CommunityUnfrozen,
@@ -15,7 +13,7 @@ import { PostCreated, PostEdited, PostDeleted,
 } from '../generated/PeeranhaContent/PeeranhaContent'
 
 import { GetReward } from '../generated/PeeranhaToken/PeeranhaToken'
-import { User, Community, Tag, Post, Reply, Comment, Achievement, ContractInfo, UserReward, Period, History, UserPermission, CommunityDocumentation } from '../generated/schema'
+import { User, Community, Tag, Post, Reply, Comment, Achievement, ContractInfo, UserReward, Period, History, UserPermission, CommunityDocumentation, Statistic } from '../generated/schema'
 import { USER_ADDRESS } from './config'
 import { getPeeranhaUser, getPeeranhaToken, getPeeranhaContent, PostType } from './utils'
 
@@ -52,6 +50,8 @@ export function handleTransferNFT(event: Transfer): void {
 
     achievement.save();  
   }
+
+  logTransaction(event, event.params.to, 0, 0);
 }
 
 
@@ -61,6 +61,7 @@ export function handleNewUser(event: UserCreated): void {
   user.save();
 
   indexingPeriods();
+  logTransaction(event, event.params.userAddress, 0, 0);
 }
 
 export function handleUpdatedUser(event: UserUpdated): void {
@@ -75,6 +76,7 @@ export function handleUpdatedUser(event: UserUpdated): void {
   user.save();
   
   indexingPeriods();
+  logTransaction(event, event.params.userAddress, 0, 0);
 }
 
 export function handlerGrantedRole(event: RoleGranted): void {
@@ -82,11 +84,14 @@ export function handlerGrantedRole(event: RoleGranted): void {
   userPermission.user = event.params.account.toHex();
   userPermission.permission = event.params.role;
   userPermission.save();
+  
+  logTransaction(event, event.params.sender, 0, 0);
 }
 
 export function handlerRevokedRole(event: RoleRevoked): void {
   let userPermissionId = event.params.account.toHex() + '-' + event.params.role.toHex();
-  store.remove('UserPermission', userPermissionId)
+  store.remove('UserPermission', userPermissionId);
+  logTransaction(event, event.params.sender, 0, 0);
 }
 
 export function handlerFollowCommunity(event: FollowedCommunity): void {
@@ -102,6 +107,7 @@ export function handlerFollowCommunity(event: FollowedCommunity): void {
   community.save();
 
   indexingPeriods();
+  logTransaction(event, event.params.userAddress, 0, 0, event.params.communityId);
 }
 
 export function handlerUnfollowCommunity(event: UnfollowedCommunity): void {
@@ -125,6 +131,7 @@ export function handlerUnfollowCommunity(event: UnfollowedCommunity): void {
   community.save();
 
   indexingPeriods();
+  logTransaction(event, event.params.userAddress, 0, 0, event.params.communityId);
 }
 
 export function handleNewCommunity(event: CommunityCreated): void {
@@ -135,6 +142,7 @@ export function handleNewCommunity(event: CommunityCreated): void {
   community.save();
 
   indexingPeriods();
+  logTransaction(event, event.params.user, 0, 0, event.params.id);
 }
 
 export function handleUpdatedCommunity(event: CommunityUpdated): void {
@@ -149,6 +157,7 @@ export function handleUpdatedCommunity(event: CommunityUpdated): void {
   community.save();
 
   indexingPeriods();
+  logTransaction(event, event.params.user, 0, 0, event.params.id);
 }
 
 export function handleFrozenCommunity(event: CommunityFrozen): void {
@@ -158,6 +167,8 @@ export function handleFrozenCommunity(event: CommunityFrozen): void {
     community.isFrozen = true;
     community.save();
   }
+
+  logTransaction(event, event.params.user, 0, 0, event.params.communityId);
 }
 
 export function handleUnfrozenCommunity(event: CommunityUnfrozen): void {
@@ -170,6 +181,8 @@ export function handleUnfrozenCommunity(event: CommunityUnfrozen): void {
     community = new Community(id);
     newCommunity(community, event.params.communityId);
   }
+
+  logTransaction(event, event.params.user, 0, 0, event.params.communityId);
 }
 
 export function handleNewTag(event: TagCreated): void {
@@ -180,12 +193,16 @@ export function handleNewTag(event: TagCreated): void {
   
   newTag(tag, event.params.communityId, BigInt.fromI32(event.params.tagId));
   tag.save(); 
+
+  logTransaction(event, event.params.user, 0, 0, event.params.communityId);
 }
 
 export function handleEditedTag(event: TagUpdated): void {
   let tag = Tag.load(event.params.communityId.toString() + "-" + BigInt.fromI32(event.params.tagId).toString());
   addDataToTag(tag, event.params.communityId, BigInt.fromI32(event.params.tagId));
   tag.save();
+
+  logTransaction(event, event.params.user, 0, 0, event.params.communityId);
 }
 
 // TODO: Get rid of generics in this method. eventEntity and eventName values move to constants or enums.
@@ -214,6 +231,8 @@ export function handleNewPost(event: PostCreated): void {
   createHistory(post, event, 'Post', 'Create');
   
   indexingPeriods();
+
+  logTransaction(event, event.params.user, 0, 0, event.params.communityId, event.params.postId);
 }
 
 export function handleEditedPost(event: PostEdited): void {
@@ -234,6 +253,8 @@ export function handleEditedPost(event: PostEdited): void {
   createHistory(post, event, 'Post', 'Edit');
 
   indexingPeriods();
+
+  logTransaction(event, event.params.user, 0, 0, null, event.params.postId);
 }
 
 export function handleChangedTypePost(event: ChangePostType): void {
@@ -244,6 +265,8 @@ export function handleChangedTypePost(event: ChangePostType): void {
     updatePostUsersRatings(post);
     post.save();
   }
+
+  logTransaction(event, event.params.user, 0, 0, null, event.params.postId);
 }
 
 export function handleDeletedPost(event: PostDeleted): void {
@@ -255,6 +278,8 @@ export function handleDeletedPost(event: PostDeleted): void {
   createHistory(post, event, 'Post', 'Delete');
 
   indexingPeriods();
+  
+  logTransaction(event, event.params.user, 0, 0, null, event.params.postId);
 }
 
 export function handleNewReply(event: ReplyCreated): void {
@@ -271,6 +296,8 @@ export function handleNewReply(event: ReplyCreated): void {
   }
 
   indexingPeriods();
+  
+  logTransaction(event, event.params.user, event.params.replyId, 0, null, event.params.postId);
 }
 
 export function handleEditedReply(event: ReplyEdited): void { 
@@ -296,6 +323,7 @@ export function handleEditedReply(event: ReplyEdited): void {
   }
 
   indexingPeriods();
+  logTransaction(event, event.params.user, event.params.replyId, 0, null, event.params.postId);
 }
 
 export function handleDeletedReply(event: ReplyDeleted): void {
@@ -317,6 +345,7 @@ export function handleDeletedReply(event: ReplyDeleted): void {
   }
 
   indexingPeriods();
+  logTransaction(event, event.params.user, event.params.replyId, 0, null, event.params.postId);
 }
 
 export function handleNewComment(event: CommentCreated): void {
@@ -335,6 +364,7 @@ export function handleNewComment(event: CommentCreated): void {
   }
 
   indexingPeriods();
+  logTransaction(event, event.params.user, event.params.parentReplyId, event.params.commentId, null, event.params.postId);
 }
 
 export function handleEditedComment(event: CommentEdited): void { 
@@ -362,6 +392,7 @@ export function handleEditedComment(event: CommentEdited): void {
   }
 
   indexingPeriods();
+  logTransaction(event, event.params.user, event.params.parentReplyId, event.params.commentId, null, event.params.postId);
 }
 
 export function handleDeletedComment(event: CommentDeleted): void {
@@ -384,6 +415,7 @@ export function handleDeletedComment(event: CommentDeleted): void {
   }
 
   indexingPeriods();
+  logTransaction(event, event.params.user, event.params.parentReplyId, event.params.commentId, null, event.params.postId);
 }
 
 export function indexingPeriods(): void {
@@ -441,6 +473,8 @@ export function handleGetReward(event: GetReward): void {
     userReward.isPaid = true;
     userReward.save();
   }
+
+  logTransaction(event, event.params.user, 0, 0);
 }
 
 export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): void {
@@ -488,6 +522,7 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
   }
 
   indexingPeriods();
+  logTransaction(event, event.params.user, event.params.replyId, 0, null, event.params.postId);
 }
 
 export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move this in another function with edit
@@ -540,6 +575,7 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
   }
 
   indexingPeriods();
+  logTransaction(event, event.params.user, event.params.replyId, 0, null, event.params.postId);
 }
 
 // export function handlerSetDocumentationTree(event: SetDocumentationTree): void {
@@ -588,5 +624,30 @@ export function handlerSetDocumentationTree(event: SetDocumentationTree): void {
     event.block.timestamp,
     oldDocumentationIpfsHash,
     communityDocumentation.hash
-  )
+  );
+  
+  logTransaction(event, event.params.userAddr, 0, 0, event.params.communityId);
+}
+
+function logTransaction(
+  event: ethereum.Event,
+  actionUser: Address,
+  replyId: i32,
+  commentId: i32,
+  communityId: BigInt | null = null,
+  postId: BigInt | null = null
+): void {
+  let stat = new Statistic(event.transaction.hash.toHex());
+
+  stat.transactionHash = event.transaction.hash;
+  stat.eventName = event.logType;
+  stat.timeStamp = event.block.timestamp;
+  stat.actionUser = actionUser.toString();
+
+  stat.communityId = communityId;
+  stat.postId = postId;
+  stat.replyId = replyId;
+  stat.commentId = commentId;
+
+  stat.save();
 }
