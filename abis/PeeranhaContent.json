@@ -147,6 +147,44 @@
   {
     "inputs": [
       {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "ipfsHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "enum PostLib.PostType",
+        "name": "postType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8[]",
+        "name": "tags",
+        "type": "uint8[]"
+      },
+      {
+        "internalType": "enum CommonLib.MessengerType",
+        "name": "messengerType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "string",
+        "name": "handle",
+        "type": "string"
+      }
+    ],
+    "name": "createPostByBot",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "user",
         "type": "address"
@@ -193,105 +231,6 @@
         "internalType": "bytes32",
         "name": "ipfsHash",
         "type": "bytes32"
-      },
-      {
-        "internalType": "enum CommonLib.MessengerType",
-        "name": "messengerType",
-        "type": "uint8"
-      },
-      {
-        "internalType": "string",
-        "name": "handle",
-        "type": "string"
-      }
-    ],
-    "name": "createReplyByBot",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "postId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint16",
-        "name": "replyId",
-        "type": "uint16"
-      },
-      {
-        "internalType": "uint8",
-        "name": "commentId",
-        "type": "uint8"
-      },
-      {
-        "internalType": "enum PostLib.Language",
-        "name": "language",
-        "type": "uint8"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "ipfsHash",
-        "type": "bytes32"
-      }
-    ],
-    "name": "createTranslation",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "postId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint16",
-        "name": "replyId",
-        "type": "uint16"
-      },
-      {
-        "internalType": "uint8",
-        "name": "commentId",
-        "type": "uint8"
-      },
-      {
-        "internalType": "enum PostLib.Language[]",
-        "name": "languages",
-        "type": "uint8[]"
-      },
-      {
-        "internalType": "bytes32[]",
-        "name": "ipfsHashs",
-        "type": "bytes32[]"
-      }
-    ],
-    "name": "createTranslations",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "postId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint16",
-        "name": "replyId",
-        "type": "uint16"
-      },
-      {
-        "internalType": "uint8",
-        "name": "commentId",
-        "type": "uint8"
       },
       {
         "internalType": "enum CommonLib.MessengerType",
@@ -475,6 +414,11 @@
         "internalType": "bytes32",
         "name": "ipfsHash",
         "type": "bytes32"
+      },
+      {
+        "internalType": "enum PostLib.Language",
+        "name": "language",
+        "type": "uint8"
       }
     ],
     "name": "editComment",
@@ -513,6 +457,11 @@
         "internalType": "enum PostLib.PostType",
         "name": "postType",
         "type": "uint8"
+      },
+      {
+        "internalType": "enum PostLib.Language",
+        "name": "language",
+        "type": "uint8"
       }
     ],
     "name": "editPost",
@@ -546,6 +495,11 @@
         "internalType": "bool",
         "name": "isOfficialReply",
         "type": "bool"
+      },
+      {
+        "internalType": "enum PostLib.Language",
+        "name": "language",
+        "type": "uint8"
       }
     ],
     "name": "editReply",
@@ -1036,35 +990,6 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "postId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint16",
-        "name": "replyId",
-        "type": "uint16"
-      },
-      {
-        "internalType": "uint8",
-        "name": "propertyId",
-        "type": "uint8"
-      }
-    ],
-    "name": "getReplyProperty",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address",
         "name": "user",
         "type": "address"
@@ -1091,147 +1016,6 @@
         "internalType": "int256",
         "name": "",
         "type": "int256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "postId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint16",
-        "name": "replyId",
-        "type": "uint16"
-      },
-      {
-        "internalType": "uint8",
-        "name": "commentId",
-        "type": "uint8"
-      },
-      {
-        "internalType": "enum PostLib.Language",
-        "name": "language",
-        "type": "uint8"
-      }
-    ],
-    "name": "getTranslation",
-    "outputs": [
-      {
-        "components": [
-          {
-            "components": [
-              {
-                "internalType": "bytes32",
-                "name": "hash",
-                "type": "bytes32"
-              },
-              {
-                "internalType": "bytes32",
-                "name": "hash2",
-                "type": "bytes32"
-              }
-            ],
-            "internalType": "struct CommonLib.IpfsHash",
-            "name": "ipfsDoc",
-            "type": "tuple"
-          },
-          {
-            "internalType": "address",
-            "name": "author",
-            "type": "address"
-          },
-          {
-            "internalType": "uint32",
-            "name": "postTime",
-            "type": "uint32"
-          },
-          {
-            "internalType": "int32",
-            "name": "rating",
-            "type": "int32"
-          },
-          {
-            "internalType": "bool",
-            "name": "isDeleted",
-            "type": "bool"
-          }
-        ],
-        "internalType": "struct PostLib.Translation",
-        "name": "",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "postId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint16",
-        "name": "replyId",
-        "type": "uint16"
-      },
-      {
-        "internalType": "uint8",
-        "name": "commentId",
-        "type": "uint8"
-      }
-    ],
-    "name": "getTranslations",
-    "outputs": [
-      {
-        "components": [
-          {
-            "components": [
-              {
-                "internalType": "bytes32",
-                "name": "hash",
-                "type": "bytes32"
-              },
-              {
-                "internalType": "bytes32",
-                "name": "hash2",
-                "type": "bytes32"
-              }
-            ],
-            "internalType": "struct CommonLib.IpfsHash",
-            "name": "ipfsDoc",
-            "type": "tuple"
-          },
-          {
-            "internalType": "address",
-            "name": "author",
-            "type": "address"
-          },
-          {
-            "internalType": "uint32",
-            "name": "postTime",
-            "type": "uint32"
-          },
-          {
-            "internalType": "int32",
-            "name": "rating",
-            "type": "int32"
-          },
-          {
-            "internalType": "bool",
-            "name": "isDeleted",
-            "type": "bool"
-          }
-        ],
-        "internalType": "struct PostLib.Translation[]",
-        "name": "",
-        "type": "tuple[]"
       }
     ],
     "stateMutability": "view",
@@ -1631,6 +1415,31 @@
       },
       {
         "indexed": true,
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint32",
+        "name": "oldCommunityId",
+        "type": "uint32"
+      }
+    ],
+    "name": "PostCommunityChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": true,
         "internalType": "uint32",
         "name": "communityId",
         "type": "uint32"
@@ -1681,6 +1490,31 @@
       }
     ],
     "name": "PostEdited",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum PostLib.PostType",
+        "name": "oldPostType",
+        "type": "uint8"
+      }
+    ],
+    "name": "PostTypeChanged",
     "type": "event"
   },
   {
