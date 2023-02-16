@@ -1,6 +1,6 @@
 import { json, Bytes, ipfs, BigInt, Address, ByteArray, log, store, JSONValue, JSONValueKind } from '@graphprotocol/graph-ts'
 import { Post, Reply, Comment, Tag, CommunityDocumentation, PostTranslation, ReplyTranslation, CommentTranslation, TagTranslation } from '../generated/schema'
-import { getPeeranhaContent, ERROR_IPFS, isValidIPFS, PostType, ReplyProperties } from './utils'
+import { getPeeranhaContent, ERROR_IPFS, isValidIPFS, PostType, ItemProperties, Language } from './utils'
 import { updateUserRating, updateStartUserRating, getUser, newUser } from './user'
 import { getCommunity } from './community-tag'
 
@@ -25,7 +25,7 @@ export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigIn
   post.tags = [];
   post.postContent = '';
 
-  const messengerUserDataResult = getPeeranhaContent().try_getItemProperty(ReplyProperties.MessengerSender, postId, 0, 0);
+  const messengerUserDataResult = getPeeranhaContent().try_getItemProperty(ItemProperties.MessengerSender, postId, 0, 0);
   if (!messengerUserDataResult.reverted) {
     const messengerUserData = messengerUserDataResult.value;
     post.handle = messengerUserData.toString().slice(0, messengerUserData.length - 1);
@@ -85,8 +85,12 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
   
   post.ipfsHash = peeranhaPost.ipfsDoc.hash;
   post.ipfsHash2 = peeranhaPost.ipfsDoc.hash2;
-  let postLanguage = getPeeranhaContent().getItemLanguage(postId, 0, 0);
-  post.language = postLanguage;
+  let postLanguageResult = getPeeranhaContent().try_getItemLanguage(postId, 0, 0);
+  if(!postLanguageResult.reverted) {
+    post.language = postLanguageResult.value;
+  } else {
+    post.language = new BigInt(Language.English);
+  }
 
   if (post.communityId != peeranhaPost.communityId) {
     const oldCommunity = getCommunity(post.communityId);
@@ -211,7 +215,7 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: i32, bloc
   reply.translations = [];
   reply.isBestReply = false;
 
-  const messengerUserDataResult = getPeeranhaContent().try_getItemProperty(ReplyProperties.MessengerSender, postId, replyId, 0);
+  const messengerUserDataResult = getPeeranhaContent().try_getItemProperty(ItemProperties.MessengerSender, postId, replyId, 0);
   if (!messengerUserDataResult.reverted) {
     const messengerUserData = messengerUserDataResult.value;
     reply.handle = messengerUserData.toString().slice(0, messengerUserData.length - 1);
@@ -256,8 +260,12 @@ export function addDataToReply(reply: Reply | null, postId: BigInt, replyId: i32
   changedStatusOfficialReply(reply, postId, replyId);
   reply.ipfsHash = peeranhaReply.ipfsDoc.hash;
   reply.ipfsHash2 = peeranhaReply.ipfsDoc.hash2;
-  let replyLanguage = getPeeranhaContent().getItemLanguage(postId, replyId, 0);
-  reply.language = replyLanguage;
+  let replyLanguageResult = getPeeranhaContent().try_getItemLanguage(postId, replyId, 0);
+  if(!replyLanguageResult.reverted) {
+    reply.language = replyLanguageResult.value;
+  } else {
+    reply.language = new BigInt(Language.English);
+  }
   
   getIpfsReplyData(reply);
 }
@@ -362,8 +370,12 @@ export function addDataToComment(comment: Comment | null, postId: BigInt, parent
 
   comment.ipfsHash = peeranhaComment.ipfsDoc.hash;
   comment.ipfsHash2 = peeranhaComment.ipfsDoc.hash2;
-  let commentLanguage = getPeeranhaContent().getItemLanguage(postId, parentReplyId.toI32(), commentId.toI32());
-  comment.language = commentLanguage;
+  let commentLanguageResult = getPeeranhaContent().try_getItemLanguage(postId, parentReplyId.toI32(), commentId.toI32());
+  if(!commentLanguageResult.reverted) {
+    comment.language = commentLanguageResult.value;
+  } else {
+    comment.language = new BigInt(Language.English);
+  }
   
   getIpfsCommentData(comment);
 }
