@@ -141,6 +141,7 @@ export function newTag(tag: Tag | null, communityId: BigInt, tagId: BigInt): voi
   tag.communityId = communityId;
   tag.postCount = 0;
   tag.translations = [];
+  tag.deletedPostCount = 0;
   
   addDataToTag(tag, communityId, tagId);
 }

@@ -152,6 +152,7 @@ export function deletePost(post: Post | null, postId: BigInt): void {
     let tagBuf = postTagsBuf.pop();
     let tag = Tag.load(tagBuf);
     if (tag != null) {
+      tag.postCount--;
       tag.deletedPostCount++;
       tag.save();
     }
