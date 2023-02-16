@@ -91,6 +91,7 @@ function getIpfsCommunityData(community: Community | null): void {
 export function newTag(tag: Tag | null, communityId: BigInt, tagId: BigInt): void {
   tag.communityId = communityId;
   tag.postCount = 0;
+  tag.deletedPostCount = 0;
   
   addDataToTag(tag, communityId, tagId);
 }
