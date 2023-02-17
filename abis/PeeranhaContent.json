@@ -137,6 +137,44 @@
   {
     "inputs": [
       {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "ipfsHash",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "enum PostLib.PostType",
+        "name": "postType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "uint8[]",
+        "name": "tags",
+        "type": "uint8[]"
+      },
+      {
+        "internalType": "enum CommonLib.MessengerType",
+        "name": "messengerType",
+        "type": "uint8"
+      },
+      {
+        "internalType": "string",
+        "name": "handle",
+        "type": "string"
+      }
+    ],
+    "name": "createPostByBot",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "address",
         "name": "user",
         "type": "address"
@@ -1318,6 +1356,31 @@
       },
       {
         "indexed": true,
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint32",
+        "name": "oldCommunityId",
+        "type": "uint32"
+      }
+    ],
+    "name": "PostCommunityChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": true,
         "internalType": "uint32",
         "name": "communityId",
         "type": "uint32"
@@ -1368,6 +1431,31 @@
       }
     ],
     "name": "PostEdited",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "enum PostLib.PostType",
+        "name": "oldPostType",
+        "type": "uint8"
+      }
+    ],
+    "name": "PostTypeChanged",
     "type": "event"
   },
   {
