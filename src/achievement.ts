@@ -1,21 +1,25 @@
 import { Achievement } from "../generated/schema";
 import { Address, BigInt, ByteArray, Bytes, ipfs, json, JSONValueKind } from '@graphprotocol/graph-ts'
-import { getPeeranhaNFT } from "./utils";
-import { getPeeranhaUser } from "./utils";
+import { getPeeranhaNFT, getPeeranhaUser } from "./utils";
 import { getUser } from "./user";
 import { ERROR_IPFS, isValidIPFS } from "./utils";
 
 
 
 export function newAchievement(achievement: Achievement | null, achievementId: BigInt): void {
-  let peeranhaAchievement = getPeeranhaNFT().getAchievementsNFTConfig(achievementId);
-  if (!peeranhaAchievement) return;
+  let peeranhaNftAchievement = getPeeranhaNFT().getAchievementsNFTConfig(achievementId);
+  if (!peeranhaNftAchievement) return;
 
-  achievement.factCount = peeranhaAchievement.factCount;
-  achievement.maxCount = peeranhaAchievement.maxCount;
-  achievement.achievementURI = peeranhaAchievement.achievementURI;
-  achievement.achievementsType = peeranhaAchievement.achievementsType;
+  achievement.factCount = peeranhaNftAchievement.factCount;
+  achievement.maxCount = peeranhaNftAchievement.maxCount;
+  achievement.achievementURI = peeranhaNftAchievement.achievementURI;
+  achievement.achievementsType = peeranhaNftAchievement.achievementsType;
   achievement.communityId = getPeeranhaUser().try_getAchievementCommunity(achievementId);
+
+  let peeranhaAchievementConfig = getPeeranhaUser().getAchievementConfig(achievementId);
+  if (peeranhaAchievementConfig) {
+    achievement.lowerValue = peeranhaAchievementConfig.lowerBound;
+  }
   getIpfsAchievementData(achievement)
 }
 

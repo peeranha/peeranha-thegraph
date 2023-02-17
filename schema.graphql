@@ -142,6 +142,7 @@ type Achievement @entity {
   id: ID!
   factCount: BigInt
   maxCount: BigInt
+  lowerValue: BigInt
   achievementURI: String
   achievementsType: Int
   name: String
@@ -191,4 +192,16 @@ type CommunityDocumentation @entity {
   id: ID!
   documentationJSON: String
   ipfsHash: Bytes
+}
+
+type Statistic @entity {
+  id: ID!
+  actionUser: User
+  transactionHash: Bytes
+  timeStamp: BigInt
+  eventName: String
+  communityId: BigInt
+  postId: BigInt
+  replyId: Int
+  commentId: Int
 }
