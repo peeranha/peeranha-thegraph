@@ -14,7 +14,7 @@ export function newAchievement(achievement: Achievement | null, achievementId: B
   achievement.maxCount = peeranhaNftAchievement.maxCount;
   achievement.achievementURI = peeranhaNftAchievement.achievementURI;
   achievement.achievementsType = peeranhaNftAchievement.achievementsType;
-  achievement.communityId = getPeeranhaUser().try_getAchievementCommunity(achievementId);
+  achievement.communityId = getPeeranhaUser().getAchievementCommunity(achievementId);
 
   let peeranhaAchievementConfig = getPeeranhaUser().getAchievementConfig(achievementId);
   if (peeranhaAchievementConfig) {
@@ -52,24 +52,24 @@ function getIpfsAchievementData(achievement: Achievement | null): void {
 
         let attributes = ipfsObj.get('attributes');
         if (!attributes.isNull() && attributes.kind == JSONValueKind.ARRAY) {
-          const translationsArray = translations.toArray();
-          const translationsLength = translationsArray.length;
+          const attributesArray = attributes.toArray();
+          const attributesLength = attributesArray.length;
 
-          for (let i = 0; i < translationsLength; i++) {
-            const translationsObject = translationsArray[i].toObject();
-            const trait_type = translationsObject.get("trait_type");
-            const value = translationsObject.get("value");
-            if (!trait_type.isNull() && trait_type.kind == JSONValueKind.STRING) {
-              if(trait_type == "Community Id") {
+          for (let i = 0; i < attributesLength; i++) {
+            const attributesObject = attributesArray[i].toObject();
+            const traitType = attributesObject.get("trait_type");
+            const value = attributesObject.get("value");
+            if (!traitType.isNull() && traitType.kind == JSONValueKind.STRING) {
+              if(traitType.toString() == "Community Id") {
                 if (!value.isNull() && value.kind == JSONValueKind.STRING)
-                  achievement.atrCommunityId = value;
-              } else if (trait_type == "Event") {
+                  achievement.atrCommunityId = value.toString();
+              } else if (traitType.toString() == "Event") {
                 if (!value.isNull() && value.kind == JSONValueKind.STRING)
-                  achievement.atrEvent = value;
+                  achievement.atrEvent = value.toString();
 
-              } else if (trait_type == "Type") {
+              } else if (traitType.toString() == "Type") {
                 if (!value.isNull() && value.kind == JSONValueKind.STRING)
-                  achievement.atrType = value;
+                  achievement.atrType = value.toString();
               }
             }
           }
