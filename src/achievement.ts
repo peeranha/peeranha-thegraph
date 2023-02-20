@@ -14,7 +14,12 @@ export function newAchievement(achievement: Achievement | null, achievementId: B
   achievement.maxCount = peeranhaNftAchievement.maxCount;
   achievement.achievementURI = peeranhaNftAchievement.achievementURI;
   achievement.achievementsType = peeranhaNftAchievement.achievementsType;
-  achievement.communityId = getPeeranhaUser().getAchievementCommunity(achievementId);
+  let achievementCommunityResult = getPeeranhaUser().try_getAchievementCommunity(achievementId);
+  if(!achievementCommunityResult.reverted) {
+    achievement.communityId = achievementCommunityResult.value;
+  } else {
+    achievement.communityId = new BigInt(0);
+  }
 
   let peeranhaAchievementConfig = getPeeranhaUser().getAchievementConfig(achievementId);
   if (peeranhaAchievementConfig) {
