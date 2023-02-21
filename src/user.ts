@@ -1,7 +1,7 @@
 import { json, Bytes, ipfs, BigInt, JSONValueKind, ByteArray, Address } from '@graphprotocol/graph-ts'
 import { User, UserCommunityRating } from '../generated/schema'
 import { getPeeranhaUser, ERROR_IPFS, isValidIPFS } from './utils'
-
+const VALUE_STERT_USER_RATING = 10;
 
 export function newUser(user: User | null, userAddress: Address, blockTimeStamp: BigInt): void {
   let peeranhaUser = getPeeranhaUser().getUserByAddress(userAddress);
@@ -91,41 +91,26 @@ export function updateUserRating(userAddress: Address, communityId: BigInt): voi
     userComunityRating = new UserCommunityRating(communityId.toString() + ' ' + userAddress.toHex());
     userComunityRating.user = userAddress.toHex()
     userComunityRating.communityId = communityId.toI32();
-
-    let rating = getPeeranhaUser().getUserRating(userAddress, communityId);
-    userComunityRating.rating = rating;
-    userComunityRating.save();
+    // userComunityRating.save();   // DEL?
 
     let ratings = user.ratings;
     ratings.push(communityId.toString() + ' ' + userAddress.toHex());
     user.ratings = ratings;
     user.save();
-  } else {
-    let rating = getPeeranhaUser().getUserRating(userAddress, communityId);
-    userComunityRating.rating = rating;
-    userComunityRating.save();
   }
-}
 
-export function updateStartUserRating(userAddress: Address, communityId: BigInt): void { 
-  let user = User.load(userAddress.toHex());
-  if (user == null) return;
-  let parametersUserCommunityRating = communityId.toString() + ' ' + userAddress.toHex();
-  let userComunityRating = UserCommunityRating.load(parametersUserCommunityRating);
+  let userRatingStatusResult = getPeeranhaUser().try_getUserRatingCollection(userAddress, communityId)
+  if(!userRatingStatusResult.reverted) { 
+    if (userRatingStatusResult.value.isActive) {
+      userComunityRating.rating = userRatingStatusResult.value.rating;
+    } else {
+      userComunityRating.rating = VALUE_STERT_USER_RATING;
+    }
+  } else {
+    userComunityRating.rating = getPeeranhaUser().getUserRating(userAddress, communityId);
+  }
 
-  if (userComunityRating == null) {
-    let valueStartUserRating = 10;
-    userComunityRating = new UserCommunityRating(parametersUserCommunityRating);
-    userComunityRating.user = userAddress.toHex()
-    userComunityRating.communityId = communityId.toI32();
-    userComunityRating.rating = valueStartUserRating;
-    userComunityRating.save();
-
-    let ratings = user.ratings;
-    ratings.push(parametersUserCommunityRating);
-    user.ratings = ratings;
-    user.save();
-  } 
+  userComunityRating.save();
 }
 
 export function getUser(userAddress: Address): User | null {
