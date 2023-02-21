@@ -94,6 +94,7 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
     newCommunity.postCount++;
     newCommunity.replyCount += post.replyCount;
     newCommunity.save();
+    updatePostUsersRatings(post);
     post.communityId = peeranhaPost.communityId;
     updatePostUsersRatings(post);
   }
