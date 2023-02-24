@@ -13,9 +13,9 @@ import { PostCreated, PostEdited, PostDeleted,
 } from '../generated/PeeranhaContent/PeeranhaContent'
 
 import { GetReward } from '../generated/PeeranhaToken/PeeranhaToken'
-import { User, Community, Tag, Post, Reply, Comment, Achievement, ContractInfo, UserReward, Period, History, UserPermission, CommunityDocumentation, Statistic } from '../generated/schema'
+import { User, Community, Tag, Post, Reply, Comment, Achievement, AchievementNFT, ContractInfo, UserReward, Period, History, UserPermission, CommunityDocumentation, Statistic } from '../generated/schema'
 import { USER_ADDRESS } from './config'
-import { getPeeranhaUser, getPeeranhaToken, getPeeranhaContent, PostType } from './utils'
+import { getPeeranhaUser, getPeeranhaToken, getPeeranhaContent } from './utils'
 
 import { newPost, addDataToPost, deletePost, newReply, addDataToReply, deleteReply,
   newComment, addDataToComment, deleteComment, updatePostContent, updatePostUsersRatings, generateDocumentationPosts } from './post'
@@ -39,16 +39,33 @@ export function handleConfigureNewAchievement(event: ConfigureNewAchievementNFT)
 // can be error when remove
 ///
 export function handleTransferNFT(event: Transfer): void {
-  let id : BigInt = (event.params.tokenId.div(BigInt.fromI32(POOL_NFT))).plus(BigInt.fromI32(1)); // (a / b) + c
-  log.debug('User: {}, ID txx: {}, Achievement Id txx: {}', [event.params.to.toHex(), event.params.tokenId.toString(), id.toString()])
-  let achievement = Achievement.load(id.toString());
+  let achievementId : BigInt = (event.params.tokenId.div(BigInt.fromI32(POOL_NFT))).plus(BigInt.fromI32(1)); // (a / b) + c
+  log.debug('User: {}, ID txx: {}, Achievement Id txx: {}', [event.params.to.toHex(), event.params.tokenId.toString(), achievementId.toString()])
+  let achievement = Achievement.load(achievementId.toString());
 
   if (achievement != null) {
-    addDataToAchievement(achievement, id);
+    let newOwner = User.load(event.params.to.toHex())
+    if (newOwner == null) {
+      newOwner = new User(event.params.to.toHex());
+      newOwner.isRegistered = false;
+      newOwner.achievements = [];
+      newOwner.save();
+    }
 
-    giveAchievement(id, event.params.to);
+    if (event.params.from.toHex() == "0x0000000000000000000000000000000000000000") {
+      addDataToAchievement(achievement, achievementId);
+      giveAchievement(achievementId, newOwner as User);
+      achievement.save();
+    }
 
-    achievement.save();  
+    let achievementNFT = AchievementNFT.load(event.params.tokenId.toString());
+    if (achievementNFT == null) {
+      achievementNFT = new AchievementNFT(event.params.tokenId.toString());
+      achievementNFT.achievement = achievementId.toString();
+      achievementNFT.originalOwner = newOwner.id;
+    }
+    achievementNFT.owner = newOwner.id;
+    achievementNFT.save();
   }
 
   logTransaction(event, event.params.to, 0, 0);
@@ -56,7 +73,12 @@ export function handleTransferNFT(event: Transfer): void {
 
 
 export function handleNewUser(event: UserCreated): void {
-  let user = new User(event.params.userAddress.toHex());
+  let userId = event.params.userAddress.toHex()
+  let user = User.load(userId)
+  if (user == null) {
+    user = new User(userId);
+    user.isRegistered = true;
+  }
   newUser(user, event.params.userAddress, event.block.timestamp);
   user.save();
 
