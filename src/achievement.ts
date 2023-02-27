@@ -67,14 +67,14 @@ function getIpfsAchievementData(achievement: Achievement | null): void {
             if (!traitType.isNull() && traitType.kind == JSONValueKind.STRING) {
               if(traitType.toString() == "Community Id") {
                 if (!value.isNull() && value.kind == JSONValueKind.STRING)
-                  achievement.atrCommunityId = value.toString();
+                  achievement.attrCommunityId = value.toString();
               } else if (traitType.toString() == "Event") {
                 if (!value.isNull() && value.kind == JSONValueKind.STRING)
-                  achievement.atrEvent = value.toString();
+                  achievement.attrEvent = value.toString();
 
               } else if (traitType.toString() == "Type") {
                 if (!value.isNull() && value.kind == JSONValueKind.STRING)
-                  achievement.atrType = value.toString();
+                  achievement.attrType = value.toString();
               }
             }
           }
