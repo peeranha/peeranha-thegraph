@@ -148,7 +148,10 @@ type Achievement @entity {
   name: String
   description: String
   image: String
-  attributes: String
+  communityId: BigInt
+  attrCommunityId: String
+  attrEvent: String
+  attrType: String
 }
 
 type UserReward @entity {
