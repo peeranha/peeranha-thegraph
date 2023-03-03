@@ -1,7 +1,7 @@
 import { json, Bytes, ipfs, BigInt, Address, ByteArray, log, store, JSONValue, JSONValueKind } from '@graphprotocol/graph-ts'
 import { Post, Reply, Comment, Tag, CommunityDocumentation } from '../generated/schema'
 import { getPeeranhaContent, ERROR_IPFS, isValidIPFS, PostType, ReplyProperties, hexToUtf8, MessengerTypes } from './utils'
-import { updateUserRating, updateStartUserRating, getUser, newUser } from './user'
+import { updateUserRating, getUser, newUser } from './user'
 import { getCommunity } from './community-tag'
 
 export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigInt): void {
@@ -94,6 +94,7 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
     newCommunity.postCount++;
     newCommunity.replyCount += post.replyCount;
     newCommunity.save();
+    updatePostUsersRatings(post);
     post.communityId = peeranhaPost.communityId;
     updatePostUsersRatings(post);
   }
@@ -103,7 +104,7 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
   }
 
   getIpfsPostData(post);
-  updateStartUserRating(Address.fromString(post.author), post.communityId);
+  updateUserRating(Address.fromString(post.author), post.communityId);
 }
 
 function getIpfsPostData(post: Post | null): void {
@@ -238,7 +239,7 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: i32, bloc
   if (peeranhaReply.isFirstReply || peeranhaReply.isQuickReply) {
     updateUserRating(peeranhaReply.author, post.communityId);
   }
-  updateStartUserRating(Address.fromString(reply.author), post.communityId);
+  updateUserRating(Address.fromString(reply.author), post.communityId);
   addDataToReply(reply, postId, replyId);
   post.postContent += ' ' + reply.content;
   post.save();
@@ -343,7 +344,7 @@ export function newComment(comment: Comment | null, postId: BigInt, parentReplyI
   }
 
   addDataToComment(comment, postId, parentReplyId, commentId);
-  updateStartUserRating(Address.fromString(post.author), post.communityId);
+  updateUserRating(Address.fromString(post.author), post.communityId);
   post.postContent += ' ' + comment.content;
   post.save();
 }
