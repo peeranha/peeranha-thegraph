@@ -10,6 +10,7 @@ export function newCommunity(community: Community | null, communityId: BigInt): 
   community.creationTime = peeranhaCommunity.timeCreate;
   community.isFrozen = peeranhaCommunity.isFrozen;
   community.postCount = 0;
+  community.documentationCount = 0;
   community.deletedPostCount = 0;
   community.replyCount = 0;
   community.followingUsers = 0;

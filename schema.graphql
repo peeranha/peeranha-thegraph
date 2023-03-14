@@ -40,6 +40,7 @@ type Community @entity {
   isFrozen: Boolean
   creationTime: BigInt
   postCount: Int
+  documentationCount: Int
   deletedPostCount: Int
   replyCount: Int
   tagsCount: Int

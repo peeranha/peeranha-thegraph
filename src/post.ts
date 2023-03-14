@@ -498,6 +498,9 @@ export function generateDocumentationPosts(
       }
   });
   oldPosts = uniqueOldPosts;
+  let community = getCommunity(comunityId);
+  community.documentationCount = posts.length ? posts.length-1 : posts.length;
+  community.save();
   for (let index = 0; index < posts.length; index++) {
     newPosts.push(posts[index]);
   }
@@ -527,6 +530,7 @@ export function generateDocumentationPosts(
       post.author = userAddr.toHex();
       post.communityId = comunityId;
       post.lastmod = lastmodTimestamp;
+      post.isDeleted = false;
       post.postType = PostType.Documentation;
       post.ipfsHash = ByteArray.fromHexString(newPosts[index]) as Bytes;
   
