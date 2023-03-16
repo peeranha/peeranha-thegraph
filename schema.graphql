@@ -197,7 +197,7 @@ type CommunityDocumentation @entity {
 
 type Statistic @entity {
   id: ID!
-  actionUser: User
+  actionUser: String
   transactionHash: Bytes
   timeStamp: BigInt
   eventName: String
