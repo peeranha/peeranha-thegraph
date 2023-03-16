@@ -39,6 +39,7 @@ type Community @entity {
   isFrozen: Boolean
   creationTime: BigInt
   postCount: Int
+  documentationCount: Int
   deletedPostCount: Int
   replyCount: Int
   tagsCount: Int
@@ -202,7 +203,10 @@ type Achievement @entity {
   name: String
   description: String
   image: String
-  attributes: String
+  communityId: BigInt
+  attrCommunityId: String
+  attrEvent: String
+  attrType: String
 }
 
 type UserReward @entity {
@@ -247,7 +251,7 @@ type CommunityDocumentation @entity {
 
 type Statistic @entity {
   id: ID!
-  actionUser: User
+  actionUser: String
   transactionHash: Bytes
   timeStamp: BigInt
   eventName: String

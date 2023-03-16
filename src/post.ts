@@ -1,7 +1,7 @@
 import { json, Bytes, ipfs, BigInt, Address, ByteArray, log, store, JSONValue, JSONValueKind } from '@graphprotocol/graph-ts'
 import { Post, Reply, Comment, Tag, CommunityDocumentation, PostTranslation, ReplyTranslation, CommentTranslation, TagTranslation } from '../generated/schema'
 import { getPeeranhaContent, ERROR_IPFS, isValidIPFS, PostType, ItemProperties, Language } from './utils'
-import { updateUserRating, updateStartUserRating, getUser, newUser } from './user'
+import { updateUserRating, getUser, newUser } from './user'
 import { getCommunity } from './community-tag'
 
 export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigInt): void {
@@ -102,6 +102,7 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
     newCommunity.postCount++;
     newCommunity.replyCount += post.replyCount;
     newCommunity.save();
+    updatePostUsersRatings(post);
     post.communityId = peeranhaPost.communityId;
     updatePostUsersRatings(post);
   }
@@ -111,7 +112,7 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
   }
 
   getIpfsPostData(post);
-  updateStartUserRating(Address.fromString(post.author), post.communityId);
+  updateUserRating(Address.fromString(post.author), post.communityId);
 }
 
 function getIpfsPostData(post: Post | null): void {
@@ -247,7 +248,7 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: i32, bloc
   if (peeranhaReply.isFirstReply || peeranhaReply.isQuickReply) {
     updateUserRating(peeranhaReply.author, post.communityId);
   }
-  updateStartUserRating(Address.fromString(reply.author), post.communityId);
+  updateUserRating(Address.fromString(reply.author), post.communityId);
   addDataToReply(reply, postId, replyId);
   post.postContent += ' ' + reply.content;
   post.save();
@@ -359,7 +360,7 @@ export function newComment(comment: Comment | null, postId: BigInt, parentReplyI
   }
 
   addDataToComment(comment, postId, parentReplyId, commentId);
-  updateStartUserRating(Address.fromString(post.author), post.communityId);
+  updateUserRating(Address.fromString(post.author), post.communityId);
   post.postContent += ' ' + comment.content;
   post.save();
 }
@@ -728,6 +729,9 @@ export function generateDocumentationPosts(
       }
   });
   oldPosts = uniqueOldPosts;
+  let community = getCommunity(comunityId);
+  community.documentationCount = posts.length ? posts.length-1 : posts.length;
+  community.save();
   for (let index = 0; index < posts.length; index++) {
     newPosts.push(posts[index]);
   }
@@ -757,6 +761,7 @@ export function generateDocumentationPosts(
       post.author = userAddr.toHex();
       post.communityId = comunityId;
       post.lastmod = lastmodTimestamp;
+      post.isDeleted = false;
       post.postType = PostType.Documentation;
       post.ipfsHash = ByteArray.fromHexString(newPosts[index]) as Bytes;
   
