@@ -1,7 +1,7 @@
 import { json, Bytes, ipfs, BigInt, Address, ByteArray, log, store, JSONValue, JSONValueKind } from '@graphprotocol/graph-ts'
 import { Post, Reply, Comment, Tag, CommunityDocumentation } from '../generated/schema'
 import { getPeeranhaContent, ERROR_IPFS, isValidIPFS, PostType, ReplyProperties, hexToUtf8, MessengerTypes } from './utils'
-import { updateUserRating, updateStartUserRating, getUser, newUser } from './user'
+import { updateUserRating, getUser, newUser } from './user'
 import { getCommunity } from './community-tag'
 
 export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigInt): void {
@@ -23,6 +23,13 @@ export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigIn
   post.comments = [];
   post.tags = [];
   post.postContent = '';
+
+  const messengerUserDataResult = getPeeranhaContent().try_getItemProperty(ReplyProperties.MessengerSender, postId, 0, 0);
+  if (!messengerUserDataResult.reverted) {
+    const messengerUserData = messengerUserDataResult.value;
+    post.handle = messengerUserData.toString().slice(0, messengerUserData.length - 1);
+    post.messengerType = messengerUserData[messengerUserData.length - 1];
+  }
 
   let community = getCommunity(post.communityId);
   community.postCount++;
@@ -80,11 +87,14 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
   if (post.communityId != peeranhaPost.communityId) {
     const oldCommunity = getCommunity(post.communityId);
     oldCommunity.postCount--;
+    oldCommunity.replyCount -= post.replyCount;
     oldCommunity.save();
 
     const newCommunity = getCommunity(peeranhaPost.communityId);
     newCommunity.postCount++;
+    newCommunity.replyCount += post.replyCount;
     newCommunity.save();
+    updatePostUsersRatings(post);
     post.communityId = peeranhaPost.communityId;
     updatePostUsersRatings(post);
   }
@@ -94,7 +104,7 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
   }
 
   getIpfsPostData(post);
-  updateStartUserRating(Address.fromString(post.author), post.communityId);
+  updateUserRating(Address.fromString(post.author), post.communityId);
 }
 
 function getIpfsPostData(post: Post | null): void {
@@ -131,8 +141,19 @@ export function deletePost(post: Post | null, postId: BigInt): void {
   post.isDeleted = true;
 
   updateUserRating(Address.fromString(post.author), post.communityId);
-
   let community = getCommunity(post.communityId);
+
+  let tagsLength = post.tags.length;
+  let postTagsBuf = post.tags;
+  for (let i = 0; i < tagsLength; i++) {
+    let tagBuf = postTagsBuf.pop();
+    let tag = Tag.load(tagBuf);
+    if (tag != null) {
+      tag.postCount--;
+      tag.deletedPostCount++;
+      tag.save();
+    }
+  }
 
   for (let i = 1; i <= post.replyCount; i++) {
     let reply = Reply.load(postId.toString() + '-' + i.toString());
@@ -165,7 +186,6 @@ export function updatePostUsersRatings(post: Post | null): void {
     (reply.isFirstReply || reply.isQuickReply || reply.rating != 0 || reply.isBestReply)) {
 
       updateUserRating(Address.fromString(reply.author), post.communityId);
-
     }
   }
 }
@@ -219,7 +239,7 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: i32, bloc
   if (peeranhaReply.isFirstReply || peeranhaReply.isQuickReply) {
     updateUserRating(peeranhaReply.author, post.communityId);
   }
-  updateStartUserRating(Address.fromString(reply.author), post.communityId);
+  updateUserRating(Address.fromString(reply.author), post.communityId);
   addDataToReply(reply, postId, replyId);
   post.postContent += ' ' + reply.content;
   post.save();
@@ -324,7 +344,7 @@ export function newComment(comment: Comment | null, postId: BigInt, parentReplyI
   }
 
   addDataToComment(comment, postId, parentReplyId, commentId);
-  updateStartUserRating(Address.fromString(post.author), post.communityId);
+  updateUserRating(Address.fromString(post.author), post.communityId);
   post.postContent += ' ' + comment.content;
   post.save();
 }
@@ -452,6 +472,7 @@ let uniqueNewPosts: string[] = [];
 export function generateDocumentationPosts(
   comunityId: BigInt,
   userAddr: Address,
+  lastmodTimestamp: BigInt,
   oldDocumentationIpfsHash: Bytes | null, 
   newDocumentationIpfsHash: Bytes
 ): void {
@@ -505,6 +526,7 @@ export function generateDocumentationPosts(
       let post = new Post(newPosts[index]);
       post.author = userAddr.toHex();
       post.communityId = comunityId;
+      post.lastmod = lastmodTimestamp;
       post.postType = PostType.Documentation;
       post.ipfsHash = ByteArray.fromHexString(newPosts[index]) as Bytes;
   

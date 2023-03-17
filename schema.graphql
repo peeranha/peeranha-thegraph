@@ -98,6 +98,8 @@ type Post @entity {
   replies: [Reply!]
   comments: [Comment!]
   tags: [Tag!]
+  handle: String
+  messengerType: Int
 }
 
 type Reply @entity {
@@ -187,4 +189,16 @@ type CommunityDocumentation @entity {
   id: ID!
   documentationJSON: String
   ipfsHash: Bytes
+}
+
+type Statistic @entity {
+  id: ID!
+  actionUser: User
+  transactionHash: Bytes
+  timeStamp: BigInt
+  eventName: String
+  communityId: BigInt
+  postId: BigInt
+  replyId: Int
+  commentId: Int
 }
