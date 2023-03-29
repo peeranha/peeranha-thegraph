@@ -25,6 +25,8 @@ import { addDataToAchievement, giveAchievement, newAchievement } from './achieve
 import { ConfigureNewAchievementNFT, Transfer } from '../generated/PeeranhaNFT/PeeranhaNFT'
 
 const POOL_NFT = 1000000;
+
+const FORUM_ITEM_VOTED_EVENT = 'ForumItemVoted';
   
 export function handleConfigureNewAchievement(event: ConfigureNewAchievementNFT): void {
   let achievement = new Achievement(event.params.achievementId.toString());
@@ -254,7 +256,7 @@ export function handleEditedPost(event: PostEdited): void {
 
   indexingPeriods();
 
-  logTransaction(event, event.params.user, 'PostEdited', 0, 0, null, event.params.postId);
+  logTransaction(event, event.params.user, 'PostEdited', 0, 0, post.communityId, event.params.postId);
 }
 
 export function handleChangedTypePost(event: ChangePostType): void {
@@ -266,7 +268,7 @@ export function handleChangedTypePost(event: ChangePostType): void {
     post.save();
   }
 
-  logTransaction(event, event.params.user, 'ChangePostType', 0, 0, null, event.params.postId);
+  logTransaction(event, event.params.user, 'ChangePostType', 0, 0, post.communityId, event.params.postId);
 }
 
 export function handleDeletedPost(event: PostDeleted): void {
@@ -279,7 +281,7 @@ export function handleDeletedPost(event: PostDeleted): void {
 
   indexingPeriods();
   
-  logTransaction(event, event.params.user, 'PostDeleted', 0, 0, null, event.params.postId);
+  logTransaction(event, event.params.user, 'PostDeleted', 0, 0, post.communityId, event.params.postId);
 }
 
 export function handleNewReply(event: ReplyCreated): void {
@@ -297,7 +299,7 @@ export function handleNewReply(event: ReplyCreated): void {
 
   indexingPeriods();
   
-  logTransaction(event, event.params.user, 'ReplyCreated', event.params.replyId, 0, null, event.params.postId);
+  logTransaction(event, event.params.user, 'ReplyCreated', event.params.replyId, 0, post.communityId, event.params.postId);
 }
 
 export function handleEditedReply(event: ReplyEdited): void { 
@@ -323,7 +325,7 @@ export function handleEditedReply(event: ReplyEdited): void {
   }
 
   indexingPeriods();
-  logTransaction(event, event.params.user, 'ReplyEdited', event.params.replyId, 0, null, event.params.postId);
+  logTransaction(event, event.params.user, 'ReplyEdited', event.params.replyId, 0, post.communityId, event.params.postId);
 }
 
 export function handleDeletedReply(event: ReplyDeleted): void {
@@ -345,7 +347,7 @@ export function handleDeletedReply(event: ReplyDeleted): void {
   }
 
   indexingPeriods();
-  logTransaction(event, event.params.user, 'ReplyDeleted', event.params.replyId, 0, null, event.params.postId);
+  logTransaction(event, event.params.user, 'ReplyDeleted', event.params.replyId, 0, post.communityId, event.params.postId);
 }
 
 export function handleNewComment(event: CommentCreated): void {
@@ -364,7 +366,15 @@ export function handleNewComment(event: CommentCreated): void {
   }
 
   indexingPeriods();
-  logTransaction(event, event.params.user, 'CommentCreated', event.params.parentReplyId, event.params.commentId, null, event.params.postId);
+  logTransaction(
+    event,
+    event.params.user,
+    'CommentCreated',
+    event.params.parentReplyId,
+    event.params.commentId,
+    post.communityId,
+    event.params.postId
+  );
 }
 
 export function handleEditedComment(event: CommentEdited): void { 
@@ -392,7 +402,14 @@ export function handleEditedComment(event: CommentEdited): void {
   }
 
   indexingPeriods();
-  logTransaction(event, event.params.user, 'CommentEdited', event.params.parentReplyId, event.params.commentId, null, event.params.postId);
+  logTransaction(event,
+    event.params.user,
+    'CommentEdited',
+    event.params.parentReplyId,
+    event.params.commentId,
+    post.communityId,
+    event.params.postId
+  );
 }
 
 export function handleDeletedComment(event: CommentDeleted): void {
@@ -415,7 +432,14 @@ export function handleDeletedComment(event: CommentDeleted): void {
   }
 
   indexingPeriods();
-  logTransaction(event, event.params.user, 'CommentDeleted', event.params.parentReplyId, event.params.commentId, null, event.params.postId);
+  logTransaction(event,
+    event.params.user,
+    'CommentDeleted',
+    event.params.parentReplyId,
+    event.params.commentId,
+    post.communityId,
+    event.params.postId
+  );
 }
 
 export function indexingPeriods(): void {
@@ -522,10 +546,19 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
   }
 
   indexingPeriods();
-  logTransaction(event, event.params.user, 'StatusBestReplyChanged', event.params.replyId, 0, null, event.params.postId);
+  logTransaction(
+    event,
+    event.params.user,
+    'StatusBestReplyChanged',
+    event.params.replyId,
+    0,
+    post.communityId,
+    event.params.postId
+  );
 }
 
 export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move this in another function with edit
+  let post = Post.load(event.params.postId.toString());
   if (event.params.commentId != 0) {
     let commentId = BigInt.fromI32(event.params.commentId);
     let replyId = BigInt.fromI32(event.params.replyId);
@@ -555,11 +588,10 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
     }
 
     reply.save();
-    let post = Post.load(reply.postId.toString())
+    post = Post.load(reply.postId.toString())
     updateUserRating(Address.fromString(reply.author), post.communityId);
     updateUserRating(event.params.user, post.communityId);
   } else {
-    let post = Post.load(event.params.postId.toString())
     if (post == null) {
       post = new Post(event.params.postId.toString())
       newPost(post, event.params.postId, event.block.timestamp);
@@ -575,7 +607,15 @@ export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move
   }
 
   indexingPeriods();
-  logTransaction(event, event.params.user, 'ForumItemVoted', event.params.replyId, 0, null, event.params.postId);
+  logTransaction(
+    event,
+    event.params.user,
+    FORUM_ITEM_VOTED_EVENT, 
+    event.params.replyId,
+    0,
+    post.communityId,
+    event.params.postId
+  );
 }
 
 // export function handlerSetDocumentationTree(event: SetDocumentationTree): void {
@@ -649,6 +689,10 @@ function logTransaction(
   stat.postId = postId;
   stat.replyId = replyId;
   stat.commentId = commentId;
+  stat.voteDirection =
+    eventName === FORUM_ITEM_VOTED_EVENT
+      ? event.parameters[4].value.toI32()
+      : 0;
 
   stat.save();
 }
