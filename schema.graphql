@@ -205,4 +205,5 @@ type Statistic @entity {
   postId: BigInt
   replyId: Int
   commentId: Int
+  voteDirection: Int
 }
