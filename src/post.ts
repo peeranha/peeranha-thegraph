@@ -86,14 +86,24 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
   post.ipfsHash2 = peeranhaPost.ipfsDoc.hash2;
   if (post.communityId != peeranhaPost.communityId) {
     const oldCommunity = getCommunity(post.communityId);
+
+    let replyCount = 0;
+    for (let i = 1; i <= post.replyCount; i++) {
+      const reply = Reply.load(post.id.toString() + '-' + i.toString());
+      if (reply != null && !reply.isDeleted) {
+        replyCount++;
+      }
+    }
+
     oldCommunity.postCount--;
-    oldCommunity.replyCount -= post.replyCount;
+    oldCommunity.replyCount -= replyCount;
     oldCommunity.save();
 
     const newCommunity = getCommunity(peeranhaPost.communityId);
     newCommunity.postCount++;
-    newCommunity.replyCount += post.replyCount;
+    newCommunity.replyCount += replyCount;
     newCommunity.save();
+
     updatePostUsersRatings(post);
     post.communityId = peeranhaPost.communityId;
     updatePostUsersRatings(post);
