@@ -88,7 +88,7 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
     const oldCommunity = getCommunity(post.communityId);
 
     let replyCount = 0;
-    for (let i = 1; i < post.replyCount; i++) {
+    for (let i = 1; i <= post.replyCount; i++) {
       const reply = Reply.load(post.id.toString() + '-' + i.toString());
       if (reply != null && !reply.isDeleted) {
         replyCount++;
