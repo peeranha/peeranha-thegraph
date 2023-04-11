@@ -14,6 +14,7 @@ type User @entity {
   ipfsHash2: Bytes
   followedCommunities: [String!]
   achievements: [Achievement!]
+  isRegistered: Boolean
 }
 
 type UserCommunityRating @entity {
@@ -153,6 +154,13 @@ type Achievement @entity {
   attrCommunityId: String
   attrEvent: String
   attrType: String
+}
+
+type AchievementNFT @entity {
+  id: ID!
+  achievement: Achievement
+  owner: User
+  originalOwner: User
 }
 
 type UserReward @entity {

@@ -1,7 +1,6 @@
-import { Achievement } from "../generated/schema";
-import { Address, BigInt, ByteArray, Bytes, ipfs, json, JSONValueKind } from '@graphprotocol/graph-ts'
+import { Achievement, User } from "../generated/schema";
+import { BigInt, Bytes, ipfs, json } from '@graphprotocol/graph-ts'
 import { getPeeranhaNFT, getPeeranhaUser } from "./utils";
-import { getUser } from "./user";
 import { ERROR_IPFS, isValidIPFS } from "./utils";
 
 
@@ -93,12 +92,10 @@ function getIpfsAchievementData(achievement: Achievement | null): void {
   }
 }
 
-export function giveAchievement(achievementId: BigInt, userAddress: Address): void {
-    let user = getUser(userAddress);
-    if (!user) return;
-    let achievements = user.achievements
-    achievements.push(achievementId.toString());
-    user.achievements = achievements;
+export function giveAchievement(achievementId: BigInt, newOwner: User): void {
+  let achievements = newOwner.achievements
+  achievements.push(achievementId.toString());
+  newOwner.achievements = achievements;
 
-    user.save();
+  newOwner.save();
 }

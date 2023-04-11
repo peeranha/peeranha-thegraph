@@ -11,8 +11,10 @@ export function newUser(user: User | null, userAddress: Address, blockTimeStamp:
   user.postCount = 0;
   user.replyCount = 0;
   user.followedCommunities = [];
-  user.achievements = [];
+  if (user.isRegistered)    // for isRegistered == false: achievements already set
+    user.achievements = [];
   user.ratings = [];
+  user.isRegistered = true;
 
   addDataToUser(user, userAddress);
 }
