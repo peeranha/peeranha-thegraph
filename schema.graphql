@@ -35,7 +35,6 @@ type Community @entity {
   description: String
   website: String
   communitySite: String
-  language: String
   avatar: String
   isFrozen: Boolean
   creationTime: BigInt
@@ -47,6 +46,17 @@ type Community @entity {
   followingUsers: Int
   ipfsHash: Bytes
   ipfsHash2: Bytes
+  language: String
+  translations: [CommunityTranslation!]
+}
+
+type CommunityTranslation @entity {
+  id: ID!
+  communityId: String
+  name: String
+  description: String
+  language: String
+  enableAutotranslation: Boolean
 }
 
 type Tag @entity {
@@ -58,6 +68,16 @@ type Tag @entity {
   deletedPostCount: Int
   ipfsHash: Bytes
   ipfsHash2: Bytes
+  language: BigInt
+  translations: [TagTranslation!]
+}
+
+type TagTranslation @entity {
+  id: ID!
+  tagId: String
+  name: String
+  description: String
+  language: BigInt
 }
 
 enum PostType {
@@ -98,9 +118,21 @@ type Post @entity {
   properties: [BigInt!]
   replies: [Reply!]
   comments: [Comment!]
+  language: BigInt
+  translations: [PostTranslation!]
   tags: [Tag!]
   handle: String
   messengerType: Int
+}
+
+type PostTranslation @entity {
+  id: ID!
+  postId: String
+  language: BigInt
+  author: User
+  ipfsHash: Bytes
+  title: String
+  content: String
 }
 
 type Reply @entity {
@@ -121,8 +153,19 @@ type Reply @entity {
   isQuickReply: Boolean
   properties: [Bytes!]
   comments: [Comment!]
+  language: BigInt
+  translations: [ReplyTranslation!]
   handle: String
   messengerType: Int
+}
+
+type ReplyTranslation @entity {
+  id: ID!
+  replyId: String
+  language: BigInt
+  author: User
+  ipfsHash: Bytes
+  content: String
 }
 
 type Comment @entity {
@@ -137,6 +180,17 @@ type Comment @entity {
   content: String
   isDeleted: Boolean
   properties: [Bytes!]
+  language: BigInt
+  translations: [CommentTranslation!]
+}
+
+type CommentTranslation @entity {
+  id: ID!
+  commentId: String
+  language: BigInt
+  author: User
+  ipfsHash: Bytes
+  content: String
 }
 
 type Achievement @entity {
