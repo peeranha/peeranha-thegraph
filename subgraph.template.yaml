@@ -122,11 +122,11 @@ dataSources:
           handler: handlerForumItemVoted
         - event: SetDocumentationTree(indexed address,indexed uint32)
           handler: handlerSetDocumentationTree
-        - event: TranslationCreated(indexed address,indexed uint256,indexed uint16,uint8,uint8)
+        - event: TranslationCreated(indexed address,indexed uint256,uint16,uint8,uint8)
           handler: handlerCreatedTranslation
-        - event: TranslationEdited(indexed address,indexed uint256,indexed uint16,uint8,uint8)
+        - event: TranslationEdited(indexed address,indexed uint256,uint16,uint8,uint8)
           handler: handlerEditTranslation
-        - event: TranslationDeleted(indexed address,indexed uint256,indexed uint16,uint8,uint8)
+        - event: TranslationDeleted(indexed address,indexed uint256,uint16,uint8,uint8)
           handler: handlerDeleteTranslation
       file: ./src/mapping.ts
 
