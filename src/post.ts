@@ -183,6 +183,17 @@ export function deletePost(post: Post | null, postId: BigInt): void {
       userReply.save();
       
       community.replyCount--;
+
+      for (let j = 1; j <= reply.commentCount; j++) {
+        let comment = Comment.load(postId.toString() + '-' + i.toString() + '-' + j.toString());
+        if (comment != null && !comment.isDeleted) {
+          comment.isDeleted = true;
+          comment.save();
+        }
+      }
+
+      reply.isDeleted = true;
+      reply.save();
     }
   }
   community.deletedPostCount++;
@@ -192,6 +203,14 @@ export function deletePost(post: Post | null, postId: BigInt): void {
   let userPost = getUser(Address.fromString(post.author));
   userPost.postCount--;
   userPost.save();
+
+  for (let i = 1; i <= post.commentCount; i++) {
+    let comment = Comment.load(postId.toString() + '-0-' + i.toString());
+    if (comment != null && !comment.isDeleted) {
+      comment.isDeleted = true;
+      comment.save();
+    }
+  }
 }
 
 export function updatePostUsersRatings(post: Post | null): void {
@@ -332,6 +351,14 @@ export function deleteReply(reply: Reply | null, postId: BigInt): void {
   let user = getUser(Address.fromString(reply.author));
   user.replyCount--;
   user.save();
+
+  for (let i = 1; i <= reply.commentCount; i++) {
+    let comment = Comment.load(reply.id + '-' + i.toString());
+    if (comment != null && !comment.isDeleted) {
+      comment.isDeleted = true;
+      comment.save();
+    }
+  }
 }
 
 export function newComment(comment: Comment | null, postId: BigInt, parentReplyId: BigInt, commentId: BigInt): void {
