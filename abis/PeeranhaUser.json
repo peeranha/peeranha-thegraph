@@ -832,6 +832,42 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "addr",
+        "type": "address"
+      },
+      {
+        "internalType": "uint32",
+        "name": "communityId",
+        "type": "uint32"
+      }
+    ],
+    "name": "getUserRatingCollection",
+    "outputs": [
+      {
+        "components": [
+          {
+            "internalType": "int32",
+            "name": "rating",
+            "type": "int32"
+          },
+          {
+            "internalType": "bool",
+            "name": "isActive",
+            "type": "bool"
+          }
+        ],
+        "internalType": "struct UserLib.UserRating",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "user",
         "type": "address"
       },

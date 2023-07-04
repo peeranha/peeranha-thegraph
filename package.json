@@ -3,11 +3,15 @@
   "license": "UNLICENSED",
   "scripts": {
     "codegen": "graph codegen",
-    "prepare:test": "mustache config/test.json subgraph.template.yaml > subgraph.yaml & mustache config/test.json src/config.template.ts > src/config.ts",
+    "prepare:test1": "mustache config/test1.json subgraph.template.yaml > subgraph.yaml & mustache config/test1.json src/config.template.ts > src/config.ts",
+    "prepare:test2": "mustache config/test2.json subgraph.template.yaml > subgraph.yaml & mustache config/test2.json src/config.template.ts > src/config.ts",
+    "prepare:test3": "mustache config/test3.json subgraph.template.yaml > subgraph.yaml & mustache config/test3.json src/config.template.ts > src/config.ts",
     "prepare:staging": "mustache config/staging.json subgraph.template.yaml > subgraph.yaml & mustache config/staging.json src/config.template.ts > src/config.ts",
     "prepare:prod": "mustache config/prod.json subgraph.template.yaml > subgraph.yaml > subgraph.yaml & mustache config/prod.json src/config.template.ts > src/config.ts",
     "build": "graph build",
-    "deploy:test": "npm run prepare:test & graph deploy --product hosted-service peeranha/peeranha-test-2",
+    "deploy:test1": "npm run prepare:test1 & graph deploy --product hosted-service peeranha/peeranha-test-1",
+    "deploy:test2": "npm run prepare:test2 & graph deploy --product hosted-service peeranha/peeranha-test-2",
+    "deploy:test3": "npm run prepare:test3 & graph deploy --product hosted-service peeranha/peeranha-test-3",
     "deploy:staging": "npm run prepare:staging & graph deploy --product hosted-service peeranha/peeranha-staging",
     "deploy:prod": "npm run prepare:prod & graph deploy --product hosted-service peeranha/peeranha",
     "auth": "graph auth --product hosted-service <ACCESS_TOKEN>"

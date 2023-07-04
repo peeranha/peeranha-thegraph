@@ -39,7 +39,7 @@ export enum PostType {
   Documentation = 1000
 }
 
-export enum ReplyProperties { MessengerSender }
+export enum ItemProperties { MessengerSender, Language }
 
 export enum MessengerTypes {
   Unknown = 0,
@@ -47,6 +47,8 @@ export enum MessengerTypes {
   Discord = 2,
   Slack = 3,
 }
+
+export enum Language { English = 0, Chinese = 1, Spanish = 2, Vietnamese = 3 }
 
 export function hexToUtf8(str: string): string
 {

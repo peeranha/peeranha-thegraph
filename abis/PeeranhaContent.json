@@ -94,6 +94,11 @@
         "internalType": "bytes32",
         "name": "ipfsHash",
         "type": "bytes32"
+      },
+      {
+        "internalType": "enum PostLib.Language",
+        "name": "language",
+        "type": "uint8"
       }
     ],
     "name": "createComment",
@@ -127,6 +132,11 @@
         "internalType": "uint8[]",
         "name": "tags",
         "type": "uint8[]"
+      },
+      {
+        "internalType": "enum PostLib.Language",
+        "name": "language",
+        "type": "uint8"
       }
     ],
     "name": "createPost",
@@ -198,6 +208,11 @@
         "internalType": "bool",
         "name": "isOfficialReply",
         "type": "bool"
+      },
+      {
+        "internalType": "enum PostLib.Language",
+        "name": "language",
+        "type": "uint8"
       }
     ],
     "name": "createReply",
@@ -399,6 +414,11 @@
         "internalType": "bytes32",
         "name": "ipfsHash",
         "type": "bytes32"
+      },
+      {
+        "internalType": "enum PostLib.Language",
+        "name": "language",
+        "type": "uint8"
       }
     ],
     "name": "editComment",
@@ -437,6 +457,11 @@
         "internalType": "enum PostLib.PostType",
         "name": "postType",
         "type": "uint8"
+      },
+      {
+        "internalType": "enum PostLib.Language",
+        "name": "language",
+        "type": "uint8"
       }
     ],
     "name": "editPost",
@@ -470,6 +495,11 @@
         "internalType": "bool",
         "name": "isOfficialReply",
         "type": "bool"
+      },
+      {
+        "internalType": "enum PostLib.Language",
+        "name": "language",
+        "type": "uint8"
       }
     ],
     "name": "editReply",
@@ -679,6 +709,35 @@
         "internalType": "bytes32",
         "name": "",
         "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "postId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint16",
+        "name": "replyId",
+        "type": "uint16"
+      },
+      {
+        "internalType": "uint8",
+        "name": "commentId",
+        "type": "uint8"
+      }
+    ],
+    "name": "getItemLanguage",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
