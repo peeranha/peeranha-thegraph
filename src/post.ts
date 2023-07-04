@@ -96,13 +96,13 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
   if (post.communityId != peeranhaPost.communityId) {
     const oldCommunity = getCommunity(post.communityId);
 
-    let replyCount = 0;
-    for (let i = 1; i <= post.replyCount; i++) {
-      const reply = Reply.load(post.id.toString() + '-' + i.toString());
-      if (reply != null && !reply.isDeleted) {
-        replyCount++;
-      }
-    }
+    // let replyCount = 0;
+    // for (let i = 1; i <= post.replyCount; i++) {
+    //   const reply = Reply.load(post.id.toString() + '-' + i.toString());
+    //   if (reply != null && !reply.isDeleted) {
+    //     replyCount++;
+    //   }
+    // }
 
     oldCommunity.postCount--;
     oldCommunity.replyCount -= post.replyCount - post.deletedReplyCount;
