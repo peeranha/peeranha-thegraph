@@ -89,6 +89,7 @@ type Post @entity {
   postContent: String
   commentCount: Int
   replyCount: Int
+  deletedReplyCount: Int
   isDeleted: Boolean
   officialReply: Int
   bestReply: Int

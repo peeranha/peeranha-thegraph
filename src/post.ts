@@ -16,6 +16,7 @@ export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigIn
   post.lastmod = peeranhaPost.postTime;
   post.commentCount = 0;
   post.replyCount = 0;
+  post.deletedReplyCount = 0;
   post.officialReply = 0;
   post.bestReply = peeranhaPost.bestReply;
   post.isDeleted = false;
@@ -87,12 +88,12 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
   if (post.communityId != peeranhaPost.communityId) {
     const oldCommunity = getCommunity(post.communityId);
     oldCommunity.postCount--;
-    oldCommunity.replyCount -= post.replyCount;
+    oldCommunity.replyCount -= post.replyCount - post.deletedReplyCount;
     oldCommunity.save();
 
     const newCommunity = getCommunity(peeranhaPost.communityId);
     newCommunity.postCount++;
-    newCommunity.replyCount += post.replyCount;
+    newCommunity.replyCount += post.replyCount - post.deletedReplyCount;
     newCommunity.save();
     post.communityId = peeranhaPost.communityId;
     updatePostUsersRatings(post);
@@ -154,8 +155,8 @@ export function deletePost(post: Post | null, postId: BigInt): void {
     }
   }
 
-  for (let i = 1; i <= post.replyCount; i++) {
-    let reply = Reply.load(postId.toString() + '-' + i.toString());
+  for (let replyId = 1; replyId <= post.replyCount; replyId++) {
+    let reply = Reply.load(postId.toString() + '-' + replyId.toString());
     if (reply != null && !reply.isDeleted) {
       updateUserRating(Address.fromString(reply.author), post.communityId);
       
@@ -301,6 +302,7 @@ export function deleteReply(reply: Reply | null, postId: BigInt): void {
   if (reply.isOfficialReply) {
     post.officialReply = 0;
   }
+  post.deletedReplyCount++;
   post.save();
 
   let user = getUser(Address.fromString(reply.author));
