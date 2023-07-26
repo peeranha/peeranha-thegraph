@@ -1,4 +1,4 @@
-import { Address, JSONValue, JSONValueKind } from '@graphprotocol/graph-ts'
+import { Address, ByteArray, Bytes, JSONValue, JSONValueKind, ipfs, log } from '@graphprotocol/graph-ts'
 import { PeeranhaUser } from '../generated/PeeranhaUser/PeeranhaUser'
 import { PeeranhaCommunity } from '../generated/PeeranhaCommunity/PeeranhaCommunity'
 import { PeeranhaContent } from '../generated/PeeranhaContent/PeeranhaContent'
@@ -56,3 +56,18 @@ export function hexToUtf8(str: string): string
      str.replace(/[0-9a-f]{2}/g, '%$&')
   );
 }
+
+export function convertIpfsHash(ipfsHash: Bytes): Bytes {
+  let hashstr = ipfsHash.toHexString();
+  let hashHex = '1220' + hashstr.slice(2);
+  let ipfsBytes = ByteArray.fromHexString(hashHex);
+  let ipfsHashBase58 = ipfsBytes.toBase58();
+  let result: Bytes | null = null;
+  while (result == null) {
+    result = ipfs.cat(ipfsHashBase58);
+    if (result == null) {
+      log.error('Could not get IPFS data for hash {}', [ipfsHashBase58]);
+    }
+  }
+  return result as Bytes;
+};
