@@ -768,7 +768,7 @@ export function indexingDocumentation(
   ipfsHash: Bytes,
 ): CommunityDocumentation | null {
   posts.splice(0, posts.length);
-  const documentation = CommunityDocumentation.load(comunityId.toString());
+  let documentation = CommunityDocumentation.load(comunityId.toString());
   if (documentation == null) {
     return null;
   }
@@ -782,7 +782,7 @@ export function indexingDocumentation(
       let ipfsObj = ipfsData.toObject()
 
       const pinnedPost = ipfsObj.get('pinnedPost');
-      if (!pinnedPost.isNull() && pinnedPost.kind == JSONValueKind.OBJECT){
+      if (pinnedPost != null && pinnedPost.kind == JSONValueKind.OBJECT){
         const pinnedId = pinnedPost.toObject().get('id');
         const pinnedTitle = pinnedPost.toObject().get('title');
         if(
@@ -802,7 +802,7 @@ export function indexingDocumentation(
       }
       const documentations = ipfsObj.get('documentations');
 
-      if (!documentations.isNull() && documentations.kind == JSONValueKind.ARRAY) {
+      if (documentations != null && documentations.kind == JSONValueKind.ARRAY) {
         const documentationsArray = documentations.toArray();
 
         for (let i = 0; i < documentationsArray.length; i++) {
