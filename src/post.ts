@@ -1,6 +1,6 @@
-import { json, Bytes, ipfs, BigInt, Address, ByteArray, log, store, JSONValue, JSONValueKind } from '@graphprotocol/graph-ts'
+import { Bytes, BigInt, Address, ByteArray, log, store, JSONValue, JSONValueKind } from '@graphprotocol/graph-ts'
 import { Post, Reply, Comment, Tag, CommunityDocumentation, PostTranslation, ReplyTranslation, CommentTranslation, TagTranslation } from '../generated/schema'
-import { getPeeranhaContent, ERROR_IPFS, isValidIPFS, PostType, ItemProperties, Language } from './utils'
+import { getPeeranhaContent, ERROR_IPFS, isValidIPFS, PostType, ItemProperties, Language, convertIpfsHash, bytesToJson } from './utils'
 import { updateUserRating, getUser, newUser } from './user'
 import { getCommunity } from './community-tag'
 
@@ -126,32 +126,26 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
 }
 
 function getIpfsPostData(post: Post | null): void {
-  let hashstr = post.ipfsHash.toHexString();
-  let hashHex = '1220' + hashstr.slice(2);
-  let ipfsBytes = ByteArray.fromHexString(hashHex);
-  let ipfsHashBase58 = ipfsBytes.toBase58();
-  let result = ipfs.cat(ipfsHashBase58) as Bytes;
-  
-  if (result != null) {
-    let ipfsData = json.fromBytes(result);
-  
-    if (isValidIPFS(ipfsData)) {
-      let ipfsObj = ipfsData.toObject()
-      let title = ipfsObj.get('title');
-      if (!title.isNull()) {
-        post.title = title.toString();
-        post.postContent += ' ' + title.toString();
-      }
-  
-      let content = ipfsObj.get('content');
-      if (!content.isNull()) {
-        post.content = content.toString();
-        post.postContent += ' ' + content.toString();
-      }
-    } else {
-      post.title = ERROR_IPFS;
-      post.content = ERROR_IPFS;
+  let result = convertIpfsHash(post.ipfsHash as Bytes);
+
+  let ipfsData = bytesToJson(result);
+
+  if (isValidIPFS(ipfsData)) {
+    let ipfsObj = ipfsData.toObject()
+    let title = ipfsObj.get('title');
+    if (!title.isNull()) {
+      post.title = title.toString();
+      post.postContent += ' ' + title.toString();
     }
+
+    let content = ipfsObj.get('content');
+    if (!content.isNull()) {
+      post.content = content.toString();
+      post.postContent += ' ' + content.toString();
+    }
+  } else {
+    post.title = ERROR_IPFS;
+    post.content = ERROR_IPFS;
   }
 }
 
@@ -301,25 +295,19 @@ export function addDataToReply(reply: Reply | null, postId: BigInt, replyId: i32
 }
 
 function getIpfsReplyData(reply: Reply | null): void {
-  let hashstr = reply.ipfsHash.toHexString();
-  let hashHex = '1220' + hashstr.slice(2);
-  let ipfsBytes = ByteArray.fromHexString(hashHex);
-  let ipfsHashBase58 = ipfsBytes.toBase58();
-  let result = ipfs.cat(ipfsHashBase58) as Bytes;
+  let result = convertIpfsHash(reply.ipfsHash as Bytes);
   
-  if (result != null) {
-    let ipfsData = json.fromBytes(result);
-  
-    if (isValidIPFS(ipfsData)) {
-      let ipfsObj = ipfsData.toObject()
-  
-      let content = ipfsObj.get('content');
-      if (!content.isNull()) {
-        reply.content = content.toString();
-      }
-    } else {
-      reply.content = ERROR_IPFS;
+  let ipfsData = bytesToJson(result);
+
+  if (isValidIPFS(ipfsData)) {
+    let ipfsObj = ipfsData.toObject()
+
+    let content = ipfsObj.get('content');
+    if (!content.isNull()) {
+      reply.content = content.toString();
     }
+  } else {
+    reply.content = ERROR_IPFS;
   }
 }
 
@@ -419,25 +407,18 @@ export function addDataToComment(comment: Comment | null, postId: BigInt, parent
 }
 
 function getIpfsCommentData(comment: Comment | null): void {
-  let hashstr = comment.ipfsHash.toHexString();
-  let hashHex = '1220' + hashstr.slice(2);
-  let ipfsBytes = ByteArray.fromHexString(hashHex);
-  let ipfsHashBase58 = ipfsBytes.toBase58();
-  let result = ipfs.cat(ipfsHashBase58) as Bytes;
-  
-  if (result != null) {
-    let ipfsData = json.fromBytes(result);
-  
-    if (isValidIPFS(ipfsData)) {
-      let ipfsObj = ipfsData.toObject()
-  
-      let content = ipfsObj.get('content');
-      if (!content.isNull()) {
-        comment.content = content.toString();
-      }
-    } else {
-      comment.content = ERROR_IPFS;
+  let result = convertIpfsHash(comment.ipfsHash as Bytes);
+  let ipfsData = bytesToJson(result);
+
+  if (isValidIPFS(ipfsData)) {
+    let ipfsObj = ipfsData.toObject()
+
+    let content = ipfsObj.get('content');
+    if (!content.isNull()) {
+      comment.content = content.toString();
     }
+  } else {
+    comment.content = ERROR_IPFS;
   }
 }
 
@@ -477,30 +458,24 @@ export function addDataToPostTranslation(postTranslation: PostTranslation | null
 }
 
 function getIpfsPostTranslationData(postTranslation: PostTranslation | null): void {
-  let hashstr = postTranslation.ipfsHash.toHexString();
-  let hashHex = '1220' + hashstr.slice(2);
-  let ipfsBytes = ByteArray.fromHexString(hashHex);
-  let ipfsHashBase58 = ipfsBytes.toBase58();
-  let result = ipfs.cat(ipfsHashBase58) as Bytes;
+  let result = convertIpfsHash(postTranslation.ipfsHash as Bytes);
   
-  if (result != null) {
-    let ipfsData = json.fromBytes(result);
-  
-    if (isValidIPFS(ipfsData)) {
-      let ipfsObj = ipfsData.toObject()
-      let title = ipfsObj.get('title');
-      if (!title.isNull()) {
-        postTranslation.title = title.toString();
-      }
-  
-      let content = ipfsObj.get('content');
-      if (!content.isNull()) {
-        postTranslation.content = content.toString();
-      }
-    } else {
-      postTranslation.title = ERROR_IPFS;
-      postTranslation.content = ERROR_IPFS;
+  let ipfsData = bytesToJson(result);
+
+  if (isValidIPFS(ipfsData)) {
+    let ipfsObj = ipfsData.toObject()
+    let title = ipfsObj.get('title');
+    if (!title.isNull()) {
+      postTranslation.title = title.toString();
     }
+
+    let content = ipfsObj.get('content');
+    if (!content.isNull()) {
+      postTranslation.content = content.toString();
+    }
+  } else {
+    postTranslation.title = ERROR_IPFS;
+    postTranslation.content = ERROR_IPFS;
   }
 }
 
@@ -538,25 +513,19 @@ export function addDataToReplyTranslation(replyTranslation: ReplyTranslation | n
 }
 
 function getIpfsReplyTranslationData(replyTranslation: ReplyTranslation | null): void {
-  let hashstr = replyTranslation.ipfsHash.toHexString();
-  let hashHex = '1220' + hashstr.slice(2);
-  let ipfsBytes = ByteArray.fromHexString(hashHex);
-  let ipfsHashBase58 = ipfsBytes.toBase58();
-  let result = ipfs.cat(ipfsHashBase58) as Bytes;
+  let result = convertIpfsHash(replyTranslation.ipfsHash as Bytes);
   
-  if (result != null) {
-    let ipfsData = json.fromBytes(result);
-  
-    if (isValidIPFS(ipfsData)) {
-      let ipfsObj = ipfsData.toObject();
-  
-      let content = ipfsObj.get('content');
-      if (!content.isNull()) {
-        replyTranslation.content = content.toString();
-      }
-    } else {
-      replyTranslation.content = ERROR_IPFS;
+  let ipfsData = bytesToJson(result);
+
+  if (isValidIPFS(ipfsData)) {
+    let ipfsObj = ipfsData.toObject();
+
+    let content = ipfsObj.get('content');
+    if (!content.isNull()) {
+      replyTranslation.content = content.toString();
     }
+  } else {
+    replyTranslation.content = ERROR_IPFS;
   }
 }
 
@@ -593,25 +562,18 @@ export function addDataToCommentTranslation(commentTranslation: CommentTranslati
 }
 
 function getIpfsCommentTranslationData(commentTranslation: CommentTranslation | null): void {
-  let hashstr = commentTranslation.ipfsHash.toHexString();
-  let hashHex = '1220' + hashstr.slice(2);
-  let ipfsBytes = ByteArray.fromHexString(hashHex);
-  let ipfsHashBase58 = ipfsBytes.toBase58();
-  let result = ipfs.cat(ipfsHashBase58) as Bytes;
+  let result = convertIpfsHash(commentTranslation.ipfsHash as Bytes);
+  let ipfsData = bytesToJson(result);
   
-  if (result != null) {
-    let ipfsData = json.fromBytes(result);
-  
-    if (isValidIPFS(ipfsData)) {
-      let ipfsObj = ipfsData.toObject();
-  
-      let content = ipfsObj.get('content');
-      if (!content.isNull()) {
-        commentTranslation.content = content.toString();
-      }
-    } else {
-      commentTranslation.content = ERROR_IPFS;
+  if (isValidIPFS(ipfsData)) {
+    let ipfsObj = ipfsData.toObject();
+
+    let content = ipfsObj.get('content');
+    if (!content.isNull()) {
+      commentTranslation.content = content.toString();
     }
+  } else {
+    commentTranslation.content = ERROR_IPFS;
   }
 }
 
@@ -724,15 +686,6 @@ function changedStatusOfficialReply(reply: Reply | null, postId: BigInt, replyId
   }
 }
 
-const convertIpfsHash = (ipfsHash: Bytes | null): Bytes => { //to utils
-  let hashstr = ipfsHash.toHexString();
-  let hashHex = '1220' + hashstr.slice(2);
-  let ipfsBytes = ByteArray.fromHexString(hashHex);
-  let ipfsHashBase58 = ipfsBytes.toBase58();
-  let result = ipfs.cat(ipfsHashBase58) as Bytes;
-  return result;
-};
-
 let posts: string[] = [];
 let uniqueOldPosts: string[] = [];
 let uniqueNewPosts: string[] = [];
@@ -744,13 +697,11 @@ export function generateDocumentationPosts(
   oldDocumentationIpfsHash: Bytes | null, 
   newDocumentationIpfsHash: Bytes
 ): void {
-  if (newDocumentationIpfsHash === null)
-    return;
+  let newPosts: string[] = [];
+  let oldPosts: string[] = [];
 
-  let newPosts: string[] = []
-  let oldPosts: string[] = []
   if (oldDocumentationIpfsHash !== null) {
-    const oldDocumentation = indexingDocumentation(comunityId, oldDocumentationIpfsHash);
+    const oldDocumentation = indexingDocumentation(comunityId, oldDocumentationIpfsHash as Bytes);
     for (let index = 0; index < posts.length; index++) {
       oldPosts.push(posts[index]);
     }
@@ -814,23 +765,24 @@ export function generateDocumentationPosts(
 
 export function indexingDocumentation(
   comunityId: BigInt,
-  ipfsHash: Bytes | null,
+  ipfsHash: Bytes,
 ): CommunityDocumentation | null {
-  posts.splice(0,posts.length);
-  const documentation = CommunityDocumentation.load(comunityId.toString());
-  documentation.ipfsHash = ipfsHash;
-  if (documentation == null || documentation.ipfsHash == null)
+  posts.splice(0, posts.length);
+  let documentation = CommunityDocumentation.load(comunityId.toString());
+  if (documentation == null) {
     return null;
-  let result = convertIpfsHash(documentation.ipfsHash)
+  }
+  documentation.ipfsHash = ipfsHash;
+  let result = convertIpfsHash(ipfsHash);
   documentation.documentationJSON = result.toString();
 
   if (result != null) {
-    let ipfsData = json.fromBytes(result);
+    let ipfsData = bytesToJson(result);
     if (isValidIPFS(ipfsData)) {
       let ipfsObj = ipfsData.toObject()
 
       const pinnedPost = ipfsObj.get('pinnedPost');
-      if (!pinnedPost.isNull() && pinnedPost.kind == JSONValueKind.OBJECT){
+      if (pinnedPost != null && pinnedPost.kind == JSONValueKind.OBJECT){
         const pinnedId = pinnedPost.toObject().get('id');
         const pinnedTitle = pinnedPost.toObject().get('title');
         if(
@@ -850,7 +802,7 @@ export function indexingDocumentation(
       }
       const documentations = ipfsObj.get('documentations');
 
-      if (!documentations.isNull() && documentations.kind == JSONValueKind.ARRAY) {
+      if (documentations != null && documentations.kind == JSONValueKind.ARRAY) {
         const documentationsArray = documentations.toArray();
 
         for (let i = 0; i < documentationsArray.length; i++) {
