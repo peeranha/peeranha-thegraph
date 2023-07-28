@@ -1,6 +1,6 @@
-import { json, Bytes, ipfs, BigInt, Address, ByteArray, log, store, JSONValue, JSONValueKind } from '@graphprotocol/graph-ts'
+import { Bytes, BigInt, Address, ByteArray, log, store, JSONValue, JSONValueKind } from '@graphprotocol/graph-ts'
 import { Post, Reply, Comment, Tag, CommunityDocumentation, PostTranslation, ReplyTranslation, CommentTranslation, TagTranslation } from '../generated/schema'
-import { getPeeranhaContent, ERROR_IPFS, isValidIPFS, PostType, ItemProperties, Language, convertIpfsHash } from './utils'
+import { getPeeranhaContent, ERROR_IPFS, isValidIPFS, PostType, ItemProperties, Language, convertIpfsHash, bytesToJson } from './utils'
 import { updateUserRating, getUser, newUser } from './user'
 import { getCommunity } from './community-tag'
 
@@ -128,7 +128,7 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
 function getIpfsPostData(post: Post | null): void {
   let result = convertIpfsHash(post.ipfsHash as Bytes);
 
-  let ipfsData = json.fromBytes(result);
+  let ipfsData = bytesToJson(result);
 
   if (isValidIPFS(ipfsData)) {
     let ipfsObj = ipfsData.toObject()
@@ -297,7 +297,7 @@ export function addDataToReply(reply: Reply | null, postId: BigInt, replyId: i32
 function getIpfsReplyData(reply: Reply | null): void {
   let result = convertIpfsHash(reply.ipfsHash as Bytes);
   
-  let ipfsData = json.fromBytes(result);
+  let ipfsData = bytesToJson(result);
 
   if (isValidIPFS(ipfsData)) {
     let ipfsObj = ipfsData.toObject()
@@ -408,7 +408,7 @@ export function addDataToComment(comment: Comment | null, postId: BigInt, parent
 
 function getIpfsCommentData(comment: Comment | null): void {
   let result = convertIpfsHash(comment.ipfsHash as Bytes);
-  let ipfsData = json.fromBytes(result);
+  let ipfsData = bytesToJson(result);
 
   if (isValidIPFS(ipfsData)) {
     let ipfsObj = ipfsData.toObject()
@@ -460,7 +460,7 @@ export function addDataToPostTranslation(postTranslation: PostTranslation | null
 function getIpfsPostTranslationData(postTranslation: PostTranslation | null): void {
   let result = convertIpfsHash(postTranslation.ipfsHash as Bytes);
   
-  let ipfsData = json.fromBytes(result);
+  let ipfsData = bytesToJson(result);
 
   if (isValidIPFS(ipfsData)) {
     let ipfsObj = ipfsData.toObject()
@@ -515,7 +515,7 @@ export function addDataToReplyTranslation(replyTranslation: ReplyTranslation | n
 function getIpfsReplyTranslationData(replyTranslation: ReplyTranslation | null): void {
   let result = convertIpfsHash(replyTranslation.ipfsHash as Bytes);
   
-  let ipfsData = json.fromBytes(result);
+  let ipfsData = bytesToJson(result);
 
   if (isValidIPFS(ipfsData)) {
     let ipfsObj = ipfsData.toObject();
@@ -563,7 +563,7 @@ export function addDataToCommentTranslation(commentTranslation: CommentTranslati
 
 function getIpfsCommentTranslationData(commentTranslation: CommentTranslation | null): void {
   let result = convertIpfsHash(commentTranslation.ipfsHash as Bytes);
-  let ipfsData = json.fromBytes(result);
+  let ipfsData = bytesToJson(result);
   
   if (isValidIPFS(ipfsData)) {
     let ipfsObj = ipfsData.toObject();
@@ -777,7 +777,7 @@ export function indexingDocumentation(
   documentation.documentationJSON = result.toString();
 
   if (result != null) {
-    let ipfsData = json.fromBytes(result);
+    let ipfsData = bytesToJson(result);
     if (isValidIPFS(ipfsData)) {
       let ipfsObj = ipfsData.toObject()
 

@@ -1,6 +1,6 @@
-import { json, Bytes, ipfs, BigInt, JSONValueKind, ByteArray } from '@graphprotocol/graph-ts'
+import { Bytes, BigInt, JSONValueKind } from '@graphprotocol/graph-ts'
 import { Community, Tag, CommunityTranslation, TagTranslation } from '../generated/schema'
-import { convertIpfsHash, getPeeranhaCommunity } from './utils'
+import { bytesToJson, convertIpfsHash, getPeeranhaCommunity } from './utils'
 import { ERROR_IPFS, isValidIPFS } from "./utils";
 import { store } from '@graphprotocol/graph-ts'
 
@@ -43,7 +43,7 @@ export function addDataToCommunity(community: Community | null, communityId: Big
 function getIpfsCommunityData(community: Community | null): void {  
   let result = convertIpfsHash(community.ipfsHash as Bytes);
   
-  let ipfsData = json.fromBytes(result);
+  let ipfsData = bytesToJson(result);
 
   if (isValidIPFS(ipfsData)) {
     let ipfsObj = ipfsData.toObject()
@@ -154,7 +154,7 @@ export function addDataToTag(tag: Tag | null, communityId: BigInt, tagId: BigInt
 function getIpfsTagData(tag: Tag | null): void { 
   let result = convertIpfsHash(tag.ipfsHash as Bytes);
   
-  let ipfsData = json.fromBytes(result);
+  let ipfsData = bytesToJson(result);
 
   if (isValidIPFS(ipfsData)) {
     let ipfsObj = ipfsData.toObject()

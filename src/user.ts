@@ -1,6 +1,6 @@
-import { json, Bytes, ipfs, BigInt, JSONValueKind, ByteArray, Address } from '@graphprotocol/graph-ts'
+import { Bytes, BigInt, Address } from '@graphprotocol/graph-ts'
 import { User, UserCommunityRating } from '../generated/schema'
-import { getPeeranhaUser, ERROR_IPFS, isValidIPFS, convertIpfsHash } from './utils'
+import { getPeeranhaUser, ERROR_IPFS, isValidIPFS, convertIpfsHash, bytesToJson } from './utils'
 const VALUE_STERT_USER_RATING = 10;
 
 export function newUser(user: User | null, userAddress: Address, blockTimeStamp: BigInt): void {
@@ -30,7 +30,7 @@ export function addDataToUser(user: User | null, userAddress: Address): void {
 export function getIpfsUserData(user: User | null): void {
   let result = convertIpfsHash(user.ipfsHash as Bytes);
 
-  let ipfsData = json.fromBytes(result);
+  let ipfsData = bytesToJson(result);
 
   if (isValidIPFS(ipfsData)) {
     let ipfsObj = ipfsData.toObject()
