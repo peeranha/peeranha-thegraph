@@ -731,79 +731,84 @@ function logTransaction(
 }
 
 export function handlerCreatedTranslation(event: TranslationCreated): void {
-  // const itemLanguage = event.params.language;
-  // const postId = event.params.postId;
-  // const replyId = event.params.replyId;
-  // const commentId = event.params.commentId;
+  const itemLanguage = event.params.language;
+  const postId = event.params.postId;
+  const replyId = event.params.replyId;
+  const commentId = event.params.commentId;
 
-  // if (commentId != 0) {
-  //   let commentTranslation = new CommentTranslation(idToIndexId(Network.Polygon, postId.toString()) + "-" + replyId.toString() + "-" + commentId.toString() + "-" + itemLanguage.toString());
-  //   newCommentTranslation(commentTranslation, postId, replyId, commentId, itemLanguage)
-  //   commentTranslation.save();
+  if (commentId != 0) {
+    let commentTranslation = new CommentTranslation(idToIndexId(Network.Polygon, postId.toString()) + "-" + replyId.toString() + "-" + commentId.toString() + "-" + itemLanguage.toString());
+    newCommentTranslation(commentTranslation, postId, replyId, commentId, itemLanguage)
+    commentTranslation.save();
     
-  // } else if (replyId != 0) {
-  //   let replyTranslation = new ReplyTranslation(idToIndexId(Network.Polygon, postId.toString()) + "-" + replyId.toString() + "-" + itemLanguage.toString());
-  //   newReplyTranslation(replyTranslation, postId, replyId, itemLanguage)
-  //   replyTranslation.save();
+  } else if (replyId != 0) {
+    let replyTranslation = new ReplyTranslation(idToIndexId(Network.Polygon, postId.toString()) + "-" + replyId.toString() + "-" + itemLanguage.toString());
+    newReplyTranslation(replyTranslation, postId, replyId, itemLanguage)
+    replyTranslation.save();
 
-  // } else { 
-  //   let postTranslation = new PostTranslation(idToIndexId(Network.Polygon, postId.toString()) + "-" + itemLanguage.toString());
-  //   newPostTranslation(postTranslation, postId, itemLanguage)
-  //   postTranslation.save();
-  // }
-  // indexingPeriods();
+  } else { 
+    let postTranslation = new PostTranslation(idToIndexId(Network.Polygon, postId.toString()) + "-" + itemLanguage.toString());
+    newPostTranslation(postTranslation, postId, itemLanguage)
+    postTranslation.save();
+  }
+
+  indexingPeriods();
+  logTransaction(Network.Polygon, event, event.params.user, 'TranslationCreated', replyId, commentId, true, null, postId);
 }
 
 export function handlerEditTranslation(event: TranslationEdited): void {
-  // const itemLanguage = event.params.language;
-  // const postId = event.params.postId;
-  // const replyId = event.params.replyId;
-  // const commentId = event.params.commentId;
+  const itemLanguage = event.params.language;
+  const postId = event.params.postId;
+  const replyId = event.params.replyId;
+  const commentId = event.params.commentId;
 
-  // if (commentId != 0) {
-  //   let commentTranslation = CommentTranslation.load(idToIndexId(Network.Polygon, postId.toString()) + "-" + replyId.toString() + "-" + commentId.toString() + "-" + itemLanguage.toString());
-  //   if (commentTranslation != null) {
-  //     addDataToCommentTranslation(commentTranslation, postId, replyId, commentId, itemLanguage)
-  //     commentTranslation.save();
-  //   }
+  if (commentId != 0) {
+    let commentTranslation = CommentTranslation.load(idToIndexId(Network.Polygon, postId.toString()) + "-" + replyId.toString() + "-" + commentId.toString() + "-" + itemLanguage.toString());
+    if (commentTranslation != null) {
+      addDataToCommentTranslation(commentTranslation, postId, replyId, commentId, itemLanguage)
+      commentTranslation.save();
+    }
 
-  // } else if (replyId != 0) {
-  //   let replyTranslation = ReplyTranslation.load(idToIndexId(Network.Polygon, postId.toString()) + "-" + replyId.toString() + "-" + itemLanguage.toString());
-  //   if (replyTranslation != null) {
-  //     addDataToReplyTranslation(replyTranslation, postId, replyId, itemLanguage)
-  //     replyTranslation.save();
-  //   }
+  } else if (replyId != 0) {
+    let replyTranslation = ReplyTranslation.load(idToIndexId(Network.Polygon, postId.toString()) + "-" + replyId.toString() + "-" + itemLanguage.toString());
+    if (replyTranslation != null) {
+      addDataToReplyTranslation(replyTranslation, postId, replyId, itemLanguage)
+      replyTranslation.save();
+    }
 
-  // } else {  
-  //   let postTranslation = PostTranslation.load(idToIndexId(Network.Polygon, postId.toString()) + "-" + itemLanguage.toString());
-  //   if (postTranslation != null) {
-  //     addDataToPostTranslation(postTranslation, postId, itemLanguage)
-  //     postTranslation.save();
-  //   }
-  // }
+  } else {  
+    let postTranslation = PostTranslation.load(idToIndexId(Network.Polygon, postId.toString()) + "-" + itemLanguage.toString());
+    if (postTranslation != null) {
+      addDataToPostTranslation(postTranslation, postId, itemLanguage)
+      postTranslation.save();
+    }
+  }
 
-  // updatePostContent(postId);
-  // indexingPeriods();
+  updatePostContent(postId);
+  indexingPeriods();
+  logTransaction(Network.Polygon, event, event.params.user, 'TranslationEdited', replyId, commentId, true, null, postId);
 }
 
 export function handlerDeleteTranslation(event: TranslationDeleted): void {
-  // const itemLanguage = BigInt.fromI32(event.params.language);
-  // const postId = event.params.postId;
-  // const replyId = BigInt.fromI32(event.params.replyId);
-  // const commentId = BigInt.fromI32(event.params.commentId);
+  const itemLanguage = event.params.language;
+  const postId = event.params.postId;
+  const replyId = event.params.replyId;
+  const commentId = event.params.commentId;
 
-  // if (commentId != BigInt.fromI32(0)) {
-  //   let id = postId.toString() + "-" + replyId.toString() + "-" + commentId.toString() + "-" + itemLanguage.toString();
-  //   store.remove('CommentTranslation', id);
+  if (commentId != 0) {
+    let id = postId.toString() + "-" + replyId.toString() + "-" + commentId.toString() + "-" + itemLanguage.toString();
+    store.remove('CommentTranslation', id);
 
-  // } else if (replyId != BigInt.fromI32(0)) {
-  //   let id = postId.toString() + "-" + replyId.toString() + "-0-" + itemLanguage.toString();
-  //   store.remove('ReplyTranslation', id);
+  } else if (replyId != 0) {
+    let id = postId.toString() + "-" + replyId.toString() + "-0-" + itemLanguage.toString();
+    store.remove('ReplyTranslation', id);
 
-  // } else {  
-  //   let id = postId.toString() + "-0-0-" + itemLanguage.toString();
-  //   store.remove('PostTranslation', id);
-  // }
-  // updatePostContent(postId);
-  // indexingPeriods();
+  } else {  
+    let id = postId.toString() + "-0-0-" + itemLanguage.toString();
+    store.remove('PostTranslation', id);
+  }
+
+  updatePostContent(postId);
+  indexingPeriods();
+  logTransaction(Network.Polygon, event, event.params.user, 'TranslationDeleted', replyId, commentId, true, null, postId);
 }

@@ -424,13 +424,13 @@ export function deleteComment(comment: Comment, post: Post): void {
 
 export function newPostTranslation(postTranslation: PostTranslation, postId: BigInt, language: i32): void {
   let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, 0, 0, language);
-  if (peeranhaTranslation == null) return;
+  if (!peeranhaTranslation) return;
   postTranslation.language = language;
 
   addDataToPostTranslation(postTranslation, postId, language);
 
   let post = Post.load(idToIndexId(Network.Polygon, postId.toString()));
-  if (post != null) {
+  if (post) {
     postTranslation.postId = post.id;
     let postTranslations = post.translations;
     postTranslations.push(postTranslation.id);
@@ -440,31 +440,32 @@ export function newPostTranslation(postTranslation: PostTranslation, postId: Big
   }
 }
 
-export function addDataToPostTranslation(postTranslation: PostTranslation | null, postId: BigInt, language: i32): void {
+export function addDataToPostTranslation(postTranslation: PostTranslation, postId: BigInt, language: i32): void {
   let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, 0, 0, language);
-  if (peeranhaTranslation == null) return;
+  if (!peeranhaTranslation) return;
 
   postTranslation.author = peeranhaTranslation.author.toHex();
   postTranslation.ipfsHash = peeranhaTranslation.ipfsDoc.hash;
   getIpfsPostTranslationData(postTranslation);
 }
 
-function getIpfsPostTranslationData(postTranslation: PostTranslation | null): void {
+function getIpfsPostTranslationData(postTranslation: PostTranslation): void {
   let result = convertIpfsHash(postTranslation.ipfsHash as Bytes);
-  
-  let ipfsData = bytesToJson(result);
+  if (!result) return;
 
-  if (isValidIPFS(ipfsData)) {
+  let ipfsData = bytesToJson(result);
+  if (ipfsData && isValidIPFS(ipfsData)) {
     let ipfsObj = ipfsData.toObject()
+
     let title = ipfsObj.get('title');
-    if (!title.isNull()) {
+    if (title && !title.isNull()) {
       postTranslation.title = title.toString();
     } else {
       postTranslation.title = '';
     }
 
     let content = ipfsObj.get('content');
-    if (!content.isNull()) {
+    if (content && !content.isNull()) {
       postTranslation.content = content.toString();
     } else {
       postTranslation.content = '';
@@ -477,14 +478,14 @@ function getIpfsPostTranslationData(postTranslation: PostTranslation | null): vo
 
 export function newReplyTranslation(replyTranslation: ReplyTranslation, postId: BigInt, replyId: i32, language: i32): void {
   let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, replyId, 0, language);
-  if (peeranhaTranslation == null) return;
+  if (!peeranhaTranslation) return;
   replyTranslation.language = language;
   replyTranslation.content = '';
 
   addDataToReplyTranslation(replyTranslation, postId, replyId, language);
 
   let reply = Reply.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + replyId.toString());
-  if (reply != null) {
+  if (reply) {
     replyTranslation.replyId = reply.id;
     let replyTranslations = reply.translations;
     replyTranslations.push(replyTranslation.id);
@@ -492,14 +493,14 @@ export function newReplyTranslation(replyTranslation: ReplyTranslation, postId: 
     reply.save();
 
     let post = Post.load(idToIndexId(Network.Polygon, postId.toString()));
-    if (post != null) {
+    if (post) {
       post.postContent += ' ' + replyTranslation.content;
       post.save();
     }
   }
 }
 
-export function addDataToReplyTranslation(replyTranslation: ReplyTranslation | null, postId: BigInt, replyId: i32, language: i32): void {
+export function addDataToReplyTranslation(replyTranslation: ReplyTranslation, postId: BigInt, replyId: i32, language: i32): void {
   let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, replyId, 0, language);
   if (peeranhaTranslation == null) return;
 
@@ -509,16 +510,16 @@ export function addDataToReplyTranslation(replyTranslation: ReplyTranslation | n
   getIpfsReplyTranslationData(replyTranslation);
 }
 
-function getIpfsReplyTranslationData(replyTranslation: ReplyTranslation | null): void {
+function getIpfsReplyTranslationData(replyTranslation: ReplyTranslation): void {
   let result = convertIpfsHash(replyTranslation.ipfsHash as Bytes);
-  
-  let ipfsData = bytesToJson(result);
+  if (!result) return;
 
-  if (isValidIPFS(ipfsData)) {
+  let ipfsData = bytesToJson(result);
+  if (ipfsData && isValidIPFS(ipfsData)) {
     let ipfsObj = ipfsData.toObject();
 
     let content = ipfsObj.get('content');
-    if (!content.isNull()) {
+    if (content && !content.isNull()) {
       replyTranslation.content = content.toString();
     }
   } else {
@@ -528,7 +529,7 @@ function getIpfsReplyTranslationData(replyTranslation: ReplyTranslation | null):
 
 export function newCommentTranslation(commentTranslation: CommentTranslation, postId: BigInt, parentReplyId: i32, commentId: i32, language: i32): void {
   let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, parentReplyId, commentId, language);
-  if (peeranhaTranslation == null) return;
+  if (!peeranhaTranslation) return;
   commentTranslation.language = language;
   commentTranslation.content = '';
 
@@ -543,14 +544,14 @@ export function newCommentTranslation(commentTranslation: CommentTranslation, po
     comment.save();
 
     let post = Post.load(idToIndexId(Network.Polygon, postId.toString()));
-    if (post != null) {
+    if (post) {
       post.postContent += ' ' + commentTranslation.content;
       post.save();
     }
   }
 }
 
-export function addDataToCommentTranslation(commentTranslation: CommentTranslation | null, postId: BigInt, parentReplyId: i32, commentId: i32, language: i32): void {
+export function addDataToCommentTranslation(commentTranslation: CommentTranslation, postId: BigInt, parentReplyId: i32, commentId: i32, language: i32): void {
   let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, parentReplyId, commentId, language);
   if (peeranhaTranslation == null) return;
 
@@ -559,15 +560,16 @@ export function addDataToCommentTranslation(commentTranslation: CommentTranslati
   getIpfsCommentTranslationData(commentTranslation);
 }
 
-function getIpfsCommentTranslationData(commentTranslation: CommentTranslation | null): void {
+function getIpfsCommentTranslationData(commentTranslation: CommentTranslation): void {
   let result = convertIpfsHash(commentTranslation.ipfsHash as Bytes);
+  if (!result) return;
+
   let ipfsData = bytesToJson(result);
-  
-  if (isValidIPFS(ipfsData)) {
+  if (ipfsData && isValidIPFS(ipfsData)) {
     let ipfsObj = ipfsData.toObject();
 
     let content = ipfsObj.get('content');
-    if (!content.isNull()) {
+    if (content && !content.isNull()) {
       commentTranslation.content = content.toString();
     }
   } else {
