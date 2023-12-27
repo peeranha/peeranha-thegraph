@@ -1,6 +1,6 @@
 type User @entity {
   id: ID!
-  ratings: [UserCommunityRating!]
+  ratings: [UserCommunityRating!]!
   displayName: String
   postCount: Int
   replyCount: Int
@@ -12,13 +12,13 @@ type User @entity {
   creationTime: BigInt
   ipfsHash: Bytes
   ipfsHash2: Bytes
-  followedCommunities: [String!]
-  achievements: [Achievement!]
+  followedCommunities: [String!]!
+  achievements: [Achievement!]!
 }
 
 type UserCommunityRating @entity {
   id: ID!
-  communityId: Int
+  communityId: String
   rating: Int
   user: User
 }
@@ -47,7 +47,7 @@ type Community @entity {
   ipfsHash: Bytes
   ipfsHash2: Bytes
   language: String
-  translations: [CommunityTranslation!]
+  translations: [CommunityTranslation!]!
 }
 
 type CommunityTranslation @entity {
@@ -61,23 +61,23 @@ type CommunityTranslation @entity {
 
 type Tag @entity {
   id: ID!
-  communityId: BigInt
-  name: String
+  communityId: String
+  name: String!
   description: String
   postCount: Int
   deletedPostCount: Int
   ipfsHash: Bytes
   ipfsHash2: Bytes
-  language: BigInt
-  translations: [TagTranslation!]
+  language: String
+  translations: [TagTranslation!]!
 }
 
 type TagTranslation @entity {
   id: ID!
   tagId: String
-  name: String
+  name: String!
   description: String
-  language: BigInt
+  language: String
 }
 
 enum PostType {
@@ -104,10 +104,10 @@ type Post @entity {
   rating: Int
   postTime: BigInt
   lastmod: BigInt
-  communityId: BigInt!
-  title: String
-  content: String
-  postContent: String
+  communityId: String!
+  title: String!
+  content: String!
+  postContent: String!
   commentCount: Int
   replyCount: Int
   isDeleted: Boolean
@@ -116,11 +116,11 @@ type Post @entity {
   isFirstReply: Boolean
   isQuickReply: Boolean
   properties: [BigInt!]
-  replies: [Reply!]
-  comments: [Comment!]
-  language: BigInt
-  translations: [PostTranslation!]
-  tags: [Tag!]
+  replies: [Reply!]!
+  comments: [Comment!]!
+  language: Int
+  translations: [PostTranslation!]!
+  tags: [Tag!]!
   handle: String
   messengerType: Int
 }
@@ -128,11 +128,11 @@ type Post @entity {
 type PostTranslation @entity {
   id: ID!
   postId: String
-  language: BigInt
+  language: Int
   author: User
   ipfsHash: Bytes
-  title: String
-  content: String
+  title: String!
+  content: String!
 }
 
 type Reply @entity {
@@ -142,9 +142,9 @@ type Reply @entity {
   author: User!
   rating: Int
   postTime: BigInt
-  postId: BigInt
+  postId: String
   parentReplyId: Int
-  content: String
+  content: String!
   commentCount: Int
   isDeleted: Boolean
   isOfficialReply: Boolean
@@ -152,9 +152,9 @@ type Reply @entity {
   isFirstReply: Boolean
   isQuickReply: Boolean
   properties: [Bytes!]
-  comments: [Comment!]
-  language: BigInt
-  translations: [ReplyTranslation!]
+  comments: [Comment!]!
+  language: Int
+  translations: [ReplyTranslation!]!
   handle: String
   messengerType: Int
 }
@@ -162,10 +162,10 @@ type Reply @entity {
 type ReplyTranslation @entity {
   id: ID!
   replyId: String
-  language: BigInt
+  language: Int
   author: User
   ipfsHash: Bytes
-  content: String
+  content: String!
 }
 
 type Comment @entity {
@@ -175,22 +175,22 @@ type Comment @entity {
   author: User!
   rating: Int
   postTime: BigInt
-  postId: BigInt
+  postId: String
   parentReplyId: Int
-  content: String
+  content: String!
   isDeleted: Boolean
   properties: [Bytes!]
-  language: BigInt
-  translations: [CommentTranslation!]
+  language: Int
+  translations: [CommentTranslation!]!
 }
 
 type CommentTranslation @entity {
   id: ID!
   commentId: String
-  language: BigInt
+  language: Int
   author: User
   ipfsHash: Bytes
-  content: String
+  content: String!
 }
 
 type Achievement @entity {
@@ -198,12 +198,12 @@ type Achievement @entity {
   factCount: BigInt
   maxCount: BigInt
   lowerValue: BigInt
-  achievementURI: String
+  achievementURI: String!
   achievementsType: Int
   name: String
   description: String
   image: String
-  communityId: BigInt
+  communityId: String
   attrCommunityId: String
   attrEvent: String
   attrType: String
@@ -226,9 +226,9 @@ type Period @entity {
 
 type ContractInfo @entity {
   id: ID!
-  deployTime: BigInt
-  periodLength: BigInt
-  lastUpdatePeriod: Int
+  deployTime: BigInt!
+  periodLength: BigInt!
+  lastUpdatePeriod: Int!
 }
 
 type History @entity {
@@ -255,9 +255,11 @@ type Statistic @entity {
   transactionHash: Bytes
   timeStamp: BigInt
   eventName: String
-  communityId: BigInt
+  communityId: String
   postId: BigInt
   replyId: Int
   commentId: Int
   voteDirection: Int
+  status: Boolean
+  network: String
 }

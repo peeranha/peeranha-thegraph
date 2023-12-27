@@ -453,7 +453,9 @@ export class PeeranhaNFT extends ethereum.SmartContract {
       [ethereum.Value.fromUnsignedBigInt(achievementId)]
     );
 
-    return result[0].toTuple() as PeeranhaNFT__getAchievementsNFTConfigResultValue0Struct;
+    return changetype<PeeranhaNFT__getAchievementsNFTConfigResultValue0Struct>(
+      result[0].toTuple()
+    );
   }
 
   try_getAchievementsNFTConfig(
@@ -471,7 +473,9 @@ export class PeeranhaNFT extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(
-      value[0].toTuple() as PeeranhaNFT__getAchievementsNFTConfigResultValue0Struct
+      changetype<PeeranhaNFT__getAchievementsNFTConfigResultValue0Struct>(
+        value[0].toTuple()
+      )
     );
   }
 

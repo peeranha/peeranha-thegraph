@@ -1,12 +1,12 @@
 import { Bytes, BigInt, JSONValueKind } from '@graphprotocol/graph-ts'
 import { Community, Tag, CommunityTranslation, TagTranslation } from '../generated/schema'
-import { bytesToJson, convertIpfsHash, getPeeranhaCommunity } from './utils'
+import { bytesToJson, convertIpfsHash, getPeeranhaCommunity, idToIndexId, indexIdToId, Network } from './utils'
 import { ERROR_IPFS, isValidIPFS } from "./utils";
 import { store } from '@graphprotocol/graph-ts'
 
-export function newCommunity(community: Community | null, communityId: BigInt): void {
+export function newCommunity(community: Community, communityId: BigInt): void {
   let peeranhaCommunity = getPeeranhaCommunity().getCommunity(communityId);
-  if (peeranhaCommunity == null) return;
+  if (!peeranhaCommunity) return;
 
   community.creationTime = peeranhaCommunity.timeCreate;
   community.isFrozen = peeranhaCommunity.isFrozen;
@@ -23,14 +23,14 @@ export function newCommunity(community: Community | null, communityId: BigInt): 
 
   community.tagsCount = peeranhaTags.length;
   for (let i = 1; i <= peeranhaTags.length; i++) {
-    let tag = new Tag(communityId.toString() + "-" + i.toString());
-    tag.communityId = communityId;
+    let tag = new Tag(idToIndexId(Network.Polygon, communityId.toString()) + '-' + i.toString());
+    tag.communityId = idToIndexId(Network.Polygon, communityId.toString());
     newTag(tag, communityId, BigInt.fromI32(i))
     tag.save();
   }
 }
 
-export function addDataToCommunity(community: Community | null, communityId: BigInt): void {
+export function addDataToCommunity(community: Community, communityId: BigInt): void {
   let peeranhaCommunity = getPeeranhaCommunity().getCommunity(communityId);
   if (peeranhaCommunity == null) return;
   
@@ -40,47 +40,47 @@ export function addDataToCommunity(community: Community | null, communityId: Big
   getIpfsCommunityData(community);
 }
 
-function getIpfsCommunityData(community: Community | null): void {  
+function getIpfsCommunityData(community: Community): void {  
   let result = convertIpfsHash(community.ipfsHash as Bytes);
-  
+  if (!result) return;
   let ipfsData = bytesToJson(result);
 
-  if (isValidIPFS(ipfsData)) {
+  if (ipfsData && isValidIPFS(ipfsData)) {
     let ipfsObj = ipfsData.toObject()
     let name = ipfsObj.get('name');
-    if (!name.isNull() && name.kind == JSONValueKind.STRING) {
+    if (name && !name.isNull() && name.kind == JSONValueKind.STRING) {
       community.name = name.toString();
     }
 
     let description = ipfsObj.get('description');
-    if (!description.isNull() && description.kind == JSONValueKind.STRING) {
+    if (description && !description.isNull() && description.kind == JSONValueKind.STRING) {
       community.description = description.toString();
     }
 
     let website = ipfsObj.get('website');
-    if (!website.isNull() && website.kind == JSONValueKind.STRING) {
+    if (website && !website.isNull() && website.kind == JSONValueKind.STRING) {
       community.website = website.toString();
     }
 
     let communitySite = ipfsObj.get('communitySite');
-    if (!communitySite.isNull()) {
+    if (communitySite && !communitySite.isNull()) {
       community.communitySite = communitySite.toString();
     }
 
     let language = ipfsObj.get('language');
-    if (!language.isNull() && language.kind == JSONValueKind.STRING) {
+    if (language&& !language.isNull() && language.kind == JSONValueKind.STRING) {
       community.language = language.toString();
     }
 
     let avatar = ipfsObj.get('avatar');
-    if (!avatar.isNull() && avatar.kind == JSONValueKind.STRING) {
+    if (avatar && !avatar.isNull() && avatar.kind == JSONValueKind.STRING) {
       community.avatar = avatar.toString();
     }
 
     let oldCommunityTranslations = community.translations;
     let translations = ipfsObj.get('translations');
     community.translations = [];
-    if (!translations.isNull() && translations.kind == JSONValueKind.ARRAY) {
+    if (translations && !translations.isNull() && translations.kind == JSONValueKind.ARRAY) {
       const translationsArray = translations.toArray();
       const translationsLength = translationsArray.length;
 
@@ -90,7 +90,8 @@ function getIpfsCommunityData(community: Community | null): void {
         const enableAutotranslation = translationsObject.get("enableAutotranslation");
         const description = translationsObject.get("description");
         const translationLanguage = translationsObject.get("language");
-        if (translationLanguage.isNull() || translationLanguage.kind != JSONValueKind.STRING) { continue; }
+
+        if (!translationLanguage || translationLanguage.isNull() || translationLanguage.kind != JSONValueKind.STRING) { continue; }
 
         let communityTranslation = CommunityTranslation.load(community.id + "-" + translationLanguage.toString());
         if (communityTranslation == null) {
@@ -100,13 +101,13 @@ function getIpfsCommunityData(community: Community | null): void {
         communityTranslations.push(communityTranslation.id);
         community.translations = communityTranslations;
           
-        if (!name.isNull() && name.kind == JSONValueKind.STRING) {
+        if (name && !name.isNull() && name.kind == JSONValueKind.STRING) {
           communityTranslation.name = name.toString();
         }
-        if (!description.isNull() && description.kind == JSONValueKind.STRING) {
+        if (description && !description.isNull() && description.kind == JSONValueKind.STRING) {
           communityTranslation.description = description.toString();
         }
-        if (!enableAutotranslation.isNull() && enableAutotranslation.kind == JSONValueKind.BOOL) {
+        if (enableAutotranslation && !enableAutotranslation.isNull() && enableAutotranslation.kind == JSONValueKind.BOOL) {
           communityTranslation.enableAutotranslation = enableAutotranslation.toBool();
         }
 
@@ -120,7 +121,7 @@ function getIpfsCommunityData(community: Community | null): void {
     let oldCommunityTranslationsLength = oldCommunityTranslations.length;
     for (let i = 0; i < oldCommunityTranslationsLength; i++) {
       let oldCommunityTranslation = oldCommunityTranslations.pop();
-      if(!community.translations.includes(oldCommunityTranslation)) {
+      if(oldCommunityTranslation && !community.translations.includes(oldCommunityTranslation)) {
         store.remove('CommunityTranslation', oldCommunityTranslation);
       }
     }
@@ -132,18 +133,19 @@ function getIpfsCommunityData(community: Community | null): void {
   }
 }
 
-export function newTag(tag: Tag | null, communityId: BigInt, tagId: BigInt): void {
-  tag.communityId = communityId;
+export function newTag(tag: Tag, communityId: BigInt, tagId: BigInt): void {
+  tag.communityId = idToIndexId(Network.Polygon, communityId.toString());
   tag.postCount = 0;
   tag.translations = [];
   tag.deletedPostCount = 0;
+  tag.name = '';
   
   addDataToTag(tag, communityId, tagId);
 }
 
-export function addDataToTag(tag: Tag | null, communityId: BigInt, tagId: BigInt): void {
+export function addDataToTag(tag: Tag, communityId: BigInt, tagId: BigInt): void {
   let peeranhaTag = getPeeranhaCommunity().getTag(communityId, tagId.toI32());
-  if (peeranhaTag == null) return;
+  if (!peeranhaTag) return;
   
   tag.ipfsHash = peeranhaTag.ipfsDoc.hash;
   tag.ipfsHash2 = peeranhaTag.ipfsDoc.hash2;
@@ -151,33 +153,33 @@ export function addDataToTag(tag: Tag | null, communityId: BigInt, tagId: BigInt
   getIpfsTagData(tag);
 }
 
-function getIpfsTagData(tag: Tag | null): void { 
+function getIpfsTagData(tag: Tag): void { 
   let result = convertIpfsHash(tag.ipfsHash as Bytes);
+  if (!result) return;
   
   let ipfsData = bytesToJson(result);
-
-  if (isValidIPFS(ipfsData)) {
+  if (ipfsData && isValidIPFS(ipfsData)) {
     let ipfsObj = ipfsData.toObject()
   
     let name = ipfsObj.get('name');
-    if (!name.isNull() && name.kind == JSONValueKind.STRING) {
+    if (name && !name.isNull() && name.kind == JSONValueKind.STRING) {
       tag.name = name.toString();
     }
 
     let description = ipfsObj.get('description');
-    if (!description.isNull() && description.kind == JSONValueKind.STRING) {
+    if (description && !description.isNull() && description.kind == JSONValueKind.STRING) {
       tag.description = description.toString();
     }
 
     let language = ipfsObj.get('language');
-    if (!language.isNull() && language.kind == JSONValueKind.NUMBER) {
-      tag.language = language.toBigInt();
+    if (language && !language.isNull() && language.kind == JSONValueKind.STRING) {
+      tag.language = language.toString();
     }
 
     let oldTagTranslations = tag.translations;
     let translations = ipfsObj.get('translations');
     tag.translations = [];
-    if (!translations.isNull() && translations.kind == JSONValueKind.ARRAY) {
+    if (translations && !translations.isNull() && translations.kind == JSONValueKind.ARRAY) {
       const translationsArray = translations.toArray();
       const translationsLength = translationsArray.length;
   
@@ -186,25 +188,27 @@ function getIpfsTagData(tag: Tag | null): void {
         const name = translationsObject.get("name");
         const description = translationsObject.get("description");
         const translationLanguage = translationsObject.get("language");
-        if (translationLanguage.isNull() || translationLanguage.kind != JSONValueKind.NUMBER) { continue; }
+        if (!translationLanguage || translationLanguage.isNull() || translationLanguage.kind != JSONValueKind.STRING) { continue; }
 
-        let tagTranslation = TagTranslation.load(tag.id + "-" + translationLanguage.toBigInt().toString());
+        let tagTranslation = TagTranslation.load(tag.id + "-" + translationLanguage.toString());
         if (tagTranslation == null) {
-          tagTranslation = new TagTranslation(tag.id + "-" + translationLanguage.toBigInt().toString());
+          tagTranslation = new TagTranslation(tag.id + "-" + translationLanguage.toString());
         }
         let tagTranslations = tag.translations;
         tagTranslations.push(tagTranslation.id);
         tag.translations = tagTranslations;
 
-        if (!name.isNull() && name.kind == JSONValueKind.STRING) {
+        if (name && !name.isNull() && name.kind == JSONValueKind.STRING) {
           tagTranslation.name = name.toString();
+        } else {
+          tagTranslation.name = '';
         }
-        if (!description.isNull() && description.kind == JSONValueKind.STRING) {
+        if (description && !description.isNull() && description.kind == JSONValueKind.STRING) {
           tagTranslation.description = description.toString();
         }
 
         tagTranslation.tagId = tag.id;
-        tagTranslation.language = translationLanguage.toBigInt();
+        tagTranslation.language = translationLanguage.toString();
         tagTranslation.save();
       }
     }
@@ -213,7 +217,7 @@ function getIpfsTagData(tag: Tag | null): void {
     let oldTagTranslationsLength = oldTagTranslations.length;
     for (let i = 0; i < oldTagTranslationsLength; i++) {
       let oldTagTranslation = oldTagTranslations.pop();
-      if(!tag.translations.includes(oldTagTranslation)) {
+      if(oldTagTranslation && !tag.translations.includes(oldTagTranslation)) {
         store.remove('TagTranslation', oldTagTranslation);
       }
     }
@@ -224,13 +228,11 @@ function getIpfsTagData(tag: Tag | null): void {
   }
 }
 
-export function getCommunity(communityId: BigInt | null): Community | null {
-  let community = Community.load(communityId.toString())
-  if (community == null) {
-    let communityIdI32 = communityId.toI32();                     ///
-    let newCommunityId: BigInt = new BigInt(communityIdI32);      /// -_-
-    
-    newCommunity(community, newCommunityId);
+export function getCommunity(communityId: string): Community {
+  let community = Community.load(communityId)
+  if (!community) {
+    community = new Community(communityId.toString());
+    newCommunity(community, BigInt.fromString(indexIdToId(communityId)));
   }
   return community
 }

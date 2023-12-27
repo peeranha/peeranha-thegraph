@@ -1,14 +1,14 @@
 import { Bytes, BigInt, Address, ByteArray, log, store, JSONValue, JSONValueKind } from '@graphprotocol/graph-ts'
 import { Post, Reply, Comment, Tag, CommunityDocumentation, PostTranslation, ReplyTranslation, CommentTranslation, TagTranslation } from '../generated/schema'
-import { getPeeranhaContent, ERROR_IPFS, isValidIPFS, PostType, ItemProperties, Language, convertIpfsHash, bytesToJson } from './utils'
+import { getPeeranhaContent, ERROR_IPFS, isValidIPFS, PostType, ItemProperties, Language, convertIpfsHash, bytesToJson, idToIndexId, indexIdToId, Network } from './utils'
 import { updateUserRating, getUser, newUser } from './user'
 import { getCommunity } from './community-tag'
 
-export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigInt): void {
+export function newPost(post: Post, postId: BigInt, blockTimeStamp: BigInt): void {
   let peeranhaPost = getPeeranhaContent().getPost(postId);
-  if (peeranhaPost == null) return;
+  if (!peeranhaPost) return;
 
-  post.communityId = peeranhaPost.communityId;
+  post.communityId = idToIndexId(Network.Polygon,  peeranhaPost.communityId.toString());
   post.postType = peeranhaPost.postType;
   post.author = peeranhaPost.author.toHex();
   post.rating = peeranhaPost.rating;
@@ -24,6 +24,7 @@ export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigIn
   post.translations = [];
   post.tags = [];
   post.postContent = '';
+  post.title = '';
 
   const messengerUserDataResult = getPeeranhaContent().try_getItemProperty(ItemProperties.MessengerSender, postId, 0, 0);
   if (!messengerUserDataResult.reverted) {
@@ -32,21 +33,18 @@ export function newPost(post: Post | null, postId: BigInt, blockTimestamp: BigIn
     post.messengerType = messengerUserData[messengerUserData.length - 1];
   }
 
-  let community = getCommunity(post.communityId);
+  let community = getCommunity(idToIndexId(Network.Polygon, peeranhaPost.communityId.toString()));
   community.postCount++;
   community.save();
 
-  let user = getUser(peeranhaPost.author);
-  if (user == null) {
-    newUser(user, peeranhaPost.author, blockTimestamp);
-  }
+  let user = getUser(peeranhaPost.author, blockTimeStamp);
   user.postCount++;
   user.save();
 
   addDataToPost(post, postId);
 }
 
-export function addDataToPost(post: Post | null, postId: BigInt): void {
+export function addDataToPost(post: Post, postId: BigInt): void {
   let peeranhaPost = getPeeranhaContent().getPost(postId);
   if (peeranhaPost == null) return;
 
@@ -56,7 +54,8 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
   postTags = [];
   for (let i = 0; i < peeranhaPost.tags.length; i++) {
     let newTag = postTagsBuf.pop();
-    let tagId = peeranhaPost.communityId.toString() + '-' + newTag.toString();
+
+    let tagId = idToIndexId(Network.Polygon, peeranhaPost.communityId.toString()) + '-' + newTag.toString();
     postTags.push(tagId);
 
     if(!oldPostTags.includes(tagId)) {
@@ -74,9 +73,9 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
   for (let i = 0; i < oldPostTagsLength; i++) {
     let oldTag = oldPostTags.pop();
 
-    if(!post.tags.includes(oldTag)) {
+    if(oldTag && !post.tags.includes(oldTag)) {
       let tag = Tag.load(oldTag);
-      if (tag != null) {
+      if (tag) {
         tag.postCount--;
         tag.save();
       }
@@ -87,17 +86,17 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
   post.ipfsHash2 = peeranhaPost.ipfsDoc.hash2;
   let postLanguageResult = getPeeranhaContent().try_getItemLanguage(postId, 0, 0);
   if(!postLanguageResult.reverted) {
-    post.language = postLanguageResult.value;
+    post.language = postLanguageResult.value.toI32();
   } else {
-    post.language = new BigInt(Language.English);
+    post.language = Language.English;
   }
 
-  if (post.communityId != peeranhaPost.communityId) {
+  if (BigInt.fromString(indexIdToId(post.communityId)) != peeranhaPost.communityId) {
     const oldCommunity = getCommunity(post.communityId);
 
     let replyCount = 0;
     for (let i = 1; i <= post.replyCount; i++) {
-      const reply = Reply.load(post.id.toString() + '-' + i.toString());
+      const reply = Reply.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + i.toString());
       if (reply != null && !reply.isDeleted) {
         replyCount++;
       }
@@ -107,13 +106,13 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
     oldCommunity.replyCount -= replyCount;
     oldCommunity.save();
 
-    const newCommunity = getCommunity(peeranhaPost.communityId);
+    const newCommunity = getCommunity(idToIndexId(Network.Polygon, peeranhaPost.communityId.toString()));
     newCommunity.postCount++;
     newCommunity.replyCount += replyCount;
     newCommunity.save();
 
     updatePostUsersRatings(post);
-    post.communityId = peeranhaPost.communityId;
+    post.communityId = idToIndexId(Network.Polygon,  peeranhaPost.communityId.toString());
     updatePostUsersRatings(post);
   }
   if (post.postType != peeranhaPost.postType) {
@@ -125,21 +124,22 @@ export function addDataToPost(post: Post | null, postId: BigInt): void {
   updateUserRating(Address.fromString(post.author), post.communityId);
 }
 
-function getIpfsPostData(post: Post | null): void {
+function getIpfsPostData(post: Post): void {
   let result = convertIpfsHash(post.ipfsHash as Bytes);
+  if (!result) return;
 
   let ipfsData = bytesToJson(result);
 
-  if (isValidIPFS(ipfsData)) {
+  if (ipfsData && isValidIPFS(ipfsData)) {
     let ipfsObj = ipfsData.toObject()
     let title = ipfsObj.get('title');
-    if (!title.isNull()) {
+    if (title && !title.isNull()) {
       post.title = title.toString();
       post.postContent += ' ' + title.toString();
     }
 
     let content = ipfsObj.get('content');
-    if (!content.isNull()) {
+    if (content && !content.isNull()) {
       post.content = content.toString();
       post.postContent += ' ' + content.toString();
     }
@@ -149,7 +149,7 @@ function getIpfsPostData(post: Post | null): void {
   }
 }
 
-export function deletePost(post: Post | null, postId: BigInt): void {
+export function deletePost(post: Post, postId: BigInt, blockTimeStamp: BigInt): void {
   post.isDeleted = true;
 
   updateUserRating(Address.fromString(post.author), post.communityId);
@@ -159,6 +159,7 @@ export function deletePost(post: Post | null, postId: BigInt): void {
   let postTagsBuf = post.tags;
   for (let i = 0; i < tagsLength; i++) {
     let tagBuf = postTagsBuf.pop();
+    if (!tagBuf) return;
     let tag = Tag.load(tagBuf);
     if (tag != null) {
       tag.postCount--;
@@ -168,18 +169,18 @@ export function deletePost(post: Post | null, postId: BigInt): void {
   }
 
   for (let i = 1; i <= post.replyCount; i++) {
-    let reply = Reply.load(postId.toString() + '-' + i.toString());
+    let reply = Reply.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + i.toString());
     if (reply != null && !reply.isDeleted) {
       updateUserRating(Address.fromString(reply.author), post.communityId);
       
-      let userReply = getUser(Address.fromString(reply.author));
+      let userReply = getUser(Address.fromString(reply.author), blockTimeStamp);
       userReply.replyCount--;
       userReply.save();
-      
+
       community.replyCount--;
 
       for (let j = 1; j <= reply.commentCount; j++) {
-        let comment = Comment.load(postId.toString() + '-' + i.toString() + '-' + j.toString());
+        let comment = Comment.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + i.toString() + '-' + j.toString());
         if (comment != null && !comment.isDeleted) {
           comment.isDeleted = true;
           comment.save();
@@ -194,12 +195,12 @@ export function deletePost(post: Post | null, postId: BigInt): void {
   community.postCount--;
   community.save();
 
-  let userPost = getUser(Address.fromString(post.author));
+  let userPost = getUser(Address.fromString(post.author), blockTimeStamp);
   userPost.postCount--;
   userPost.save();
 
   for (let i = 1; i <= post.commentCount; i++) {
-    let comment = Comment.load(postId.toString() + '-0-' + i.toString());
+    let comment = Comment.load(idToIndexId(Network.Polygon, postId.toString()) + '-0-' + i.toString());
     if (comment != null && !comment.isDeleted) {
       comment.isDeleted = true;
       comment.save();
@@ -207,7 +208,7 @@ export function deletePost(post: Post | null, postId: BigInt): void {
   }
 }
 
-export function updatePostUsersRatings(post: Post | null): void {
+export function updatePostUsersRatings(post: Post): void {
   updateUserRating(Address.fromString(post.author), post.communityId);
 
   for (let i = 1; i <= post.replyCount; i++) {
@@ -221,14 +222,14 @@ export function updatePostUsersRatings(post: Post | null): void {
   }
 }
 
-export function newReply(reply: Reply | null, postId: BigInt, replyId: i32, blockTimestamp: BigInt): void {
+export function newReply(reply: Reply | null, postId: BigInt, replyId: i32, blockTimeStamp: BigInt): void {
   let peeranhaReply = getPeeranhaContent().getReply(postId, replyId);
   if (peeranhaReply == null || reply == null) return;
 
   reply.author = peeranhaReply.author.toHex();
   reply.postTime = peeranhaReply.postTime;
   reply.rating = peeranhaReply.rating;
-  reply.postId = postId;
+  reply.postId = idToIndexId(Network.Polygon, postId.toString());
   reply.parentReplyId = peeranhaReply.parentReplyId;
   reply.commentCount = 0;
   reply.isFirstReply = peeranhaReply.isFirstReply;
@@ -238,6 +239,7 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: i32, bloc
   reply.comments = [];
   reply.translations = [];
   reply.isBestReply = false;
+  reply.content = '';
 
   const messengerUserDataResult = getPeeranhaContent().try_getItemProperty(ItemProperties.MessengerSender, postId, replyId, 0);
   if (!messengerUserDataResult.reverted) {
@@ -246,25 +248,21 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: i32, bloc
     reply.messengerType = messengerUserData[messengerUserData.length - 1];
   }
 
-  let post = Post.load(postId.toString())
+  let post = Post.load(idToIndexId(Network.Polygon, postId.toString()));
+  if (!post) return;
   if (peeranhaReply.parentReplyId == 0) {
-    if (post != null) {
-      post.replyCount++;
+    post.replyCount++;
 
-      let replies = post.replies;
-      replies.push(postId.toString() + '-' + replyId.toString())
-      post.replies = replies;
+    let replies = post.replies;
+    replies.push(idToIndexId(Network.Polygon, postId.toString()) + '-' + replyId.toString())
+    post.replies = replies;
 
-      let community = getCommunity(post.communityId);
-      community.replyCount++;
-      community.save();
-    }
+    let community = getCommunity(post.communityId);
+    community.replyCount++;
+    community.save();
   }
 
-  let user = getUser(Address.fromString(reply.author));
-  if (user == null) {
-    newUser(user, Address.fromString(reply.author), blockTimestamp);
-  }
+  let user = getUser(Address.fromString(reply.author), blockTimeStamp);
   user.replyCount++;
   user.save();
 
@@ -277,33 +275,33 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: i32, bloc
   post.save();
 }
 
-export function addDataToReply(reply: Reply | null, postId: BigInt, replyId: i32): void {
+export function addDataToReply(reply: Reply, postId: BigInt, replyId: i32): void {
   const peeranhaReply = getPeeranhaContent().getReply(postId, replyId);
-  if (peeranhaReply == null) return;
+  if (!peeranhaReply) return;
 
   changedStatusOfficialReply(reply, postId, replyId);
   reply.ipfsHash = peeranhaReply.ipfsDoc.hash;
   reply.ipfsHash2 = peeranhaReply.ipfsDoc.hash2;
   let replyLanguageResult = getPeeranhaContent().try_getItemLanguage(postId, replyId, 0);
   if(!replyLanguageResult.reverted) {
-    reply.language = replyLanguageResult.value;
+    reply.language = replyLanguageResult.value.toI32();
   } else {
-    reply.language = new BigInt(Language.English);
+    reply.language = Language.English;
   }
   
   getIpfsReplyData(reply);
 }
 
-function getIpfsReplyData(reply: Reply | null): void {
+function getIpfsReplyData(reply: Reply): void {
   let result = convertIpfsHash(reply.ipfsHash as Bytes);
-  
-  let ipfsData = bytesToJson(result);
+  if (!result) return;
 
-  if (isValidIPFS(ipfsData)) {
+  let ipfsData = bytesToJson(result);
+  if (ipfsData && isValidIPFS(ipfsData)) {
     let ipfsObj = ipfsData.toObject()
 
     let content = ipfsObj.get('content');
-    if (!content.isNull()) {
+    if (content && !content.isNull()) {
       reply.content = content.toString();
     }
   } else {
@@ -311,21 +309,15 @@ function getIpfsReplyData(reply: Reply | null): void {
   }
 }
 
-export function deleteReply(reply: Reply | null, postId: BigInt): void {
-  if (reply == null) return;
+export function deleteReply(reply: Reply, post: Post, blockTimeStamp: BigInt): void {
   reply.isDeleted = true;
-  let post = Post.load(postId.toString());
-  if (post == null) return;
 
   updateUserRating(Address.fromString(reply.author), post.communityId);
 
   if (reply.parentReplyId == 0) {
-    let post = Post.load(postId.toString())
-    if (post != null) {
-      let community = getCommunity(post.communityId);
-      community.replyCount--;
-      community.save();
-    }
+    let community = getCommunity(post.communityId);
+    community.replyCount--;
+    community.save();
   }
 
   if (reply.isBestReply) {
@@ -334,9 +326,10 @@ export function deleteReply(reply: Reply | null, postId: BigInt): void {
   if (reply.isOfficialReply) {
     post.officialReply = 0;
   }
+  post.lastmod = blockTimeStamp;
   post.save();
 
-  let user = getUser(Address.fromString(reply.author));
+  let user = getUser(Address.fromString(reply.author), blockTimeStamp);
   user.replyCount--;
   user.save();
 
@@ -349,32 +342,30 @@ export function deleteReply(reply: Reply | null, postId: BigInt): void {
   }
 }
 
-export function newComment(comment: Comment | null, postId: BigInt, parentReplyId: BigInt, commentId: BigInt): void {
-  let peeranhaComment = getPeeranhaContent().getComment(postId, parentReplyId.toI32(), commentId.toI32());
+export function newComment(comment: Comment, post: Post, parentReplyId: i32, commentId: i32): void {
+  const postId = BigInt.fromString(indexIdToId(post.id));
+  let peeranhaComment = getPeeranhaContent().getComment(postId, parentReplyId, commentId);
   if (peeranhaComment == null) return;
 
   comment.author = peeranhaComment.author.toHex();
   comment.postTime = peeranhaComment.postTime;
-  comment.postId = postId;
+  comment.postId = post.id;
   comment.rating = peeranhaComment.rating;
-  comment.parentReplyId = parentReplyId.toI32();  
+  comment.parentReplyId = parentReplyId;  
   comment.isDeleted = false;
   comment.translations = [];
-  let post = Post.load(postId.toString());
-  let commentFullId = postId.toString() + '-' + parentReplyId.toString() +  '-' + commentId.toString();
-  if (parentReplyId == BigInt.fromI32(0)) {
-    
-    if (post != null ) {    // init post
-      post.commentCount++;
-      let comments = post.comments
-      comments.push(commentFullId)
-      post.comments = comments
+  comment.content = '';
 
-      
-    }
+  let commentFullId = post.id + '-' + parentReplyId.toString() + '-' + commentId.toString();
+  if (parentReplyId == 0) {
+    post.commentCount++;
+    let comments = post.comments;
+    comments.push(commentFullId);
+    post.comments = comments;
+
   } else {
-    let reply = Reply.load(postId.toString() + '-' + parentReplyId.toString());
-    if (reply != null ) {     // init post
+    let reply = Reply.load(post.id + '-' + parentReplyId.toString());
+    if (reply) {
       reply.commentCount++;
       let comments = reply.comments
       comments.push(commentFullId)
@@ -387,34 +378,36 @@ export function newComment(comment: Comment | null, postId: BigInt, parentReplyI
   addDataToComment(comment, postId, parentReplyId, commentId);
   updateUserRating(Address.fromString(post.author), post.communityId);
   post.postContent += ' ' + comment.content;
+  post.lastmod = peeranhaComment.postTime;
   post.save();
 }
 
-export function addDataToComment(comment: Comment | null, postId: BigInt, parentReplyId: BigInt, commentId: BigInt): void {
-  let peeranhaComment = getPeeranhaContent().getComment(postId, parentReplyId.toI32(), commentId.toI32());
+export function addDataToComment(comment: Comment, postId: BigInt, parentReplyId: i32, commentId: i32): void {
+  let peeranhaComment = getPeeranhaContent().getComment(postId, parentReplyId, commentId);
   if (peeranhaComment == null) return;
 
   comment.ipfsHash = peeranhaComment.ipfsDoc.hash;
   comment.ipfsHash2 = peeranhaComment.ipfsDoc.hash2;
-  let commentLanguageResult = getPeeranhaContent().try_getItemLanguage(postId, parentReplyId.toI32(), commentId.toI32());
+  let commentLanguageResult = getPeeranhaContent().try_getItemLanguage(postId, parentReplyId, commentId);
   if(!commentLanguageResult.reverted) {
-    comment.language = commentLanguageResult.value;
+    comment.language = commentLanguageResult.value.toI32();
   } else {
-    comment.language = new BigInt(Language.English);
+    comment.language = Language.English;
   }
   
   getIpfsCommentData(comment);
 }
 
-function getIpfsCommentData(comment: Comment | null): void {
+function getIpfsCommentData(comment: Comment): void {
   let result = convertIpfsHash(comment.ipfsHash as Bytes);
-  let ipfsData = bytesToJson(result);
+  if (!result) return;
 
-  if (isValidIPFS(ipfsData)) {
+  let ipfsData = bytesToJson(result);
+  if (ipfsData && isValidIPFS(ipfsData)) {
     let ipfsObj = ipfsData.toObject()
 
     let content = ipfsObj.get('content');
-    if (!content.isNull()) {
+    if (content && !content.isNull()) {
       comment.content = content.toString();
     }
   } else {
@@ -422,24 +415,23 @@ function getIpfsCommentData(comment: Comment | null): void {
   }
 }
 
-export function deleteComment(comment: Comment | null, postId: BigInt): void {
+export function deleteComment(comment: Comment, post: Post): void {
   comment.isDeleted = true;
-  const post = Post.load(postId.toString());
   if (comment.author !== post.author) {
     updateUserRating(Address.fromString(comment.author), post.communityId);
   }
 }
 
-export function newPostTranslation(postTranslation: PostTranslation | null, postId: BigInt, language: BigInt): void {
-  let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, 0, 0, language.toI32());
+export function newPostTranslation(postTranslation: PostTranslation, postId: BigInt, language: i32): void {
+  let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, 0, 0, language);
   if (peeranhaTranslation == null) return;
-  postTranslation.postId = postId.toString() + "-0-0";
   postTranslation.language = language;
 
   addDataToPostTranslation(postTranslation, postId, language);
 
-  let post = Post.load(postId.toString())
+  let post = Post.load(idToIndexId(Network.Polygon, postId.toString()));
   if (post != null) {
+    postTranslation.postId = post.id;
     let postTranslations = post.translations;
     postTranslations.push(postTranslation.id);
     post.translations = postTranslations;
@@ -448,8 +440,8 @@ export function newPostTranslation(postTranslation: PostTranslation | null, post
   }
 }
 
-export function addDataToPostTranslation(postTranslation: PostTranslation | null, postId: BigInt, language: BigInt): void {
-  let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, 0, 0, language.toI32());
+export function addDataToPostTranslation(postTranslation: PostTranslation | null, postId: BigInt, language: i32): void {
+  let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, 0, 0, language);
   if (peeranhaTranslation == null) return;
 
   postTranslation.author = peeranhaTranslation.author.toHex();
@@ -467,11 +459,15 @@ function getIpfsPostTranslationData(postTranslation: PostTranslation | null): vo
     let title = ipfsObj.get('title');
     if (!title.isNull()) {
       postTranslation.title = title.toString();
+    } else {
+      postTranslation.title = '';
     }
 
     let content = ipfsObj.get('content');
     if (!content.isNull()) {
       postTranslation.content = content.toString();
+    } else {
+      postTranslation.content = '';
     }
   } else {
     postTranslation.title = ERROR_IPFS;
@@ -479,22 +475,23 @@ function getIpfsPostTranslationData(postTranslation: PostTranslation | null): vo
   }
 }
 
-export function newReplyTranslation(replyTranslation: ReplyTranslation | null, postId: BigInt, replyId: BigInt, language: BigInt): void {
-  let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, replyId.toI32(), 0, language.toI32());
+export function newReplyTranslation(replyTranslation: ReplyTranslation, postId: BigInt, replyId: i32, language: i32): void {
+  let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, replyId, 0, language);
   if (peeranhaTranslation == null) return;
-  replyTranslation.replyId = replyId.toString() + "-" + replyId.toString() + "-0";
   replyTranslation.language = language;
+  replyTranslation.content = '';
 
   addDataToReplyTranslation(replyTranslation, postId, replyId, language);
 
-  let reply = Reply.load(postId.toString() + "-" + replyId.toString());
+  let reply = Reply.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + replyId.toString());
   if (reply != null) {
+    replyTranslation.replyId = reply.id;
     let replyTranslations = reply.translations;
     replyTranslations.push(replyTranslation.id);
     reply.translations = replyTranslations;
     reply.save();
 
-    let post = Post.load(postId.toString())
+    let post = Post.load(idToIndexId(Network.Polygon, postId.toString()));
     if (post != null) {
       post.postContent += ' ' + replyTranslation.content;
       post.save();
@@ -502,8 +499,8 @@ export function newReplyTranslation(replyTranslation: ReplyTranslation | null, p
   }
 }
 
-export function addDataToReplyTranslation(replyTranslation: ReplyTranslation | null, postId: BigInt, replyId: BigInt, language: BigInt): void {
-  let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, replyId.toI32(), 0, language.toI32());
+export function addDataToReplyTranslation(replyTranslation: ReplyTranslation | null, postId: BigInt, replyId: i32, language: i32): void {
+  let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, replyId, 0, language);
   if (peeranhaTranslation == null) return;
 
   replyTranslation.author = peeranhaTranslation.author.toHex();
@@ -529,22 +526,23 @@ function getIpfsReplyTranslationData(replyTranslation: ReplyTranslation | null):
   }
 }
 
-export function newCommentTranslation(commentTranslation: CommentTranslation | null, postId: BigInt, parentReplyId: BigInt, commentId: BigInt, language: BigInt): void {
-  let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, parentReplyId.toI32(), commentId.toI32(), language.toI32());
+export function newCommentTranslation(commentTranslation: CommentTranslation, postId: BigInt, parentReplyId: i32, commentId: i32, language: i32): void {
+  let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, parentReplyId, commentId, language);
   if (peeranhaTranslation == null) return;
-  commentTranslation.commentId = parentReplyId.toString() + "-" + parentReplyId.toString() + "-" + commentId.toString();
   commentTranslation.language = language;
+  commentTranslation.content = '';
 
   addDataToCommentTranslation(commentTranslation, postId, parentReplyId, commentId, language);
 
-  let comment = Comment.load(postId.toString() + "-" + parentReplyId.toString() + "-" +  commentId.toString());
+  let comment = Comment.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + parentReplyId.toString() + '-' + commentId.toString());
   if (comment != null) {
+    commentTranslation.commentId = comment.id;
     let commentTranslations = comment.translations;
     commentTranslations.push(commentTranslation.id);
     comment.translations = commentTranslations;
     comment.save();
 
-    let post = Post.load(postId.toString())
+    let post = Post.load(idToIndexId(Network.Polygon, postId.toString()));
     if (post != null) {
       post.postContent += ' ' + commentTranslation.content;
       post.save();
@@ -552,8 +550,8 @@ export function newCommentTranslation(commentTranslation: CommentTranslation | n
   }
 }
 
-export function addDataToCommentTranslation(commentTranslation: CommentTranslation | null, postId: BigInt, parentReplyId: BigInt, commentId: BigInt, language: BigInt): void {
-  let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, parentReplyId.toI32(), commentId.toI32(), language.toI32());
+export function addDataToCommentTranslation(commentTranslation: CommentTranslation | null, postId: BigInt, parentReplyId: i32, commentId: i32, language: i32): void {
+  let peeranhaTranslation = getPeeranhaContent().getTranslation(postId, parentReplyId, commentId, language);
   if (peeranhaTranslation == null) return;
 
   commentTranslation.author = peeranhaTranslation.author.toHex();
@@ -578,24 +576,26 @@ function getIpfsCommentTranslationData(commentTranslation: CommentTranslation | 
 }
 
 export function updatePostContent(postId: BigInt): void {
-  let post = Post.load(postId.toString());
-  if (post == null) return;
+  let post = Post.load(idToIndexId(Network.Polygon, postId.toString()));
+  if (!post) return;
   post.postContent = '';
   
   let peeranhaPost = getPeeranhaContent().getPost(postId);
-  if (peeranhaPost == null) return;
+  if (!peeranhaPost) return;
   let postTagsBuf = post.tags;
   for (let i = 0; i < post.tags.length; i++) {
     let tagId = postTagsBuf.pop();
+    if (!tagId) continue;
     let tag = Tag.load(tagId);
-    if (tag != null) {
+    if (tag) {
       post.postContent += ' ' + tag.name;
 
       let tagTranslationsBuf = tag.translations;
       for (let i = 0; i < tag.translations.length; i++) {
         let translationsId = tagTranslationsBuf.pop();
+        if (!translationsId) continue;
         let translation = TagTranslation.load(translationsId);
-        if (translation != null) {
+        if (translation) {
           post.postContent += ' ' + translation.name;
         }
       }
@@ -607,34 +607,37 @@ export function updatePostContent(postId: BigInt): void {
   let postTranslationsBuf = post.translations;
   for (let i = 0; i < post.translations.length; i++) {
     let translationsId = postTranslationsBuf.pop();
+    if (!translationsId) continue;
     let translation = PostTranslation.load(translationsId);
-    if (translation != null) {
+    if (translation) {
       post.postContent += ' ' + translation.title + ' ' + translation.content;
     }
   }
 
   for (let replyId = 1; replyId <= post.replyCount; replyId++) {
-    let reply = Reply.load(postId.toString() + '-' + replyId.toString());
-    if (reply != null && !reply.isDeleted) {
+    let reply = Reply.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + replyId.toString());
+    if (reply && !reply.isDeleted) {
       post.postContent += ' ' + reply.content;
       let replyTranslationsBuf = reply.translations;
       for (let i = 0; i < reply.translations.length; i++) {
         let translationsId = replyTranslationsBuf.pop();
+        if (!translationsId) continue;
         let translation = ReplyTranslation.load(translationsId);
-        if (translation != null) {
+        if (translation) {
           post.postContent += ' ' + translation.content;
         }
       }
-    
+
       for (let commentId = 1; commentId <= reply.commentCount; commentId++) {
-        let comment = Comment.load(postId.toString() + '-' + replyId.toString() + '-' +  commentId.toString());
-        if (comment != null && !comment.isDeleted) {
+        let comment = Comment.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + replyId.toString() + '-' + commentId.toString());
+        if (comment && !comment.isDeleted) {
           post.postContent += ' ' + comment.content;
           let commentTranslationsBuf = comment.translations;
           for (let i = 0; i < comment.translations.length; i++) {
             let translationsId = commentTranslationsBuf.pop();
+            if (!translationsId) continue;
             let translation = CommentTranslation.load(translationsId);
-            if (translation != null) {
+            if (translation) {
               post.postContent += ' ' + translation.content;
             }
           }
@@ -642,13 +645,15 @@ export function updatePostContent(postId: BigInt): void {
       }
     }
   }
+
   for (let commentId = 1; commentId <= post.commentCount; commentId++) {
-    let comment = Comment.load(postId.toString() + '-' + '0' + '-' +  commentId.toString());
-    if (comment != null && !comment.isDeleted) {
+    let comment = Comment.load(idToIndexId(Network.Polygon, postId.toString()) + '-0-' + commentId.toString());
+    if (comment && !comment.isDeleted) {
       post.postContent += ' ' + comment.content;
       let commentTranslationsBuf = comment.translations;
       for (let i = 0; i < comment.translations.length; i++) {
         let translationsId = commentTranslationsBuf.pop();
+        if (!translationsId) continue;
         let translation = CommentTranslation.load(translationsId);
         if (translation != null) {
           post.postContent += ' ' + translation.content;
@@ -659,10 +664,10 @@ export function updatePostContent(postId: BigInt): void {
   post.save();
 }
 
-function changedStatusOfficialReply(reply: Reply | null, postId: BigInt, replyId: i32): void {
-  let post = Post.load(postId.toString())
+function changedStatusOfficialReply(reply: Reply, postId: BigInt, replyId: i32): void {
+  let post = Post.load(idToIndexId(Network.Polygon, postId.toString()));
   const peeranhaPost = getPeeranhaContent().getPost(postId);
-  if (post == null || peeranhaPost == null) return;
+  if (!post || !peeranhaPost) return;
 
   let previousOfficialReplyId = 0;
   if (peeranhaPost.officialReply == replyId && post.officialReply != replyId) {
@@ -676,13 +681,13 @@ function changedStatusOfficialReply(reply: Reply | null, postId: BigInt, replyId
   }
   post.save();
 
-  if (previousOfficialReplyId != 0) {
-    let previousOfficialReply = Reply.load(postId.toString() + "-" + previousOfficialReplyId.toString())
+  if (previousOfficialReplyId != 0) {   // rewrite move to if (peeranhaPost.officialReply == replyId ...
+  //   let previousOfficialReply = Reply.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + previousOfficialReplyId.toString())
 
-    if (previousOfficialReply != null) {
-      previousOfficialReply.isOfficialReply = false;
-    }
-    previousOfficialReply.save();
+  //   if (previousOfficialReply != null) {
+  //     previousOfficialReply.isOfficialReply = false;
+  //   }
+  //   previousOfficialReply.save();
   }
 }
 
@@ -691,7 +696,7 @@ let uniqueOldPosts: string[] = [];
 let uniqueNewPosts: string[] = [];
 
 export function generateDocumentationPosts(
-  comunityId: BigInt,
+  communityId: BigInt,
   userAddr: Address,
   lastmodTimestamp: BigInt,
   oldDocumentationIpfsHash: Bytes | null, 
@@ -700,14 +705,14 @@ export function generateDocumentationPosts(
   let newPosts: string[] = [];
   let oldPosts: string[] = [];
 
-  if (oldDocumentationIpfsHash !== null) {
-    const oldDocumentation = indexingDocumentation(comunityId, oldDocumentationIpfsHash as Bytes);
+  if (oldDocumentationIpfsHash) {
+    const oldDocumentation = indexingDocumentation(communityId, oldDocumentationIpfsHash as Bytes);
     for (let index = 0; index < posts.length; index++) {
       oldPosts.push(posts[index]);
     }
   }
-  const newDoc = indexingDocumentation(comunityId, newDocumentationIpfsHash);
-  if(newDoc){
+  const newDoc = indexingDocumentation(communityId, newDocumentationIpfsHash);
+  if (newDoc) {
     newDoc.save();
   }
   uniqueOldPosts.splice(0,uniqueOldPosts.length);
@@ -716,8 +721,9 @@ export function generateDocumentationPosts(
           uniqueOldPosts.push(element);
       }
   });
+
   oldPosts = uniqueOldPosts;
-  let community = getCommunity(comunityId);
+  let community = getCommunity(idToIndexId(Network.Polygon, communityId.toString()));
   community.documentationCount = posts.length ? posts.length-1 : posts.length;
   community.save();
   for (let index = 0; index < posts.length; index++) {
@@ -729,6 +735,7 @@ export function generateDocumentationPosts(
           uniqueNewPosts.push(element);
       }
   });
+
   newPosts = uniqueNewPosts;
   let listCreatePosts: string[] = []
   let listDeletePosts: string[] = []
@@ -742,21 +749,30 @@ export function generateDocumentationPosts(
       listDeletePosts.push(oldPosts[index]);
     }
   }
+
   // creating Posts
   for (let index = 0; index < newPosts.length; index++) {
-    if(newPosts[index] != "" && listCreatePosts.indexOf(newPosts[index]) === -1){ 
-      let post = new Post(newPosts[index]);
+    if(newPosts[index] !== "" && listCreatePosts.indexOf(newPosts[index]) === -1){ 
+      let post = new Post(idToIndexId(Network.Polygon, newPosts[index]));
       post.author = userAddr.toHex();
-      post.communityId = comunityId;
+      post.communityId = idToIndexId(Network.Polygon, newPosts[index]);
       post.lastmod = lastmodTimestamp;
       post.isDeleted = false;
       post.postType = PostType.Documentation;
       post.ipfsHash = ByteArray.fromHexString(newPosts[index]) as Bytes;
-  
+      post.replies = [];
+      post.comments = [];
+      post.translations = [];
+      post.tags = [];
+      post.postContent = '';
+      post.title = '';
+      post.content = '';
+
       getIpfsPostData(post);
       post.save();
     }
   }
+
   // deleting Posts
   for (let index = 0; index < listDeletePosts.length; index++) {
     store.remove("Post", listDeletePosts[index]);
@@ -764,77 +780,79 @@ export function generateDocumentationPosts(
 }
 
 export function indexingDocumentation(
-  comunityId: BigInt,
+  communityId: BigInt,
   ipfsHash: Bytes,
 ): CommunityDocumentation | null {
   posts.splice(0, posts.length);
-  let documentation = CommunityDocumentation.load(comunityId.toString());
-  if (documentation == null) {
+  let documentation = CommunityDocumentation.load(idToIndexId(Network.Polygon, communityId.toString()));
+  let result = convertIpfsHash(ipfsHash);
+  if (!documentation || !result) {
     return null;
   }
   documentation.ipfsHash = ipfsHash;
-  let result = convertIpfsHash(ipfsHash);
   documentation.documentationJSON = result.toString();
 
-  if (result != null) {
-    let ipfsData = bytesToJson(result);
-    if (isValidIPFS(ipfsData)) {
-      let ipfsObj = ipfsData.toObject()
+  let ipfsData = bytesToJson(result);
+  if (ipfsData && isValidIPFS(ipfsData)) {
+    let ipfsObj = ipfsData.toObject()
 
-      const pinnedPost = ipfsObj.get('pinnedPost');
-      if (pinnedPost != null && pinnedPost.kind == JSONValueKind.OBJECT){
-        const pinnedId = pinnedPost.toObject().get('id');
-        const pinnedTitle = pinnedPost.toObject().get('title');
-        if(
-          !pinnedId.isNull() && 
-          !pinnedTitle.isNull() && 
-          pinnedId.kind == JSONValueKind.STRING && 
-          pinnedTitle.kind == JSONValueKind.STRING
-        ){
-          if(pinnedId.toString() !== "" && pinnedTitle.toString() !== ""){
-            posts.push(pinnedId.toString());
-          } else {
-            log.error("id or/and title of pinned post is empty", []);
-          }
+    const pinnedPost = ipfsObj.get('pinnedPost');
+    if (pinnedPost != null && pinnedPost.kind == JSONValueKind.OBJECT){
+      const pinnedId = pinnedPost.toObject().get('id');
+      const pinnedTitle = pinnedPost.toObject().get('title');
+      if (pinnedId &&
+        pinnedTitle &&
+        !pinnedId.isNull() && 
+        !pinnedTitle.isNull() && 
+        pinnedId.kind == JSONValueKind.STRING && 
+        pinnedTitle.kind == JSONValueKind.STRING
+      ) {
+        if(pinnedId.toString() !== "" && pinnedTitle.toString() !== ""){
+          posts.push(pinnedId.toString());
         } else {
-          log.error("id or/and title of pinned post not found or not a string", []);
-        }
-      }
-      const documentations = ipfsObj.get('documentations');
-
-      if (documentations != null && documentations.kind == JSONValueKind.ARRAY) {
-        const documentationsArray = documentations.toArray();
-
-        for (let i = 0; i < documentationsArray.length; i++) {
-          const documentationObject = documentationsArray[i];
-          const id = documentationObject.toObject().get('id');
-          const title = documentationObject.toObject().get('title');
-          if(
-            !id.isNull() && 
-            !title.isNull() && 
-            id.kind == JSONValueKind.STRING && 
-            title.kind == JSONValueKind.STRING
-          ){
-            if(id.toString() !== "" && title.toString() !== ""){
-              let children = documentationObject.toObject().get('children');
-              posts.push(id.toString())
-              if (!children.isNull() && children.kind == JSONValueKind.ARRAY) {
-                if (children.toArray().length > 0) {
-                  documentation = indexingJson(documentation, children.toArray());
-                }
-              }
-            } else {
-              log.error("id or/and title of post is empty", []);
-            }
-          } else {
-            log.error("id or/and title of post not found or not a string", []);
-          }
+          log.error("id or/and title of pinned post is empty", []);
         }
       } else {
-        log.error("'documentations' not found or not a array", []);
+        log.error("id or/and title of pinned post not found or not a string", []);
       }
     }
+
+    const documentations = ipfsObj.get('documentations');
+    if (documentations && documentations.kind == JSONValueKind.ARRAY) {
+      const documentationsArray = documentations.toArray();
+
+      for (let i = 0; i < documentationsArray.length; i++) {
+        const documentationObject = documentationsArray[i];
+        const id = documentationObject.toObject().get('id');
+        const title = documentationObject.toObject().get('title');
+        if (
+          id &&
+          title &&
+          !id.isNull() && 
+          !title.isNull() && 
+          id.kind == JSONValueKind.STRING && 
+          title.kind == JSONValueKind.STRING
+        ) {
+          if(id.toString() !== "" && title.toString() !== "") {
+            let children = documentationObject.toObject().get('children');
+            posts.push(id.toString())
+            if (children && !children.isNull() && children.kind == JSONValueKind.ARRAY) {
+              if (children.toArray().length > 0) {
+                documentation = indexingJson(documentation, children.toArray());
+              }
+            }
+          } else {
+            log.error("id or/and title of post is empty", []);
+          }
+        } else {
+          log.error("id or/and title of post not found or not a string", []);
+        }
+      }
+    } else {
+      log.error("'documentations' not found or not a array", []);
+    }
   }
+
   return documentation;
 }
 
@@ -846,22 +864,24 @@ function indexingJson(
   for (let i = 0; i < childrenLength; i++) {
     const id = children[i].toObject().get("id");
     const title = children[i].toObject().get("title");
-    if(
+    if (
+      id &&
+      title &&
       !id.isNull() && 
       !title.isNull() && 
       id.kind == JSONValueKind.STRING && 
       title.kind == JSONValueKind.STRING
     ) {
-      if(id.toString() !== "" && title.toString() !== ""){
+      if (id.toString() !== "" && title.toString() !== "") {
         posts.push(id.toString());
-        if(children[i].kind == JSONValueKind.OBJECT){
-          if(
-            !children[i].toObject().get("children").isNull() && 
-            children[i].toObject().get("children").kind == JSONValueKind.ARRAY
+        if (children[i].kind == JSONValueKind.OBJECT) {
+          if (
+            !children[i].toObject().get("children")!.isNull() && 
+            children[i].toObject().get("children")!.kind == JSONValueKind.ARRAY
           ) {
 
-              if (children[i].toObject().get("children").toArray().length > 0)
-                documentation = indexingJson(documentation, children[i].toObject().get("children").toArray());
+              if (children[i].toObject().get("children")!.toArray().length > 0)
+                documentation = indexingJson(documentation, children[i].toObject().get("children")!.toArray());
           
             } else {
             log.error("field 'children' in children post is empty or not an array", []);
