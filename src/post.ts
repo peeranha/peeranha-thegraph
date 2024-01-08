@@ -684,12 +684,12 @@ function changedStatusOfficialReply(reply: Reply, postId: BigInt, replyId: i32):
   post.save();
 
   if (previousOfficialReplyId != 0) {   // rewrite move to if (peeranhaPost.officialReply == replyId ...
-  //   let previousOfficialReply = Reply.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + previousOfficialReplyId.toString())
+    let previousOfficialReply = Reply.load(post.id + '-' + previousOfficialReplyId.toString());
 
-  //   if (previousOfficialReply != null) {
-  //     previousOfficialReply.isOfficialReply = false;
-  //   }
-  //   previousOfficialReply.save();
+    if (previousOfficialReply) {
+      previousOfficialReply.isOfficialReply = false;
+      previousOfficialReply.save();
+    }
   }
 }
 

@@ -25,7 +25,7 @@ import { newPost, addDataToPost, deletePost, newReply, addDataToReply, deleteRep
   addDataToPostTranslation, addDataToReplyTranslation, addDataToCommentTranslation,
   newComment, addDataToComment, deleteComment, updatePostContent, updatePostUsersRatings, generateDocumentationPosts } from './post'
 import { newCommunity, addDataToCommunity, newTag, addDataToTag, getCommunity } from './community-tag'
-import { newUser, addDataToUser, updateUserRating} from './user'
+import { newUser, addDataToUser, updateUserRating, getUser } from './user'
 import { addDataToAchievement, giveAchievement, newAchievement } from './achievement'
 import { ConfigureNewAchievementNFT, Transfer } from '../generated/PeeranhaNFT/PeeranhaNFT'
 
@@ -47,20 +47,20 @@ export function handleConfigureNewAchievement(event: ConfigureNewAchievementNFT)
 // indexing all users?   if (!user) return;
 // can be error when remove
 ///
-export function handleTransferNFT(event: Transfer): void {    // error
-  // let id : BigInt = (event.params.tokenId.div(BigInt.fromI32(POOL_NFT))).plus(BigInt.fromI32(1)); // (a / b) + c
-  // log.debug('User: {}, ID txx: {}, Achievement Id txx: {}', [event.params.to.toHex(), event.params.tokenId.toString(), id.toString()])
-  // let achievement = Achievement.load(idToIndexId(Network.Polygon, id.toString()));
-  // if (!achievement){
-  //   logTransaction(Network.Polygon, event, event.params.to, 'Transfer', 0, 0, false);
-  //   return;
-  // }
+export function handleTransferNFT(event: Transfer): void {
+  let id : BigInt = (event.params.tokenId.div(BigInt.fromI32(POOL_NFT))).plus(BigInt.fromI32(1)); // (a / b) + c
+  let achievement = Achievement.load(idToIndexId(Network.Polygon, id.toString()));
+  let user = User.load(event.params.to.toHex());
+  if (!achievement || !user) {
+    logTransaction(Network.Polygon, event, event.params.to, 'Transfer', 0, 0, false);
+    return;
+  }
 
-  // addDataToAchievement(achievement, id);
-  // giveAchievement(achievement.id, event.params.to, event.block.timestamp);
+  addDataToAchievement(achievement, id);
+  giveAchievement(user, achievement.id);
 
-  // achievement.save();  
-  // logTransaction(Network.Polygon, event, event.params.to, 'Transfer', 0, 0, true);
+  achievement.save();  
+  logTransaction(Network.Polygon, event, event.params.to, 'Transfer', 0, 0, true);
 }
 
 export function handleNewUser(event: UserCreated): void {
@@ -73,14 +73,8 @@ export function handleNewUser(event: UserCreated): void {
 }
 
 export function handleUpdatedUser(event: UserUpdated): void {
-  let id = event.params.userAddress.toHex()
-  let user = User.load(id)
-  if (!user) {
-    user = new User(id)
-    newUser(user, event.params.userAddress, event.block.timestamp);
-  } else {
-    addDataToUser(user, event.params.userAddress);
-  }
+  let user = getUser(event.params.userAddress, event.block.timestamp);
+  addDataToUser(user, event.params.userAddress);
   user.save();
   
   indexingPeriods();
@@ -104,12 +98,7 @@ export function handlerRevokedRole(event: RoleRevoked): void {
 }
 
 export function handlerFollowCommunity(event: FollowedCommunity): void {
-  const userid = event.params.userAddress.toHex();
-  let user = User.load(userid);
-  if (!user) {
-    user = new User(userid);
-    newUser(user, event.params.userAddress, event.block.timestamp);
-  }
+  let user = getUser(event.params.userAddress, event.block.timestamp);
   let communityId = idToIndexId(Network.Polygon, event.params.communityId.toString());
   let followedCommunities = user.followedCommunities
   followedCommunities.push(communityId);
@@ -126,12 +115,7 @@ export function handlerFollowCommunity(event: FollowedCommunity): void {
 }
 
 export function handlerUnfollowCommunity(event: UnfollowedCommunity): void {
-  const userid = event.params.userAddress.toHex();
-  let user = User.load(userid);
-  if (!user) {
-    user = new User(userid);
-    newUser(user, event.params.userAddress, event.block.timestamp);
-  }
+  let user = getUser(event.params.userAddress, event.block.timestamp);
   let communityId = idToIndexId(Network.Polygon, event.params.communityId.toString());
   
   let followedCommunities: string[] = [];
@@ -549,60 +533,92 @@ export function handleGetReward(event: GetReward): void {
 }
 
 export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): void {
-  // let postId = event.params.postId;
-  // let post = Post.load(idToIndexId(Network.Polygon, postId.toString()));
-  // let previousBestReply = 0;
-  // if (post == null) {
-  //   post = new Post(idToIndexId(Network.Polygon, postId.toString()));
-  //   newPost(post, postId, event.block.timestamp);
-  // } else {
-  //   previousBestReply = post.bestReply;
-  //   post.bestReply = event.params.replyId;
-  // }
-  // post.save();
+  let postId = event.params.postId;
+  let post = Post.load(idToIndexId(Network.Polygon, postId.toString()));
+  if (!post) {
+    logTransaction(
+      Network.Polygon,
+      event,
+      event.params.user,
+      'StatusBestReplyChanged',
+      event.params.replyId,
+      0,
+      false,
+      '',
+      postId
+    );
+    return;
+  }
+
+  let previousBestReply = post.bestReply;
+  post.bestReply = event.params.replyId;
+  post.save();
   
-  // if (previousBestReply) {
-  //   let previousReplyId = previousBestReply;
-  //   let previousReply = Reply.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + previousReplyId.toString());
+  if (previousBestReply) {
+    let previousReplyId = previousBestReply;
+    let previousReply = Reply.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + previousReplyId.toString());
+    if (!previousReply) {
+      logTransaction(
+        Network.Polygon,
+        event,
+        event.params.user,
+        'StatusBestReplyChanged',
+        event.params.replyId,
+        0,
+        false,
+        '',
+        postId
+      );
+      return;
+    }
 
-  //   if (previousReply == null) {
-  //     newReply(previousReply, postId, previousReplyId, event.block.timestamp);
-  //   } else {
-  //     previousReply.isBestReply = false;
-  //   }
-  //   updateUserRating(Address.fromString(previousReply.author), post.communityId);
-  //   previousReply.save();
-  // }
+    previousReply.isBestReply = false;
+    updateUserRating(Address.fromString(previousReply.author), post.communityId);
+    previousReply.save();
+  }
 
-  // let reply: Reply | null;
-  // if (event.params.replyId != 0) {    // fix  (if reply does not exist -> getReply() call erray)
-  //   let replyId = event.params.replyId;
-  //   reply = Reply.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + replyId.toString());
+  if (event.params.replyId != 0) {
+    let replyId = event.params.replyId;
+    let reply = Reply.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + replyId.toString());
 
-  //   if (reply == null) {
-  //     newReply(reply, postId, replyId, event.block.timestamp);
-  //   }
+    if (!reply) {
+      logTransaction(
+        Network.Polygon,
+        event,
+        event.params.user,
+        'StatusBestReplyChanged',
+        event.params.replyId,
+        0,
+        false,
+        '',
+        postId
+      );
+      return;
+    }
 
-  //   reply.isBestReply = true;
-  //   if (reply.author != post.author) {
-  //     updateUserRating(Address.fromString(reply.author), post.communityId);
-  //   }
-  //   reply.save();
-  // }
-  // if (reply.author != post.author) {
-  //   updateUserRating(Address.fromString(post.author), post.communityId);
-  // }
+    reply.isBestReply = true;
+    if (reply.author != post.author) {
+      updateUserRating(Address.fromString(reply.author), post.communityId);
+    }
+    reply.save();
 
-  // indexingPeriods();
-  // logTransaction(
-  //   event,
-  //   event.params.user,
-  //   'StatusBestReplyChanged',
-  //   event.params.replyId,
-  //   0,
-  //   post.communityId,
-  //   postId
-  // );
+    if (reply.author != post.author) {
+      updateUserRating(Address.fromString(post.author), post.communityId);
+    }
+  }
+
+  indexingPeriods();
+  logTransaction(
+    Network.Polygon,
+    event,
+    event.params.user,
+    'StatusBestReplyChanged',
+    event.params.replyId,
+    0,
+    true,
+    post.communityId,
+    postId
+  );
 }
 
 export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move this in another function with edit
