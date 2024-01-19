@@ -26,7 +26,7 @@ type UserCommunityRating @entity {
 type UserPermission @entity {
   id: ID!
   user: User
-  permission: Bytes
+  permission: String
 }
 
 type Community @entity {
@@ -48,6 +48,7 @@ type Community @entity {
   ipfsHash2: Bytes
   language: String
   translations: [CommunityTranslation!]!
+  networkId: Int!
 }
 
 type CommunityTranslation @entity {
@@ -78,13 +79,6 @@ type TagTranslation @entity {
   name: String!
   description: String
   language: String
-}
-
-enum PostType {
-  ExpertPost
-  CommonPost
-  Tutorial
-  Documentation
 }
 
 type _Schema_
@@ -123,6 +117,7 @@ type Post @entity {
   tags: [Tag!]!
   handle: String
   messengerType: Int
+  networkId: Int!
 }
 
 type PostTranslation @entity {
@@ -245,7 +240,7 @@ type History @entity {
 
 type CommunityDocumentation @entity {
   id: ID!
-  documentationJSON: String
+  documentationJson: String
   ipfsHash: Bytes
 }
 

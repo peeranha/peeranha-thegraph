@@ -85,7 +85,7 @@ export function handlerGrantedRole(event: RoleGranted): void {
   let userPermissionId = event.params.account.toHex() + '-' + idToIndexId(Network.Polygon, event.params.role.toHex());
   let userPermission = new UserPermission(userPermissionId);
   userPermission.user = event.params.account.toHex();
-  userPermission.permission = event.params.role;
+  userPermission.permission = idToIndexId(Network.Polygon, event.params.role.toHex());
   userPermission.save();
   
   logTransaction(Network.Polygon, event, event.params.sender, 'RoleGranted', 0, 0, true);
@@ -316,24 +316,23 @@ export function handleNewReply(event: ReplyCreated): void {
 export function handleEditedReply(event: ReplyEdited): void { 
   let postId = event.params.postId;
   let replyId = event.params.replyId;
-  let reply = Reply.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + replyId.toString());
-
-  if (!reply) {
-    reply = new Reply(idToIndexId(Network.Polygon, postId.toString()) + '-' + replyId.toString());
-    newReply(reply, postId, replyId, event.block.timestamp);
-  } else {
-    addDataToReply(reply, postId, replyId);
-  }
-  reply.save();
-
-  updatePostContent(postId);
-  createHistory(reply, event, 'Reply', 'Edit');
-
   let post = Post.load(idToIndexId(Network.Polygon, postId.toString()));
   if (!post) {
     logTransaction(Network.Polygon, event, event.params.user, 'ReplyEdited', replyId, 0, false);
     return;
   }
+
+  let reply = Reply.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + replyId.toString());
+  if (!reply) {
+    reply = new Reply(idToIndexId(Network.Polygon, postId.toString()) + '-' + replyId.toString());
+    newReply(reply, postId, replyId, event.block.timestamp);
+  } else {
+    addDataToReply(post, reply, replyId);
+  }
+  reply.save();
+
+  updatePostContent(postId);
+  createHistory(reply, event, 'Reply', 'Edit');
 
   post.lastmod = event.block.timestamp;
   post.save();

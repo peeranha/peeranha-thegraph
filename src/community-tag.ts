@@ -16,6 +16,7 @@ export function newCommunity(community: Community, communityId: BigInt): void {
   community.replyCount = 0;
   community.followingUsers = 0;
   community.translations = [];
+  community.networkId = Network.Polygon;
   addDataToCommunity(community, communityId);
   
   let peeranhaTags = getPeeranhaCommunity().getTags(communityId);

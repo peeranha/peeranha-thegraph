@@ -25,6 +25,7 @@ export function newPost(post: Post, postId: BigInt, blockTimeStamp: BigInt): voi
   post.tags = [];
   post.postContent = '';
   post.title = '';
+  post.networkId = Network.Polygon;
 
   const messengerUserDataResult = getPeeranhaContent().try_getItemProperty(ItemProperties.MessengerSender, postId, 0, 0);
   if (!messengerUserDataResult.reverted) {
@@ -270,16 +271,17 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: i32, bloc
     updateUserRating(peeranhaReply.author, post.communityId);
   }
   updateUserRating(Address.fromString(reply.author), post.communityId);
-  addDataToReply(reply, postId, replyId);
+  addDataToReply(post, reply, replyId);
   post.postContent += ' ' + reply.content;
   post.save();
 }
 
-export function addDataToReply(reply: Reply, postId: BigInt, replyId: i32): void {
+export function addDataToReply(post: Post, reply: Reply, replyId: i32): void {
+  const postId = BigInt.fromString(indexIdToId(post.id))
   const peeranhaReply = getPeeranhaContent().getReply(postId, replyId);
   if (!peeranhaReply) return;
 
-  changedStatusOfficialReply(reply, postId, replyId);
+  changedStatusOfficialReply(post, reply, replyId);
   reply.ipfsHash = peeranhaReply.ipfsDoc.hash;
   reply.ipfsHash2 = peeranhaReply.ipfsDoc.hash2;
   let replyLanguageResult = getPeeranhaContent().try_getItemLanguage(postId, replyId, 0);
@@ -666,8 +668,8 @@ export function updatePostContent(postId: BigInt): void {
   post.save();
 }
 
-function changedStatusOfficialReply(reply: Reply, postId: BigInt, replyId: i32): void {
-  let post = Post.load(idToIndexId(Network.Polygon, postId.toString()));
+function changedStatusOfficialReply(post: Post, reply: Reply, replyId: i32): void {
+  const postId = BigInt.fromString(indexIdToId(post.id))
   const peeranhaPost = getPeeranhaContent().getPost(postId);
   if (!post || !peeranhaPost) return;
 
@@ -681,7 +683,6 @@ function changedStatusOfficialReply(reply: Reply, postId: BigInt, replyId: i32):
     reply.isOfficialReply = false;
     post.officialReply = 0;
   }
-  post.save();
 
   if (previousOfficialReplyId != 0) {   // rewrite move to if (peeranhaPost.officialReply == replyId ...
     let previousOfficialReply = Reply.load(post.id + '-' + previousOfficialReplyId.toString());
@@ -769,6 +770,7 @@ export function generateDocumentationPosts(
       post.postContent = '';
       post.title = '';
       post.content = '';
+      post.networkId = Network.Polygon;
 
       getIpfsPostData(post);
       post.save();
@@ -792,7 +794,7 @@ export function indexingDocumentation(
     return null;
   }
   documentation.ipfsHash = ipfsHash;
-  documentation.documentationJSON = result.toString();
+  documentation.documentationJson = result.toString();
 
   let ipfsData = bytesToJson(result);
   if (ipfsData && isValidIPFS(ipfsData)) {
