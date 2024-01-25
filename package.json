@@ -3,12 +3,12 @@
   "license": "UNLICENSED",
   "scripts": {
     "codegen": "graph codegen",
+    "build": "graph build",
     "prepare:test1": "mustache config/test1.json subgraph.template.yaml > subgraph.yaml & mustache config/test1.json src/config.template.ts > src/config.ts",
     "prepare:test2": "mustache config/test2.json subgraph.template.yaml > subgraph.yaml & mustache config/test2.json src/config.template.ts > src/config.ts",
     "prepare:test3": "mustache config/test3.json subgraph.template.yaml > subgraph.yaml & mustache config/test3.json src/config.template.ts > src/config.ts",
     "prepare:staging": "mustache config/staging.json subgraph.template.yaml > subgraph.yaml & mustache config/staging.json src/config.template.ts > src/config.ts",
     "prepare:prod": "mustache config/prod.json subgraph.template.yaml > subgraph.yaml > subgraph.yaml & mustache config/prod.json src/config.template.ts > src/config.ts",
-    "build": "graph build",
     "deploy:test1": "npm run prepare:test1 & graph deploy --product hosted-service peeranha/peeranha-test-1",
     "deploy:test2": "npm run prepare:test2 & graph deploy --product hosted-service peeranha/peeranha-test-2",
     "deploy:test3": "npm run prepare:test3 & graph deploy --product hosted-service peeranha/peeranha-test-3",
@@ -17,13 +17,13 @@
     "auth": "graph auth --product hosted-service <ACCESS_TOKEN>"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.21.1",
+    "@graphprotocol/graph-cli": "^0.64.0",
     "@graphprotocol/ipfs-sync": "^0.2.0",
     "assemblyscript": "^0.21.6",
     "bs58": "^4.0.1"
   },
   "devDependencies": {
-    "@graphprotocol/graph-ts": "^0.20.0",
+    "@graphprotocol/graph-ts": "^0.25.0",
     "mustache": "^3.1.0"
   }
 }

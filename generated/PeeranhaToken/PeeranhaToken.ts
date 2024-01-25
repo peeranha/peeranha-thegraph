@@ -247,6 +247,14 @@ export class PeeranhaToken__getStakeResult {
     map.set("value1", ethereum.Value.fromUnsignedBigInt(this.value1));
     return map;
   }
+
+  getValue0(): BigInt {
+    return this.value0;
+  }
+
+  getValue1(): BigInt {
+    return this.value1;
+  }
 }
 
 export class PeeranhaToken extends ethereum.SmartContract {

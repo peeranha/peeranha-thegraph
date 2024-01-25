@@ -18,14 +18,14 @@ import {
   PostTranslation, ReplyTranslation, CommentTranslation, Statistic
 } from '../generated/schema'
 import { USER_ADDRESS } from './config'
-import { getPeeranhaUser, getPeeranhaToken, getPeeranhaContent, PostType } from './utils'
+import { getPeeranhaUser, getPeeranhaToken, getPeeranhaContent, PostType, idToIndexId, Network } from './utils';
 
 import { newPost, addDataToPost, deletePost, newReply, addDataToReply, deleteReply,
   newPostTranslation, newReplyTranslation, newCommentTranslation,
   addDataToPostTranslation, addDataToReplyTranslation, addDataToCommentTranslation,
   newComment, addDataToComment, deleteComment, updatePostContent, updatePostUsersRatings, generateDocumentationPosts } from './post'
 import { newCommunity, addDataToCommunity, newTag, addDataToTag, getCommunity } from './community-tag'
-import { newUser, addDataToUser, updateUserRating} from './user'
+import { newUser, addDataToUser, updateUserRating, getUser } from './user'
 import { addDataToAchievement, giveAchievement, newAchievement } from './achievement'
 import { ConfigureNewAchievementNFT, Transfer } from '../generated/PeeranhaNFT/PeeranhaNFT'
 
@@ -34,10 +34,12 @@ const POOL_NFT = 1000000;
 const FORUM_ITEM_VOTED_EVENT = 'ForumItemVoted';
   
 export function handleConfigureNewAchievement(event: ConfigureNewAchievementNFT): void {
-  let achievement = new Achievement(event.params.achievementId.toString());
+  let achievement = new Achievement(idToIndexId(Network.Polygon, event.params.achievementId.toString()));
   newAchievement(achievement, event.params.achievementId);
 
-  achievement.save();  
+  achievement.save();
+
+  logTransaction(Network.Polygon, event, Address.zero(), 'ConfigureAchievement', 0, 0, true);
 }
 
 ///
@@ -47,20 +49,19 @@ export function handleConfigureNewAchievement(event: ConfigureNewAchievementNFT)
 ///
 export function handleTransferNFT(event: Transfer): void {
   let id : BigInt = (event.params.tokenId.div(BigInt.fromI32(POOL_NFT))).plus(BigInt.fromI32(1)); // (a / b) + c
-  log.debug('User: {}, ID txx: {}, Achievement Id txx: {}', [event.params.to.toHex(), event.params.tokenId.toString(), id.toString()])
-  let achievement = Achievement.load(id.toString());
-
-  if (achievement != null) {
-    addDataToAchievement(achievement, id);
-
-    giveAchievement(id, event.params.to);
-
-    achievement.save();  
+  let achievement = Achievement.load(idToIndexId(Network.Polygon, id.toString()));
+  let user = User.load(event.params.to.toHex());
+  if (!achievement || !user) {
+    logTransaction(Network.Polygon, event, event.params.to, 'Transfer', 0, 0, false);
+    return;
   }
 
-  logTransaction(event, event.params.to, 'Transfer', 0, 0);
-}
+  addDataToAchievement(achievement, id);
+  giveAchievement(user, achievement.id);
 
+  achievement.save();  
+  logTransaction(Network.Polygon, event, event.params.to, 'Transfer', 0, 0, true);
+}
 
 export function handleNewUser(event: UserCreated): void {
   let user = new User(event.params.userAddress.toHex());
@@ -68,64 +69,61 @@ export function handleNewUser(event: UserCreated): void {
   user.save();
 
   indexingPeriods();
-  logTransaction(event, event.params.userAddress, 'UserCreated', 0, 0);
+  logTransaction(Network.Polygon, event, event.params.userAddress, 'UserCreated', 0, 0, true);
 }
 
 export function handleUpdatedUser(event: UserUpdated): void {
-  let id = event.params.userAddress.toHex()
-  let user = User.load(id)
-  if (user == null) {
-    user = new User(id)
-    newUser(user, event.params.userAddress, event.block.timestamp);
-  } else {
-    addDataToUser(user, event.params.userAddress);
-  }
+  let user = getUser(event.params.userAddress, event.block.timestamp);
+  addDataToUser(user, event.params.userAddress);
   user.save();
   
   indexingPeriods();
-  logTransaction(event, event.params.userAddress, 'UserUpdated', 0, 0);
+  logTransaction(Network.Polygon, event, event.params.userAddress, 'UserUpdated', 0, 0, true);
 }
 
 export function handlerGrantedRole(event: RoleGranted): void {
-  let userPermission = new UserPermission(event.params.account.toHex() + '-' + event.params.role.toHex());
+  let userPermissionId = event.params.account.toHex() + '-' + idToIndexId(Network.Polygon, event.params.role.toHex());
+  let userPermission = new UserPermission(userPermissionId);
   userPermission.user = event.params.account.toHex();
-  userPermission.permission = event.params.role;
+  userPermission.permission = idToIndexId(Network.Polygon, event.params.role.toHex());
   userPermission.save();
   
-  logTransaction(event, event.params.sender, 'RoleGranted', 0, 0);
+  logTransaction(Network.Polygon, event, event.params.sender, 'RoleGranted', 0, 0, true);
 }
 
 export function handlerRevokedRole(event: RoleRevoked): void {
-  let userPermissionId = event.params.account.toHex() + '-' + event.params.role.toHex();
+  let userPermissionId = event.params.account.toHex() + '-' + idToIndexId(Network.Polygon, event.params.role.toHex());
   store.remove('UserPermission', userPermissionId);
-  logTransaction(event, event.params.sender, 'RoleRevoked', 0, 0);
+  logTransaction(Network.Polygon, event, event.params.sender, 'RoleRevoked', 0, 0, true);
 }
 
 export function handlerFollowCommunity(event: FollowedCommunity): void {
-  let user = User.load(event.params.userAddress.toHex());
+  let user = getUser(event.params.userAddress, event.block.timestamp);
+  let communityId = idToIndexId(Network.Polygon, event.params.communityId.toString());
   let followedCommunities = user.followedCommunities
-  followedCommunities.push(event.params.communityId.toString())
+  followedCommunities.push(communityId);
 
   user.followedCommunities = followedCommunities
   user.save();
 
-  let community = Community.load(event.params.communityId.toString())
+  let community = getCommunity(communityId);
   community.followingUsers++;
   community.save();
 
   indexingPeriods();
-  logTransaction(event, event.params.userAddress, 'FollowedCommunity', 0, 0, event.params.communityId);
+  logTransaction(Network.Polygon, event, event.params.userAddress, 'FollowedCommunity', 0, 0, true, community.id);
 }
 
 export function handlerUnfollowCommunity(event: UnfollowedCommunity): void {
-  let user = User.load(event.params.userAddress.toHex());
+  let user = getUser(event.params.userAddress, event.block.timestamp);
+  let communityId = idToIndexId(Network.Polygon, event.params.communityId.toString());
   
   let followedCommunities: string[] = [];
   let followedCommunitiesBuf = user.followedCommunities
 
   for (let i = 0; i < user.followedCommunities.length; i++) {
     let community = followedCommunitiesBuf.pop()
-    if (community != event.params.communityId.toString()) {
+    if (community && community != communityId) {
       followedCommunities.push(community)   
     }
   }
@@ -133,94 +131,90 @@ export function handlerUnfollowCommunity(event: UnfollowedCommunity): void {
   user.followedCommunities = followedCommunities;
   user.save();
 
-  let community = Community.load(event.params.communityId.toString())
+  let community = getCommunity(communityId);
   community.followingUsers--;
   community.save();
 
   indexingPeriods();
-  logTransaction(event, event.params.userAddress, 'UnfollowedCommunity', 0, 0, event.params.communityId);
+  logTransaction(Network.Polygon, event, event.params.userAddress, 'UnfollowedCommunity', 0, 0, true, community.id);
 }
 
 export function handleNewCommunity(event: CommunityCreated): void {
-  let communityiD = event.params.id; 
-  let community = new Community(communityiD.toString());
+  let communityId = event.params.id; 
+  let community = new Community(idToIndexId(Network.Polygon, communityId.toString()));
 
-  newCommunity(community, communityiD);
+  newCommunity(community, communityId);
   community.save();
 
   indexingPeriods();
-  logTransaction(event, event.params.user, 'CommunityCreated', 0, 0, event.params.id);
+  logTransaction(Network.Polygon, event, event.params.user, 'CommunityCreated', 0, 0, true, community.id);
 }
 
 export function handleUpdatedCommunity(event: CommunityUpdated): void {
-  let id = event.params.id.toString()
-  let community = Community.load(id)
-  if (community == null) {
-    community = new Community(id);
-    newCommunity(community, event.params.id);
-  } else {
-    addDataToCommunity(community, event.params.id);
-  }
+  let communityId = event.params.id;
+  let community = getCommunity(idToIndexId(Network.Polygon, communityId.toString()));
+  addDataToCommunity(community, communityId);
   community.save();
 
   indexingPeriods();
-  logTransaction(event, event.params.user, 'CommunityUpdated', 0, 0, event.params.id);
+  logTransaction(Network.Polygon, event, event.params.user, 'CommunityUpdated', 0, 0, true, community.id);
 }
 
 export function handleFrozenCommunity(event: CommunityFrozen): void {
-  let id = event.params.communityId.toString()
-  let community = Community.load(id)
-  if (community != null) {
-    community.isFrozen = true;
-    community.save();
-  }
+  let communityId = event.params.communityId;
+  let community = getCommunity(idToIndexId(Network.Polygon, communityId.toString()));
+  community.isFrozen = true;
+  community.save();
 
-  logTransaction(event, event.params.user, 'CommunityFrozen', 0, 0, event.params.communityId);
+  logTransaction(Network.Polygon, event, event.params.user, 'CommunityFrozen', 0, 0, true, community.id);
 }
 
 export function handleUnfrozenCommunity(event: CommunityUnfrozen): void {
-  let id = event.params.communityId.toString()
-  let community = Community.load(id)
-  if (community != null) {
-    community.isFrozen = false;
-    community.save();
-  } else {
-    community = new Community(id);
-    newCommunity(community, event.params.communityId);
-  }
+  let communityId = event.params.communityId;
+  let community = getCommunity(idToIndexId(Network.Polygon, communityId.toString()));
+  community.isFrozen = false;
+  community.save();
 
-  logTransaction(event, event.params.user, 'CommunityUnfrozen', 0, 0, event.params.communityId);
+  logTransaction(Network.Polygon, event, event.params.user, 'CommunityUnfrozen', 0, 0, true, community.id);
 }
 
 export function handleNewTag(event: TagCreated): void {
-  let community = getCommunity(event.params.communityId);
+  let community = getCommunity(idToIndexId(Network.Polygon, event.params.communityId.toString()));
+  let communityId = event.params.communityId;
+  let tagId = event.params.tagId;
   community.tagsCount++;
   community.save();
-  let tag = new Tag(event.params.communityId.toString() + "-" + BigInt.fromI32(event.params.tagId).toString());
-  
-  newTag(tag, event.params.communityId, BigInt.fromI32(event.params.tagId));
+  let tag = new Tag(idToIndexId(Network.Polygon, communityId.toString()) + '-' + tagId.toString());
+  newTag(tag, communityId, BigInt.fromI32(tagId));
   tag.save(); 
 
-  logTransaction(event, event.params.user, 'TagCreated', 0, 0, event.params.communityId);
+  logTransaction(Network.Polygon, event, event.params.user, 'TagCreated', 0, 0, true, tag.communityId);
 }
 
 export function handleEditedTag(event: TagUpdated): void {
-  let tag = Tag.load(event.params.communityId.toString() + "-" + BigInt.fromI32(event.params.tagId).toString());
-  addDataToTag(tag, event.params.communityId, BigInt.fromI32(event.params.tagId));
+  let communityId = event.params.communityId;
+  let tagId = event.params.tagId;
+  let tag = Tag.load(idToIndexId(Network.Polygon, communityId.toString()) + '-' + tagId.toString());
+  if (!tag) {
+    logTransaction(Network.Polygon, event, event.params.user, 'TagUpdated', 0, 0, false, communityId.toString());
+    return;
+  }
+
+  addDataToTag(tag, communityId, BigInt.fromI32(tagId));
   tag.save();
 
-  logTransaction(event, event.params.user, 'TagUpdated', 0, 0, event.params.communityId);
+  logTransaction(Network.Polygon, event, event.params.user, 'TagUpdated', 0, 0, true, tag.communityId);
 }
 
 // TODO: Get rid of generics in this method. eventEntity and eventName values move to constants or enums.
 export function createHistory<T1, T2>(item: T1,  event: T2,  eventEntity: string, eventName: string): void {
   let history = new History(event.transaction.hash.toHex());
-  history.post = event.params.postId.toString();
+  history.post = idToIndexId(Network.Polygon, event.params.postId.toString());
   if (item instanceof Reply) {
-    history.reply = item.id;
+    history.reply = idToIndexId(Network.Polygon, event.params.postId.toString()) + '-' + item.id;
   }
   if (item instanceof Comment) {
-    history.comment = item.id;
+    history.comment = idToIndexId(Network.Polygon, event.params.postId.toString()) + '-0-' + item.id;
   }
 
   history.transactionHash = event.transaction.hash;
@@ -232,224 +226,254 @@ export function createHistory<T1, T2>(item: T1,  event: T2,  eventEntity: string
 }
 
 export function handleNewPost(event: PostCreated): void {
-  let post = new Post(event.params.postId.toString());
+  let postId = event.params.postId;
+  let post = new Post(idToIndexId(Network.Polygon, postId.toString()));
 
-  newPost(post, event.params.postId, event.block.timestamp);
+  newPost(post, postId, event.block.timestamp);
   post.save();
   createHistory(post, event, 'Post', 'Create');
   
   indexingPeriods();
 
-  logTransaction(event, event.params.user, 'PostCreated', 0, 0, event.params.communityId, event.params.postId);
+  logTransaction(Network.Polygon, event, event.params.user, 'PostCreated', 0, 0, true, post.communityId, postId);
 }
 
 export function handleEditedPost(event: PostEdited): void {
-  let post = Post.load(event.params.postId.toString());
-  if (post == null) {
-    post = new Post(event.params.postId.toString())
-    newPost(post, event.params.postId, event.block.timestamp);
+  let postId = event.params.postId;
+  let post = Post.load(idToIndexId(Network.Polygon, postId.toString()));
+
+  if (!post) {
+    post = new Post(postId.toString());
+    newPost(post, postId, event.block.timestamp);
   } else {
     post.lastmod = event.block.timestamp;
-    addDataToPost(post, event.params.postId);
+    addDataToPost(post, postId);
   }
   post.save();
 
-  let postId = event.params.postId;
   updatePostContent(postId);
   createHistory(post, event, 'Post', 'Edit');
 
   indexingPeriods();
 
-  logTransaction(event, event.params.user, 'PostEdited', 0, 0, post.communityId, event.params.postId);
+  logTransaction(Network.Polygon, event, event.params.user, 'PostEdited', 0, 0, true, post.communityId, postId);
 }
 
 export function handleChangedTypePost(event: ChangePostType): void {
-  let post = Post.load(event.params.postId.toString())
-  if (post != null) {
-    post.lastmod = event.block.timestamp;
-    post.postType = event.params.newPostType;
-    updatePostUsersRatings(post);
-    post.save();
+  let postId = event.params.postId;
+  let post = Post.load(idToIndexId(Network.Polygon, postId.toString()));
+
+  if (!post) {
+    logTransaction(Network.Polygon, event, event.params.user, 'ChangePostType', 0, 0, false);
+    return;
   }
 
-  logTransaction(event, event.params.user, 'ChangePostType', 0, 0, post.communityId, event.params.postId);
+  post.lastmod = event.block.timestamp;
+  post.postType = event.params.newPostType;
+  updatePostUsersRatings(post);
+  post.save();
+  logTransaction(Network.Polygon, event, event.params.user, 'ChangePostType', 0, 0, true, post.communityId, postId);
 }
 
 export function handleDeletedPost(event: PostDeleted): void {
-  let post = Post.load(event.params.postId.toString());
-  if (post == null) return;
+  let postId = event.params.postId;
+  let post = Post.load(idToIndexId(Network.Polygon, postId.toString()));
+  if (!post) {
+    logTransaction(Network.Polygon, event, event.params.user, 'PostDeleted', 0, 0, false);
+    return;
+  };
 
-  deletePost(post, event.params.postId);
+  deletePost(post, event.params.postId, event.block.timestamp);
   post.save();
   createHistory(post, event, 'Post', 'Delete');
 
   indexingPeriods();
-  
-  logTransaction(event, event.params.user, 'PostDeleted', 0, 0, post.communityId, event.params.postId);
+  logTransaction(Network.Polygon, event, event.params.user, 'PostDeleted', 0, 0, true, post.communityId, postId);
 }
 
 export function handleNewReply(event: ReplyCreated): void {
+  let postId = event.params.postId;
   let replyId = event.params.replyId;
-  let reply = new Reply(event.params.postId.toString() + "-" + replyId.toString());
+  let reply = new Reply(idToIndexId(Network.Polygon, postId.toString()) + '-' + replyId.toString());
 
-  newReply(reply, event.params.postId, replyId, event.block.timestamp);
+  newReply(reply, postId, replyId, event.block.timestamp);
   reply.save();
   createHistory(reply, event, 'Reply', 'Create');
 
-  let post = Post.load(event.params.postId.toString());
-  if(post){
-    post.lastmod = event.block.timestamp;
-    post.save();
+  let post = Post.load(idToIndexId(Network.Polygon, postId.toString()));
+  if (!post) {
+    logTransaction(Network.Polygon, event, event.params.user, 'ReplyCreated', replyId, 0, false);
+    return;
   }
 
+  post.lastmod = event.block.timestamp;
+  post.save();
+
   indexingPeriods();
-  
-  logTransaction(event, event.params.user, 'ReplyCreated', event.params.replyId, 0, post.communityId, event.params.postId);
+  logTransaction(Network.Polygon, event, event.params.user, 'ReplyCreated', replyId, 0, true, post.communityId, postId);
 }
 
 export function handleEditedReply(event: ReplyEdited): void { 
+  let postId = event.params.postId;
   let replyId = event.params.replyId;
-  let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString());
+  let post = Post.load(idToIndexId(Network.Polygon, postId.toString()));
+  if (!post) {
+    logTransaction(Network.Polygon, event, event.params.user, 'ReplyEdited', replyId, 0, false);
+    return;
+  }
 
-  if (reply == null) {
-    reply = new Reply(event.params.postId.toString() + "-" + replyId.toString());
-    newReply(reply, event.params.postId, replyId, event.block.timestamp);
+  let reply = Reply.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + replyId.toString());
+  if (!reply) {
+    reply = new Reply(idToIndexId(Network.Polygon, postId.toString()) + '-' + replyId.toString());
+    newReply(reply, postId, replyId, event.block.timestamp);
   } else {
-    addDataToReply(reply, event.params.postId, replyId);
+    addDataToReply(post, reply, replyId);
   }
   reply.save();
 
-  let postId = event.params.postId;
   updatePostContent(postId);
   createHistory(reply, event, 'Reply', 'Edit');
 
-  let post = Post.load(event.params.postId.toString());
-  if(post){
-    post.lastmod = event.block.timestamp;
-    post.save();
-  }
+  post.lastmod = event.block.timestamp;
+  post.save();
 
   indexingPeriods();
-  logTransaction(event, event.params.user, 'ReplyEdited', event.params.replyId, 0, post.communityId, event.params.postId);
+  logTransaction(Network.Polygon, event, event.params.user, 'ReplyEdited', replyId, 0, true, post.communityId, postId);
 }
 
 export function handleDeletedReply(event: ReplyDeleted): void {
-  let replyId = BigInt.fromI32(event.params.replyId);
-  let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString());
+  let postId = event.params.postId;
+  let replyId = event.params.replyId;
+  let reply = Reply.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + replyId.toString());
   if (reply == null) return;
 
-  deleteReply(reply, event.params.postId);
+  let post = Post.load(idToIndexId(Network.Polygon, postId.toString()));
+  if (!post) {
+    logTransaction(Network.Polygon, event, event.params.user, 'ReplyDeleted', replyId, 0, false);
+    return;
+  }
+
+  deleteReply(reply, post, event.block.timestamp);
   reply.save();
 
-  let postId = event.params.postId;
   updatePostContent(postId);
   createHistory(reply, event, 'Reply', 'Delete');
 
-  let post = Post.load(event.params.postId.toString());
-  if(post){
-    post.lastmod = event.block.timestamp;
-    post.save();
-  }
-
   indexingPeriods();
-  logTransaction(event, event.params.user, 'ReplyDeleted', event.params.replyId, 0, post.communityId, event.params.postId);
+  logTransaction(Network.Polygon, event, event.params.user, 'ReplyDeleted', replyId, 0, true, post.communityId, postId);
 }
 
 export function handleNewComment(event: CommentCreated): void {
-  let commentId = BigInt.fromI32(event.params.commentId);
-  let parentReplyId = BigInt.fromI32(event.params.parentReplyId);
-  let comment = new Comment(event.params.postId.toString() + "-" + parentReplyId.toString() + "-" +  commentId.toString());
+  let postId = event.params.postId;
+  let commentId = event.params.commentId;
+  let parentReplyId = event.params.parentReplyId;
+  let comment = new Comment(idToIndexId(Network.Polygon, postId.toString()) + '-' + parentReplyId.toString() + '-' + commentId.toString());
 
-  newComment(comment, event.params.postId, BigInt.fromI32(event.params.parentReplyId), commentId);  //без конвертации
+  let post = Post.load(idToIndexId(Network.Polygon, postId.toString()));
+  if (!post) {
+    logTransaction(Network.Polygon, event, event.params.user, 'CommentCreated', parentReplyId, commentId, false);
+    return;
+  }
+
+  newComment(comment, post, parentReplyId, commentId);
   comment.save();
   createHistory(comment, event, 'Comment', 'Create');
-
-  let post = Post.load(event.params.postId.toString());
-  if(post){
-    post.lastmod = event.block.timestamp;
-    post.save();
-  }
+  
+  post.lastmod = event.block.timestamp;
+  post.save();
 
   indexingPeriods();
   logTransaction(
+    Network.Polygon,
     event,
     event.params.user,
     'CommentCreated',
-    event.params.parentReplyId,
-    event.params.commentId,
+    parentReplyId,
+    commentId,
+    true,
     post.communityId,
-    event.params.postId
+    postId
   );
 }
 
-export function handleEditedComment(event: CommentEdited): void { 
-  let commentId = BigInt.fromI32(event.params.commentId);
-  let parentReplyId = BigInt.fromI32(event.params.parentReplyId);
-  let comment = Comment.load(event.params.postId.toString() + "-" + parentReplyId.toString() + "-" +  commentId.toString());
+export function handleEditedComment(event: CommentEdited): void {
+  let postId = event.params.postId;
+  let parentReplyId = event.params.parentReplyId;  
+  let commentId = event.params.commentId;
+  let comment = Comment.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + parentReplyId.toString() + '-' + commentId.toString());
 
-  if (comment == null) {
-    comment = new Comment(event.params.postId.toString() + "-" + parentReplyId.toString() + "-" +  commentId.toString());
-    newComment(comment, event.params.postId, parentReplyId, commentId);
+  let post = Post.load(idToIndexId(Network.Polygon, postId.toString()));
+  if (!post) {
+    logTransaction(Network.Polygon, event, event.params.user, 'CommentEdited', parentReplyId, commentId, false);
+    return;
+  }
+  
+  if (!comment) {
+    comment = new Comment(post.id + '-' + parentReplyId.toString() + '-' + commentId.toString());
+    newComment(comment, post, parentReplyId, commentId);
   } else {
-    addDataToComment(comment, event.params.postId, parentReplyId, commentId);
+    addDataToComment(comment, postId, parentReplyId, commentId);
   }
 
   createHistory(comment, event, 'Comment', 'Edit');
   comment.save();
 
-  let postId = event.params.postId;
   updatePostContent(postId);
 
-  let post = Post.load(event.params.postId.toString());
-  if(post){
-    post.lastmod = event.block.timestamp;
-    post.save();
-  }
-
+  post.lastmod = event.block.timestamp;
+  post.save();
   indexingPeriods();
-  logTransaction(event,
+  logTransaction(
+    Network.Polygon, 
+    event,
     event.params.user,
     'CommentEdited',
-    event.params.parentReplyId,
-    event.params.commentId,
+    parentReplyId,
+    commentId,
+    true,
     post.communityId,
-    event.params.postId
+    postId
   );
 }
 
 export function handleDeletedComment(event: CommentDeleted): void {
-  let commentId = BigInt.fromI32(event.params.commentId);
-  let parentReplyId = BigInt.fromI32(event.params.parentReplyId);
-  let comment = Comment.load(event.params.postId.toString() + "-" + parentReplyId.toString() + "-" +  commentId.toString());
+  let postId = event.params.postId;
+  let commentId = event.params.commentId;
+  let parentReplyId = event.params.parentReplyId;
+  let comment = Comment.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + parentReplyId.toString() + '-' + commentId.toString());
   if (comment == null) return;
 
-  deleteComment(comment, event.params.postId);
+  let post = Post.load(idToIndexId(Network.Polygon, postId.toString()));
+  if (!post) {
+    logTransaction(Network.Polygon, event, event.params.user, 'CommentEdited', parentReplyId, commentId, false);
+    return;
+  }
+  post.lastmod = event.block.timestamp;
+  post.save();
+  
+  deleteComment(comment, post);
   comment.save();
 
-  let postId = event.params.postId;
   updatePostContent(postId);
   createHistory(comment, event, 'Comment', 'Delete');
 
-  let post = Post.load(event.params.postId.toString());
-  if(post){
-    post.lastmod = event.block.timestamp;
-    post.save();
-  }
-
   indexingPeriods();
-  logTransaction(event,
+  logTransaction(
+    Network.Polygon,
+    event,
     event.params.user,
     'CommentDeleted',
-    event.params.parentReplyId,
-    event.params.commentId,
+    parentReplyId,
+    commentId,
+    true,
     post.communityId,
-    event.params.postId
+    postId
   );
 }
 
 export function indexingPeriods(): void {
   let contractInfo = ContractInfo.load(USER_ADDRESS)
-  if (contractInfo == null) {
+  if (!contractInfo) {
     contractInfo = new ContractInfo(USER_ADDRESS)
     const periodInfo = getPeeranhaUser().getContractInformation();
     const deployTime = periodInfo.value0
@@ -498,46 +522,77 @@ export function indexingUserReward(period: i32): void {
 
 export function handleGetReward(event: GetReward): void {
   const userReward = UserReward.load(BigInt.fromI32(event.params.period).toString() + '-' + event.params.user.toHex());
-  if (userReward != null) {
-    userReward.isPaid = true;
-    userReward.save();
+  if (!userReward) {
+    logTransaction(Network.Polygon, event, event.params.user, 'GetReward', 0, 0, false);
+    return;
   }
 
-  logTransaction(event, event.params.user, 'GetReward', 0, 0);
+  userReward.isPaid = true;
+  userReward.save();
 }
 
 export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): void {
-  let post = Post.load(event.params.postId.toString())
-  let previousBestReply = 0;
-  if (post == null) {
-    post = new Post(event.params.postId.toString())
-    newPost(post, event.params.postId, event.block.timestamp);
-  } else {
-    previousBestReply = post.bestReply;
-    post.bestReply = event.params.replyId;
+  let postId = event.params.postId;
+  let post = Post.load(idToIndexId(Network.Polygon, postId.toString()));
+  if (!post) {
+    logTransaction(
+      Network.Polygon,
+      event,
+      event.params.user,
+      'StatusBestReplyChanged',
+      event.params.replyId,
+      0,
+      false,
+      '',
+      postId
+    );
+    return;
   }
+
+  let previousBestReply = post.bestReply;
+  post.bestReply = event.params.replyId;
   post.save();
   
   if (previousBestReply) {
     let previousReplyId = previousBestReply;
-    let previousReply = Reply.load(event.params.postId.toString() + "-" + previousReplyId.toString())
-
-    if (previousReply == null) {
-      newReply(previousReply, event.params.postId, previousReplyId, event.block.timestamp);
-    } else {
-      previousReply.isBestReply = false;
+    let previousReply = Reply.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + previousReplyId.toString());
+    if (!previousReply) {
+      logTransaction(
+        Network.Polygon,
+        event,
+        event.params.user,
+        'StatusBestReplyChanged',
+        event.params.replyId,
+        0,
+        false,
+        '',
+        postId
+      );
+      return;
     }
+
+    previousReply.isBestReply = false;
     updateUserRating(Address.fromString(previousReply.author), post.communityId);
     previousReply.save();
   }
 
-  let reply: Reply | null;
-  if (event.params.replyId != 0) {    // fix  (if reply does not exist -> getReply() call erray)
+  if (event.params.replyId != 0) {
     let replyId = event.params.replyId;
-    reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
+    let reply = Reply.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + replyId.toString());
 
-    if (reply == null) {
-      newReply(reply, event.params.postId, replyId, event.block.timestamp);
+    if (!reply) {
+      logTransaction(
+        Network.Polygon,
+        event,
+        event.params.user,
+        'StatusBestReplyChanged',
+        event.params.replyId,
+        0,
+        false,
+        '',
+        postId
+      );
+      return;
     }
 
     reply.isBestReply = true;
@@ -545,123 +600,129 @@ export function handlerChangedStatusBestReply(event: StatusBestReplyChanged): vo
       updateUserRating(Address.fromString(reply.author), post.communityId);
     }
     reply.save();
-  }
-  if (reply.author != post.author) {
-    updateUserRating(Address.fromString(post.author), post.communityId);
+
+    if (reply.author != post.author) {
+      updateUserRating(Address.fromString(post.author), post.communityId);
+    }
   }
 
   indexingPeriods();
   logTransaction(
+    Network.Polygon,
     event,
     event.params.user,
     'StatusBestReplyChanged',
     event.params.replyId,
     0,
+    true,
     post.communityId,
-    event.params.postId
+    postId
   );
 }
 
 export function handlerForumItemVoted(event: ForumItemVoted): void {    //  move this in another function with edit
-  let post = Post.load(event.params.postId.toString());
-  if (event.params.commentId != 0) {
-    let commentId = BigInt.fromI32(event.params.commentId);
-    let replyId = BigInt.fromI32(event.params.replyId);
-    let comment = Comment.load(event.params.postId.toString() + "-" + replyId.toString() + "-" +  commentId.toString());
+  let postId = event.params.postId;
+  let replyId = event.params.replyId;
+  let commentId = event.params.commentId;
+  let post = Post.load(idToIndexId(Network.Polygon, postId.toString()));
+  if (!post) {
+    logTransaction(Network.Polygon, event, event.params.user, FORUM_ITEM_VOTED_EVENT, replyId, commentId, false);
+    return;
+  }
 
-    if (comment == null) {
-      comment = new Comment(event.params.postId.toString() + "-" + replyId.toString() + "-" +  commentId.toString());
-      newComment(comment, event.params.postId, replyId, commentId);
-    } else {
-      let peeranhaComment = getPeeranhaContent().getComment(event.params.postId, replyId.toI32(), commentId.toI32());
-      if (peeranhaComment == null) return;
-      comment.rating = peeranhaComment.rating;
+  if (commentId != 0) {
+    let comment = Comment.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + replyId.toString() + '-' + commentId.toString());
+    let peeranhaComment = getPeeranhaContent().getComment(postId, replyId, commentId);
+    if (!comment || !peeranhaComment) {
+      logTransaction(Network.Polygon, event, event.params.user, FORUM_ITEM_VOTED_EVENT, replyId, commentId, false);
+      return;
     }
+
+    comment.rating = peeranhaComment.rating;
     comment.save();
     
-  } else if (event.params.replyId != 0) {
-    let replyId = event.params.replyId;
-    let reply = Reply.load(event.params.postId.toString() + "-" + replyId.toString())
-
-    if (reply == null) {
-      reply = new Reply(event.params.postId.toString() + "-" + replyId.toString());
-      newReply(reply, event.params.postId, replyId, event.block.timestamp);
-    } else {
-      let peeranhaReply = getPeeranhaContent().getReply(event.params.postId, replyId);
-      if (peeranhaReply == null) return;
-      reply.rating = peeranhaReply.rating;
+  } else if (replyId != 0) {
+    let reply = Reply.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + replyId.toString())
+    let peeranhaReply = getPeeranhaContent().getReply(postId, replyId);
+    if (!reply || !peeranhaReply) {
+      logTransaction(Network.Polygon, event, event.params.user, FORUM_ITEM_VOTED_EVENT, replyId, commentId, false);
+      return;
     }
 
+    reply.rating = peeranhaReply.rating;
     reply.save();
-    post = Post.load(reply.postId.toString())
+
     updateUserRating(Address.fromString(reply.author), post.communityId);
     updateUserRating(event.params.user, post.communityId);
   } else {
-    if (post == null) {
-      post = new Post(event.params.postId.toString())
-      newPost(post, event.params.postId, event.block.timestamp);
-    } else {
-      let peeranhaPost = getPeeranhaContent().getPost(event.params.postId);
-      if (peeranhaPost == null) return;
-      post.rating = peeranhaPost.rating;
+    let peeranhaPost = getPeeranhaContent().getPost(postId);
+    if (!peeranhaPost) {
+      logTransaction(Network.Polygon, event, event.params.user, FORUM_ITEM_VOTED_EVENT, replyId, commentId, false);
+      return;
     }
 
+    post.rating = peeranhaPost.rating;
     post.save();
+
     updateUserRating(Address.fromString(post.author), post.communityId);
     updateUserRating(event.params.user, post.communityId);
   }
 
   indexingPeriods();
   logTransaction(
+    Network.Polygon,
     event,
     event.params.user,
     FORUM_ITEM_VOTED_EVENT, 
-    event.params.replyId,
+    replyId,
     0,
+    true,
     post.communityId,
-    event.params.postId
+    postId
   );
 }
 
 export function handlerSetDocumentationTree(event: SetDocumentationTree): void {
-  const oldDocumentation = CommunityDocumentation.load(event.params.communityId.toString());
-
-  let communityDocumentation = getPeeranhaContent().getDocumentationTree(event.params.communityId);
+  let communityId = event.params.communityId;
+  const oldDocumentation = CommunityDocumentation.load(idToIndexId(Network.Polygon, communityId.toString()));
+  let communityDocumentation = getPeeranhaContent().getDocumentationTree(communityId);
 
   if (communityDocumentation.hash == new Address(0))
     return;
 
   let oldDocumentationIpfsHash: Bytes | null = null;
-  if (oldDocumentation != null){
-    if(oldDocumentation.ipfsHash == communityDocumentation.hash){
+  if (oldDocumentation){
+    if (oldDocumentation.ipfsHash === communityDocumentation.hash) {
       return;
     }
     oldDocumentationIpfsHash = oldDocumentation.ipfsHash;
   }
 
-  const documentation = new CommunityDocumentation(event.params.communityId.toString());
+  const documentation = new CommunityDocumentation(idToIndexId(Network.Polygon, communityId.toString()));
   documentation.ipfsHash = communityDocumentation.hash;
   documentation.save();
 
   generateDocumentationPosts(
-    event.params.communityId,
+    communityId,
     event.params.userAddr,
     event.block.timestamp,
     oldDocumentationIpfsHash,
     communityDocumentation.hash
   );
   
-  logTransaction(event, event.params.userAddr, 'SetDocumentationTree', 0, 0, event.params.communityId);
+  logTransaction(Network.Polygon, event, event.params.userAddr, 'SetDocumentationTree', 0, 0, true, idToIndexId(Network.Polygon, communityId.toString()));
 }
 
 function logTransaction(
+  network: Network,
   event: ethereum.Event,
   actionUser: Address,
   eventName: string,
   replyId: i32,
   commentId: i32,
-  communityId: BigInt | null = null,
-  postId: BigInt | null = null
+  status: boolean,
+  communityId: string | null = null,
+  postId: BigInt | null = null,
 ): void {
   let stat = new Statistic(event.transaction.hash.toHex());
 
@@ -678,70 +739,82 @@ function logTransaction(
     eventName === FORUM_ITEM_VOTED_EVENT
       ? event.parameters[4].value.toI32()
       : 0;
+  stat.status = status;
+  stat.network = network.toString();
 
   stat.save();
 }
 
 export function handlerCreatedTranslation(event: TranslationCreated): void {
-  const itemLanguage = BigInt.fromI32(event.params.language);
+  const itemLanguage = event.params.language;
   const postId = event.params.postId;
-  const replyId = BigInt.fromI32(event.params.replyId);
-  const commentId = BigInt.fromI32(event.params.commentId);
+  const replyId = event.params.replyId;
+  const commentId = event.params.commentId;
 
-  if (commentId != BigInt.fromI32(0)) {
-    let commentTranslation = new CommentTranslation(postId.toString() + "-" + replyId.toString() + "-" + commentId.toString() + "-" + itemLanguage.toString());
+  if (commentId != 0) {
+    let commentTranslation = new CommentTranslation(idToIndexId(Network.Polygon, postId.toString()) + "-" + replyId.toString() + "-" + commentId.toString() + "-" + itemLanguage.toString());
     newCommentTranslation(commentTranslation, postId, replyId, commentId, itemLanguage)
     commentTranslation.save();
     
-  } else if (replyId != BigInt.fromI32(0)) {
-    let replyTranslation = new ReplyTranslation(postId.toString() + "-" + replyId.toString() + "-0-" + itemLanguage.toString());
+  } else if (replyId != 0) {
+    let replyTranslation = new ReplyTranslation(idToIndexId(Network.Polygon, postId.toString()) + "-" + replyId.toString() + "-" + itemLanguage.toString());
     newReplyTranslation(replyTranslation, postId, replyId, itemLanguage)
     replyTranslation.save();
 
   } else { 
-    let postTranslation = new PostTranslation(postId.toString() + "-0-0-" + itemLanguage.toString());
+    let postTranslation = new PostTranslation(idToIndexId(Network.Polygon, postId.toString()) + "-" + itemLanguage.toString());
     newPostTranslation(postTranslation, postId, itemLanguage)
     postTranslation.save();
   }
+
   indexingPeriods();
+  logTransaction(Network.Polygon, event, event.params.user, 'TranslationCreated', replyId, commentId, true, null, postId);
 }
 
 export function handlerEditTranslation(event: TranslationEdited): void {
-  const itemLanguage = BigInt.fromI32(event.params.language);
+  const itemLanguage = event.params.language;
   const postId = event.params.postId;
-  const replyId = BigInt.fromI32(event.params.replyId);
-  const commentId = BigInt.fromI32(event.params.commentId);
+  const replyId = event.params.replyId;
+  const commentId = event.params.commentId;
 
-  if (commentId != BigInt.fromI32(0)) {
-    let commentTranslation = new CommentTranslation(postId.toString() + "-" + replyId.toString() + "-" + commentId.toString() + "-" + itemLanguage.toString());
-    addDataToCommentTranslation(commentTranslation, postId, replyId, commentId, itemLanguage)
-    commentTranslation.save();
+  if (commentId != 0) {
+    let commentTranslation = CommentTranslation.load(idToIndexId(Network.Polygon, postId.toString()) + "-" + replyId.toString() + "-" + commentId.toString() + "-" + itemLanguage.toString());
+    if (commentTranslation != null) {
+      addDataToCommentTranslation(commentTranslation, postId, replyId, commentId, itemLanguage)
+      commentTranslation.save();
+    }
 
-  } else if (replyId != BigInt.fromI32(0)) {
-    let replyTranslation = new ReplyTranslation(postId.toString() + "-" + replyId.toString() + "-0-" + itemLanguage.toString());
-    addDataToReplyTranslation(replyTranslation, postId, replyId, itemLanguage)
-    replyTranslation.save();
+  } else if (replyId != 0) {
+    let replyTranslation = ReplyTranslation.load(idToIndexId(Network.Polygon, postId.toString()) + "-" + replyId.toString() + "-" + itemLanguage.toString());
+    if (replyTranslation != null) {
+      addDataToReplyTranslation(replyTranslation, postId, replyId, itemLanguage)
+      replyTranslation.save();
+    }
 
   } else {  
-    let postTranslation = new PostTranslation(postId.toString() + "-0-0-" + itemLanguage.toString());
-    addDataToPostTranslation(postTranslation, postId, itemLanguage)
-    postTranslation.save();
+    let postTranslation = PostTranslation.load(idToIndexId(Network.Polygon, postId.toString()) + "-" + itemLanguage.toString());
+    if (postTranslation != null) {
+      addDataToPostTranslation(postTranslation, postId, itemLanguage)
+      postTranslation.save();
+    }
   }
+
   updatePostContent(postId);
   indexingPeriods();
+  logTransaction(Network.Polygon, event, event.params.user, 'TranslationEdited', replyId, commentId, true, null, postId);
 }
 
 export function handlerDeleteTranslation(event: TranslationDeleted): void {
-  const itemLanguage = BigInt.fromI32(event.params.language);
+  const itemLanguage = event.params.language;
   const postId = event.params.postId;
-  const replyId = BigInt.fromI32(event.params.replyId);
-  const commentId = BigInt.fromI32(event.params.commentId);
+  const replyId = event.params.replyId;
+  const commentId = event.params.commentId;
 
-  if (commentId != BigInt.fromI32(0)) {
+  if (commentId != 0) {
     let id = postId.toString() + "-" + replyId.toString() + "-" + commentId.toString() + "-" + itemLanguage.toString();
     store.remove('CommentTranslation', id);
 
-  } else if (replyId != BigInt.fromI32(0)) {
+  } else if (replyId != 0) {
     let id = postId.toString() + "-" + replyId.toString() + "-0-" + itemLanguage.toString();
     store.remove('ReplyTranslation', id);
 
@@ -749,6 +822,8 @@ export function handlerDeleteTranslation(event: TranslationDeleted): void {
     let id = postId.toString() + "-0-0-" + itemLanguage.toString();
     store.remove('PostTranslation', id);
   }
+
   updatePostContent(postId);
   indexingPeriods();
+  logTransaction(Network.Polygon, event, event.params.user, 'TranslationDeleted', replyId, commentId, true, null, postId);
 }
