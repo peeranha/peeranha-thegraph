@@ -758,7 +758,7 @@ export function generateDocumentationPosts(
     if(newPosts[index] !== "" && listCreatePosts.indexOf(newPosts[index]) === -1){ 
       let post = new Post(idToIndexId(Network.Polygon, newPosts[index]));
       post.author = userAddr.toHex();
-      post.communityId = idToIndexId(Network.Polygon, newPosts[index]);
+      post.communityId = community.id;
       post.lastmod = lastmodTimestamp;
       post.isDeleted = false;
       post.postType = PostType.Documentation;
