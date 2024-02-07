@@ -13,11 +13,11 @@
     "deploy:test2": "npm run prepare:test2 & graph deploy --product hosted-service peeranha/peeranha-test-2",
     "deploy:test3": "npm run prepare:test3 & graph deploy --product hosted-service peeranha/peeranha-test-3",
     "deploy:staging": "npm run prepare:staging & graph deploy --product hosted-service peeranha/peeranha-staging",
-    "deploy:prod": "npm run prepare:prod & graph deploy --product hosted-service peeranha/peeranha",
+    "deploy:prod": "npm run prepare:prod & graph deploy --studio peeranha",
     "auth": "graph auth --product hosted-service <ACCESS_TOKEN>"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "^0.64.0",
+    "@graphprotocol/graph-cli": "^0.67.4",
     "@graphprotocol/ipfs-sync": "^0.2.0",
     "assemblyscript": "^0.21.6",
     "bs58": "^4.0.1"
