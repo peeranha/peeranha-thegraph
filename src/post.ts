@@ -25,6 +25,7 @@ export function newPost(post: Post, postId: BigInt, blockTimeStamp: BigInt): voi
   post.tags = [];
   post.postContent = '';
   post.title = '';
+  post.content = '';
   post.networkId = Network.Polygon;
 
   const messengerUserDataResult = getPeeranhaContent().try_getItemProperty(ItemProperties.MessengerSender, postId, 0, 0);
