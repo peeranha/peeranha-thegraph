@@ -48,7 +48,7 @@ export function handleConfigureNewAchievement(event: ConfigureNewAchievementNFT)
 // can be error when remove
 ///
 export function handleTransferNFT(event: Transfer): void {
-  let id : BigInt = (event.params.tokenId.div(BigInt.fromI32(POOL_NFT))).plus(BigInt.fromI32(1)); // (a / b) + c
+  let id: BigInt = (event.params.tokenId.div(BigInt.fromI32(POOL_NFT))).plus(BigInt.fromI32(1)); // (a / b) + c
   let achievement = Achievement.load(idToIndexId(Network.Polygon, id.toString()));
   let user = User.load(event.params.to.toHex());
   if (!achievement || !user) {

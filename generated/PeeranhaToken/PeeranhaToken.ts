@@ -7,7 +7,7 @@ import {
   Entity,
   Bytes,
   Address,
-  BigInt
+  BigInt,
 } from "@graphprotocol/graph-ts";
 
 export class Approval extends ethereum.Event {
@@ -266,7 +266,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.call(
       "ACTIVE_USERS_IN_PERIOD",
       "ACTIVE_USERS_IN_PERIOD():(uint256)",
-      []
+      [],
     );
 
     return result[0].toBigInt();
@@ -276,7 +276,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.tryCall(
       "ACTIVE_USERS_IN_PERIOD",
       "ACTIVE_USERS_IN_PERIOD():(uint256)",
-      []
+      [],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -289,7 +289,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.call(
       "DEFAULT_ADMIN_ROLE",
       "DEFAULT_ADMIN_ROLE():(bytes32)",
-      []
+      [],
     );
 
     return result[0].toBytes();
@@ -299,7 +299,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.tryCall(
       "DEFAULT_ADMIN_ROLE",
       "DEFAULT_ADMIN_ROLE():(bytes32)",
-      []
+      [],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -318,7 +318,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.tryCall(
       "DEPOSITOR_ROLE",
       "DEPOSITOR_ROLE():(bytes32)",
-      []
+      [],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -337,7 +337,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.tryCall(
       "ERC712_VERSION",
       "ERC712_VERSION():(string)",
-      []
+      [],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -365,7 +365,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.call(
       "MAX_REWARD_PER_PERIOD",
       "MAX_REWARD_PER_PERIOD():(uint256)",
-      []
+      [],
     );
 
     return result[0].toBigInt();
@@ -375,7 +375,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.tryCall(
       "MAX_REWARD_PER_PERIOD",
       "MAX_REWARD_PER_PERIOD():(uint256)",
-      []
+      [],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -388,7 +388,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.call(
       "MAX_REWARD_PER_USER",
       "MAX_REWARD_PER_USER():(uint256)",
-      []
+      [],
     );
 
     return result[0].toBigInt();
@@ -398,7 +398,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.tryCall(
       "MAX_REWARD_PER_USER",
       "MAX_REWARD_PER_USER():(uint256)",
-      []
+      [],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -411,7 +411,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.call(
       "MAX_TOTAL_SUPPLY",
       "MAX_TOTAL_SUPPLY():(uint256)",
-      []
+      [],
     );
 
     return result[0].toBigInt();
@@ -421,7 +421,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.tryCall(
       "MAX_TOTAL_SUPPLY",
       "MAX_TOTAL_SUPPLY():(uint256)",
-      []
+      [],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -434,7 +434,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.call(
       "OWNER_MINTER_ROLE",
       "OWNER_MINTER_ROLE():(bytes32)",
-      []
+      [],
     );
 
     return result[0].toBytes();
@@ -444,7 +444,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.tryCall(
       "OWNER_MINTER_ROLE",
       "OWNER_MINTER_ROLE():(bytes32)",
-      []
+      [],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -463,7 +463,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.tryCall(
       "OWNER_MINT_MAX",
       "OWNER_MINT_MAX():(uint256)",
-      []
+      [],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -476,7 +476,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.call(
       "allowance",
       "allowance(address,address):(uint256)",
-      [ethereum.Value.fromAddress(owner), ethereum.Value.fromAddress(spender)]
+      [ethereum.Value.fromAddress(owner), ethereum.Value.fromAddress(spender)],
     );
 
     return result[0].toBigInt();
@@ -486,7 +486,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.tryCall(
       "allowance",
       "allowance(address,address):(uint256)",
-      [ethereum.Value.fromAddress(owner), ethereum.Value.fromAddress(spender)]
+      [ethereum.Value.fromAddress(owner), ethereum.Value.fromAddress(spender)],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -498,7 +498,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
   approve(spender: Address, amount: BigInt): boolean {
     let result = super.call("approve", "approve(address,uint256):(bool)", [
       ethereum.Value.fromAddress(spender),
-      ethereum.Value.fromUnsignedBigInt(amount)
+      ethereum.Value.fromUnsignedBigInt(amount),
     ]);
 
     return result[0].toBoolean();
@@ -507,7 +507,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
   try_approve(spender: Address, amount: BigInt): ethereum.CallResult<boolean> {
     let result = super.tryCall("approve", "approve(address,uint256):(bool)", [
       ethereum.Value.fromAddress(spender),
-      ethereum.Value.fromUnsignedBigInt(amount)
+      ethereum.Value.fromUnsignedBigInt(amount),
     ]);
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -520,7 +520,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.call(
       "availableBalanceOf",
       "availableBalanceOf(address):(uint256)",
-      [ethereum.Value.fromAddress(account)]
+      [ethereum.Value.fromAddress(account)],
     );
 
     return result[0].toBigInt();
@@ -530,7 +530,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.tryCall(
       "availableBalanceOf",
       "availableBalanceOf(address):(uint256)",
-      [ethereum.Value.fromAddress(account)]
+      [ethereum.Value.fromAddress(account)],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -541,7 +541,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
 
   balanceOf(account: Address): BigInt {
     let result = super.call("balanceOf", "balanceOf(address):(uint256)", [
-      ethereum.Value.fromAddress(account)
+      ethereum.Value.fromAddress(account),
     ]);
 
     return result[0].toBigInt();
@@ -549,7 +549,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
 
   try_balanceOf(account: Address): ethereum.CallResult<BigInt> {
     let result = super.tryCall("balanceOf", "balanceOf(address):(uint256)", [
-      ethereum.Value.fromAddress(account)
+      ethereum.Value.fromAddress(account),
     ]);
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -594,8 +594,8 @@ export class PeeranhaToken extends ethereum.SmartContract {
       "decreaseAllowance(address,uint256):(bool)",
       [
         ethereum.Value.fromAddress(spender),
-        ethereum.Value.fromUnsignedBigInt(subtractedValue)
-      ]
+        ethereum.Value.fromUnsignedBigInt(subtractedValue),
+      ],
     );
 
     return result[0].toBoolean();
@@ -603,15 +603,15 @@ export class PeeranhaToken extends ethereum.SmartContract {
 
   try_decreaseAllowance(
     spender: Address,
-    subtractedValue: BigInt
+    subtractedValue: BigInt,
   ): ethereum.CallResult<boolean> {
     let result = super.tryCall(
       "decreaseAllowance",
       "decreaseAllowance(address,uint256):(bool)",
       [
         ethereum.Value.fromAddress(spender),
-        ethereum.Value.fromUnsignedBigInt(subtractedValue)
-      ]
+        ethereum.Value.fromUnsignedBigInt(subtractedValue),
+      ],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -624,7 +624,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.call(
       "getAverageStake",
       "getAverageStake(uint16):(uint256)",
-      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(findingPeriod))]
+      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(findingPeriod))],
     );
 
     return result[0].toBigInt();
@@ -634,7 +634,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.tryCall(
       "getAverageStake",
       "getAverageStake(uint16):(uint256)",
-      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(findingPeriod))]
+      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(findingPeriod))],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -646,7 +646,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
   getBoost(user: Address, period: i32): BigInt {
     let result = super.call("getBoost", "getBoost(address,uint16):(uint256)", [
       ethereum.Value.fromAddress(user),
-      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(period))
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(period)),
     ]);
 
     return result[0].toBigInt();
@@ -658,8 +658,8 @@ export class PeeranhaToken extends ethereum.SmartContract {
       "getBoost(address,uint16):(uint256)",
       [
         ethereum.Value.fromAddress(user),
-        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(period))
-      ]
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(period)),
+      ],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -687,7 +687,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.call(
       "getDomainSeperator",
       "getDomainSeperator():(bytes32)",
-      []
+      [],
     );
 
     return result[0].toBytes();
@@ -697,7 +697,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.tryCall(
       "getDomainSeperator",
       "getDomainSeperator():(bytes32)",
-      []
+      [],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -708,7 +708,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
 
   getNonce(user: Address): BigInt {
     let result = super.call("getNonce", "getNonce(address):(uint256)", [
-      ethereum.Value.fromAddress(user)
+      ethereum.Value.fromAddress(user),
     ]);
 
     return result[0].toBigInt();
@@ -716,7 +716,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
 
   try_getNonce(user: Address): ethereum.CallResult<BigInt> {
     let result = super.tryCall("getNonce", "getNonce(address):(uint256)", [
-      ethereum.Value.fromAddress(user)
+      ethereum.Value.fromAddress(user),
     ]);
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -727,7 +727,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
 
   getRoleAdmin(role: Bytes): Bytes {
     let result = super.call("getRoleAdmin", "getRoleAdmin(bytes32):(bytes32)", [
-      ethereum.Value.fromFixedBytes(role)
+      ethereum.Value.fromFixedBytes(role),
     ]);
 
     return result[0].toBytes();
@@ -737,7 +737,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.tryCall(
       "getRoleAdmin",
       "getRoleAdmin(bytes32):(bytes32)",
-      [ethereum.Value.fromFixedBytes(role)]
+      [ethereum.Value.fromFixedBytes(role)],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -752,8 +752,8 @@ export class PeeranhaToken extends ethereum.SmartContract {
       "getRoleMember(bytes32,uint256):(address)",
       [
         ethereum.Value.fromFixedBytes(role),
-        ethereum.Value.fromUnsignedBigInt(index)
-      ]
+        ethereum.Value.fromUnsignedBigInt(index),
+      ],
     );
 
     return result[0].toAddress();
@@ -765,8 +765,8 @@ export class PeeranhaToken extends ethereum.SmartContract {
       "getRoleMember(bytes32,uint256):(address)",
       [
         ethereum.Value.fromFixedBytes(role),
-        ethereum.Value.fromUnsignedBigInt(index)
-      ]
+        ethereum.Value.fromUnsignedBigInt(index),
+      ],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -779,7 +779,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.call(
       "getRoleMemberCount",
       "getRoleMemberCount(bytes32):(uint256)",
-      [ethereum.Value.fromFixedBytes(role)]
+      [ethereum.Value.fromFixedBytes(role)],
     );
 
     return result[0].toBigInt();
@@ -789,7 +789,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.tryCall(
       "getRoleMemberCount",
       "getRoleMemberCount(bytes32):(uint256)",
-      [ethereum.Value.fromFixedBytes(role)]
+      [ethereum.Value.fromFixedBytes(role)],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -800,22 +800,22 @@ export class PeeranhaToken extends ethereum.SmartContract {
 
   getStake(findingPeriod: i32): PeeranhaToken__getStakeResult {
     let result = super.call("getStake", "getStake(uint16):(uint256,uint64)", [
-      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(findingPeriod))
+      ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(findingPeriod)),
     ]);
 
     return new PeeranhaToken__getStakeResult(
       result[0].toBigInt(),
-      result[1].toBigInt()
+      result[1].toBigInt(),
     );
   }
 
   try_getStake(
-    findingPeriod: i32
+    findingPeriod: i32,
   ): ethereum.CallResult<PeeranhaToken__getStakeResult> {
     let result = super.tryCall(
       "getStake",
       "getStake(uint16):(uint256,uint64)",
-      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(findingPeriod))]
+      [ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(findingPeriod))],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -824,8 +824,8 @@ export class PeeranhaToken extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(
       new PeeranhaToken__getStakeResult(
         value[0].toBigInt(),
-        value[1].toBigInt()
-      )
+        value[1].toBigInt(),
+      ),
     );
   }
 
@@ -833,7 +833,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.call(
       "getStakeTotalPeriods",
       "getStakeTotalPeriods():(uint16[])",
-      []
+      [],
     );
 
     return result[0].toI32Array();
@@ -843,7 +843,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.tryCall(
       "getStakeTotalPeriods",
       "getStakeTotalPeriods():(uint16[])",
-      []
+      [],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -856,7 +856,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.call(
       "getStakeUserPeriods",
       "getStakeUserPeriods(address):(uint16[])",
-      [ethereum.Value.fromAddress(user)]
+      [ethereum.Value.fromAddress(user)],
     );
 
     return result[0].toI32Array();
@@ -866,7 +866,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.tryCall(
       "getStakeUserPeriods",
       "getStakeUserPeriods(address):(uint16[])",
-      [ethereum.Value.fromAddress(user)]
+      [ethereum.Value.fromAddress(user)],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -881,8 +881,8 @@ export class PeeranhaToken extends ethereum.SmartContract {
       "getUserRewardGraph(address,uint16):(uint256)",
       [
         ethereum.Value.fromAddress(user),
-        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(period))
-      ]
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(period)),
+      ],
     );
 
     return result[0].toBigInt();
@@ -890,15 +890,15 @@ export class PeeranhaToken extends ethereum.SmartContract {
 
   try_getUserRewardGraph(
     user: Address,
-    period: i32
+    period: i32,
   ): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
       "getUserRewardGraph",
       "getUserRewardGraph(address,uint16):(uint256)",
       [
         ethereum.Value.fromAddress(user),
-        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(period))
-      ]
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(period)),
+      ],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -913,8 +913,8 @@ export class PeeranhaToken extends ethereum.SmartContract {
       "getUserStake(address,uint16):(uint256)",
       [
         ethereum.Value.fromAddress(user),
-        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(findingPeriod))
-      ]
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(findingPeriod)),
+      ],
     );
 
     return result[0].toBigInt();
@@ -922,15 +922,15 @@ export class PeeranhaToken extends ethereum.SmartContract {
 
   try_getUserStake(
     user: Address,
-    findingPeriod: i32
+    findingPeriod: i32,
   ): ethereum.CallResult<BigInt> {
     let result = super.tryCall(
       "getUserStake",
       "getUserStake(address,uint16):(uint256)",
       [
         ethereum.Value.fromAddress(user),
-        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(findingPeriod))
-      ]
+        ethereum.Value.fromUnsignedBigInt(BigInt.fromI32(findingPeriod)),
+      ],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -957,7 +957,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
   hasRole(role: Bytes, account: Address): boolean {
     let result = super.call("hasRole", "hasRole(bytes32,address):(bool)", [
       ethereum.Value.fromFixedBytes(role),
-      ethereum.Value.fromAddress(account)
+      ethereum.Value.fromAddress(account),
     ]);
 
     return result[0].toBoolean();
@@ -966,7 +966,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
   try_hasRole(role: Bytes, account: Address): ethereum.CallResult<boolean> {
     let result = super.tryCall("hasRole", "hasRole(bytes32,address):(bool)", [
       ethereum.Value.fromFixedBytes(role),
-      ethereum.Value.fromAddress(account)
+      ethereum.Value.fromAddress(account),
     ]);
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -981,8 +981,8 @@ export class PeeranhaToken extends ethereum.SmartContract {
       "increaseAllowance(address,uint256):(bool)",
       [
         ethereum.Value.fromAddress(spender),
-        ethereum.Value.fromUnsignedBigInt(addedValue)
-      ]
+        ethereum.Value.fromUnsignedBigInt(addedValue),
+      ],
     );
 
     return result[0].toBoolean();
@@ -990,15 +990,15 @@ export class PeeranhaToken extends ethereum.SmartContract {
 
   try_increaseAllowance(
     spender: Address,
-    addedValue: BigInt
+    addedValue: BigInt,
   ): ethereum.CallResult<boolean> {
     let result = super.tryCall(
       "increaseAllowance",
       "increaseAllowance(address,uint256):(bool)",
       [
         ethereum.Value.fromAddress(spender),
-        ethereum.Value.fromUnsignedBigInt(addedValue)
-      ]
+        ethereum.Value.fromUnsignedBigInt(addedValue),
+      ],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -1041,7 +1041,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.call(
       "supportsInterface",
       "supportsInterface(bytes4):(bool)",
-      [ethereum.Value.fromFixedBytes(interfaceId)]
+      [ethereum.Value.fromFixedBytes(interfaceId)],
     );
 
     return result[0].toBoolean();
@@ -1051,7 +1051,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
     let result = super.tryCall(
       "supportsInterface",
       "supportsInterface(bytes4):(bool)",
-      [ethereum.Value.fromFixedBytes(interfaceId)]
+      [ethereum.Value.fromFixedBytes(interfaceId)],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -1093,7 +1093,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
   transfer(to: Address, amount: BigInt): boolean {
     let result = super.call("transfer", "transfer(address,uint256):(bool)", [
       ethereum.Value.fromAddress(to),
-      ethereum.Value.fromUnsignedBigInt(amount)
+      ethereum.Value.fromUnsignedBigInt(amount),
     ]);
 
     return result[0].toBoolean();
@@ -1102,7 +1102,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
   try_transfer(to: Address, amount: BigInt): ethereum.CallResult<boolean> {
     let result = super.tryCall("transfer", "transfer(address,uint256):(bool)", [
       ethereum.Value.fromAddress(to),
-      ethereum.Value.fromUnsignedBigInt(amount)
+      ethereum.Value.fromUnsignedBigInt(amount),
     ]);
     if (result.reverted) {
       return new ethereum.CallResult();
@@ -1118,8 +1118,8 @@ export class PeeranhaToken extends ethereum.SmartContract {
       [
         ethereum.Value.fromAddress(from),
         ethereum.Value.fromAddress(to),
-        ethereum.Value.fromUnsignedBigInt(amount)
-      ]
+        ethereum.Value.fromUnsignedBigInt(amount),
+      ],
     );
 
     return result[0].toBoolean();
@@ -1128,7 +1128,7 @@ export class PeeranhaToken extends ethereum.SmartContract {
   try_transferFrom(
     from: Address,
     to: Address,
-    amount: BigInt
+    amount: BigInt,
   ): ethereum.CallResult<boolean> {
     let result = super.tryCall(
       "transferFrom",
@@ -1136,8 +1136,8 @@ export class PeeranhaToken extends ethereum.SmartContract {
       [
         ethereum.Value.fromAddress(from),
         ethereum.Value.fromAddress(to),
-        ethereum.Value.fromUnsignedBigInt(amount)
-      ]
+        ethereum.Value.fromUnsignedBigInt(amount),
+      ],
     );
     if (result.reverted) {
       return new ethereum.CallResult();
