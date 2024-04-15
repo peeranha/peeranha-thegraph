@@ -1,9 +1,9 @@
 {
-  "network": "mumbai",
-  "userAddress": "0x9b53B80F03D4191Be79085C07FfEdDa3671f6A46",
-  "communityAddress": "0x11C0eAF9B163caECa5DA9932187892e72f508b97",
-  "contentAddress": "0xfC65F146B6a7ED57E802E5E1F9aD329F40D26d3B",
-  "tokenAddress": "0xbCf7A789abC7f6D8aAEf378586326668757b7216",
-  "nftAddress": "0x06B65F0583F4D9E534fc96EA0D777fC7267a0bF3",
-  "startBlock": 28738784
+  "network": "polygon-amoy",
+  "userAddress": "0x429593CE195204F86886B38FAdf25635c632eCa4",
+  "communityAddress": "0x9875C65Fc23794D8Fc79C3e514C13787f824E96b",
+  "contentAddress": "0xb98d7D3B3ea8fa34354b6DD24aED50e3BA02aD7A",
+  "tokenAddress": "0xcA5fFC540fA933ccA1Bc06F566AAd96320D82966",
+  "nftAddress": "0xAd963127b0d4e343F427102F5441d6446F2e7b20",
+  "startBlock": 5854900
 }
