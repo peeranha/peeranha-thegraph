@@ -12,7 +12,7 @@
     "deploy:test1": "npm run prepare:test1 & graph deploy --studio peeranha-amoy",
     "deploy:test2": "npm run prepare:test2 & graph deploy --product hosted-service peeranha/peeranha-test-2",
     "deploy:test3": "npm run prepare:test3 & graph deploy --product hosted-service peeranha/peeranha-test-3",
-    "deploy:staging": "npm run prepare:staging & graph deploy --product hosted-service freitag-fri/tpeeranha2",
+    "deploy:staging": "npm run prepare:staging & graph deploy --studio peeranha-amoy-staging",
     "deploy:prod": "npm run prepare:prod & graph deploy --studio peeranha",
     "auth": "graph auth --product hosted-service <ACCESS_TOKEN>"
   },
