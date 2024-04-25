@@ -14,7 +14,7 @@
     "deploy:test3": "npm run prepare:test3 & graph deploy --product hosted-service peeranha/peeranha-test-3",
     "deploy:staging": "npm run prepare:staging & graph deploy --studio peeranha-amoy-staging",
     "deploy:prod": "npm run prepare:prod & graph deploy --studio peeranha",
-    "auth": "graph auth --product hosted-service <ACCESS_TOKEN>"
+    "auth": "graph auth --studio <ACCESS_TOKEN>"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "^0.69.2",
