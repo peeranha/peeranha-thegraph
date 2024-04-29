@@ -9,15 +9,15 @@
     "prepare:test3": "mustache config/test3.json subgraph.template.yaml > subgraph.yaml & mustache config/test3.json src/config.template.ts > src/config.ts",
     "prepare:staging": "mustache config/staging.json subgraph.template.yaml > subgraph.yaml & mustache config/staging.json src/config.template.ts > src/config.ts",
     "prepare:prod": "mustache config/prod.json subgraph.template.yaml > subgraph.yaml > subgraph.yaml & mustache config/prod.json src/config.template.ts > src/config.ts",
-    "deploy:test1": "npm run prepare:test1 & graph deploy --product hosted-service freitag-fri/tpeeranha2",
+    "deploy:test1": "npm run prepare:test1 & graph deploy --studio peeranha-amoy",
     "deploy:test2": "npm run prepare:test2 & graph deploy --product hosted-service peeranha/peeranha-test-2",
     "deploy:test3": "npm run prepare:test3 & graph deploy --product hosted-service peeranha/peeranha-test-3",
-    "deploy:staging": "npm run prepare:staging & graph deploy --product hosted-service freitag-fri/tpeeranha2",
+    "deploy:staging": "npm run prepare:staging & graph deploy --studio peeranha-amoy-staging",
     "deploy:prod": "npm run prepare:prod & graph deploy --studio peeranha",
-    "auth": "graph auth --product hosted-service <ACCESS_TOKEN>"
+    "auth": "graph auth --studio <ACCESS_TOKEN>"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "^0.68.5",
+    "@graphprotocol/graph-cli": "^0.69.2",
     "@graphprotocol/ipfs-sync": "^0.2.0",
     "assemblyscript": "^0.21.6",
     "bs58": "^4.0.1"
