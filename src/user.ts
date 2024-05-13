@@ -35,6 +35,7 @@ export function banCommunityUser(userCommunityBan: UserCommunityBan, user: User,
   for (let i = 0; i < userPostsLength; i++) {
     const post = Post.load(user.posts[i]);
     if (post) {
+      //We can check here that post is not deleted (for future)
       if(post.communityId == communityId) {
         post.isDeleted = true;
         post.save();
@@ -49,7 +50,7 @@ export function banCommunityUser(userCommunityBan: UserCommunityBan, user: User,
     const reply = Reply.load(user.replies[i]);
     if (reply) {
       const post = Post.load(reply.postId);
-      if (post) {
+      if (post) { //We can check here that post is not deleted (for future)
         if (post.communityId == communityId) {
           reply.isDeleted = true;
           reply.save();
@@ -68,6 +69,7 @@ export function banCommunityUser(userCommunityBan: UserCommunityBan, user: User,
     if (comment) {
       const post = Post.load(comment.postId);
       if (post) {
+        // We can check here that post is not deleted (for future)
         if (post.communityId == communityId) {
           comment.isDeleted = true;
           comment.save();
