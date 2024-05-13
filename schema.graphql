@@ -14,6 +14,9 @@ type User @entity {
   ipfsHash2: Bytes
   followedCommunities: [String!]!
   achievements: [Achievement!]!
+  posts: [String!]!
+  replies: [String!]!
+  comments: [String!]!
 }
 
 type UserCommunityRating @entity {
@@ -27,6 +30,12 @@ type UserPermission @entity {
   id: ID!
   user: User
   permission: String
+}
+
+type UserCommunityBan @entity {
+  id: ID!
+  user: User
+  communityId: String
 }
 
 type Community @entity {
@@ -137,7 +146,7 @@ type Reply @entity {
   author: User!
   rating: Int
   postTime: BigInt
-  postId: String
+  postId: String!
   parentReplyId: Int
   content: String!
   commentCount: Int
@@ -170,7 +179,7 @@ type Comment @entity {
   author: User!
   rating: Int
   postTime: BigInt
-  postId: String
+  postId: String!
   parentReplyId: Int
   content: String!
   isDeleted: Boolean

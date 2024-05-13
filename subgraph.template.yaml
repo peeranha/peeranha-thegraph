@@ -37,6 +37,8 @@ dataSources:
           handler: handlerGrantedRole
         - event: RoleRevoked(indexed bytes32,indexed address,indexed address)
           handler: handlerRevokedRole
+        - event: BanCommunityUser(indexed address,indexed address,indexed uint32)
+          handler: handleBanCommunityUser
       file: ./src/mapping.ts
 
   - kind: ethereum/contract
