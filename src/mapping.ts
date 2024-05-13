@@ -1,5 +1,5 @@
 import { Address, BigInt, Bytes, log, store, ethereum } from '@graphprotocol/graph-ts'
-import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity, RoleGranted, RoleRevoked } from '../generated/PeeranhaUser/PeeranhaUser'
+import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity, RoleGranted, RoleRevoked, BanCommunityUser } from '../generated/PeeranhaUser/PeeranhaUser'
 import { 
   CommunityCreated, CommunityUpdated, CommunityFrozen, CommunityUnfrozen,
   TagCreated, TagUpdated
@@ -15,7 +15,7 @@ import { PostCreated, PostEdited, PostDeleted,
 import { GetReward } from '../generated/PeeranhaToken/PeeranhaToken'
 import { 
   User, Community, Tag, Post, Reply, Comment, Achievement, ContractInfo, UserReward, Period, History, UserPermission, CommunityDocumentation,
-  PostTranslation, ReplyTranslation, CommentTranslation, Statistic
+  PostTranslation, ReplyTranslation, CommentTranslation, Statistic, UserCommunityBan
 } from '../generated/schema'
 import { USER_ADDRESS } from './config'
 import { getPeeranhaUser, getPeeranhaToken, getPeeranhaContent, PostType, idToIndexId, Network } from './utils';
@@ -25,43 +25,13 @@ import { newPost, addDataToPost, deletePost, newReply, addDataToReply, deleteRep
   addDataToPostTranslation, addDataToReplyTranslation, addDataToCommentTranslation,
   newComment, addDataToComment, deleteComment, updatePostContent, updatePostUsersRatings, generateDocumentationPosts } from './post'
 import { newCommunity, addDataToCommunity, newTag, addDataToTag, getCommunity } from './community-tag'
-import { newUser, addDataToUser, updateUserRating, getUser } from './user'
+import { newUser, addDataToUser, updateUserRating, getUser, banCommunityUser } from './user'
 import { addDataToAchievement, giveAchievement, newAchievement } from './achievement'
 import { ConfigureNewAchievementNFT, Transfer } from '../generated/PeeranhaNFT/PeeranhaNFT'
 
 const POOL_NFT = 1000000;
 
 const FORUM_ITEM_VOTED_EVENT = 'ForumItemVoted';
-  
-export function handleConfigureNewAchievement(event: ConfigureNewAchievementNFT): void {
-  let achievement = new Achievement(idToIndexId(Network.Polygon, event.params.achievementId.toString()));
-  newAchievement(achievement, event.params.achievementId);
-
-  achievement.save();
-
-  logTransaction(Network.Polygon, event, Address.zero(), 'ConfigureAchievement', 0, 0, true);
-}
-
-///
-// TODO remove NFT
-// indexing all users?   if (!user) return;
-// can be error when remove
-///
-export function handleTransferNFT(event: Transfer): void {
-  let id: BigInt = (event.params.tokenId.div(BigInt.fromI32(POOL_NFT))).plus(BigInt.fromI32(1)); // (a / b) + c
-  let achievement = Achievement.load(idToIndexId(Network.Polygon, id.toString()));
-  let user = User.load(event.params.to.toHex());
-  if (!achievement || !user) {
-    logTransaction(Network.Polygon, event, event.params.to, 'Transfer', 0, 0, false);
-    return;
-  }
-
-  addDataToAchievement(achievement, id);
-  giveAchievement(user, achievement.id);
-
-  achievement.save();  
-  logTransaction(Network.Polygon, event, event.params.to, 'Transfer', 0, 0, true);
-}
 
 export function handleNewUser(event: UserCreated): void {
   let user = new User(event.params.userAddress.toHex());
@@ -137,6 +107,16 @@ export function handlerUnfollowCommunity(event: UnfollowedCommunity): void {
 
   indexingPeriods();
   logTransaction(Network.Polygon, event, event.params.userAddress, 'UnfollowedCommunity', 0, 0, true, community.id);
+}
+
+export function handleBanCommunityUser(event: BanCommunityUser): void {
+  let userAddress = event.params.targetUserAddress;
+  let user = getUser(userAddress, event.block.timestamp);
+  let communityId = idToIndexId(Network.Polygon, event.params.communityId.toString());
+
+  let userCommunityBan = new UserCommunityBan(`${user.id}-${communityId}`);
+  banCommunityUser(userCommunityBan, user, communityId);
+  userCommunityBan.save();
 }
 
 export function handleNewCommunity(event: CommunityCreated): void {
@@ -375,7 +355,7 @@ export function handleNewComment(event: CommentCreated): void {
     return;
   }
 
-  newComment(comment, post, parentReplyId, commentId);
+  newComment(comment, post, parentReplyId, commentId, event.block.timestamp);
   comment.save();
   createHistory(comment, event, 'Comment', 'Create');
   
@@ -410,7 +390,7 @@ export function handleEditedComment(event: CommentEdited): void {
   
   if (!comment) {
     comment = new Comment(post.id + '-' + parentReplyId.toString() + '-' + commentId.toString());
-    newComment(comment, post, parentReplyId, commentId);
+    newComment(comment, post, parentReplyId, commentId, event.block.timestamp);
   } else {
     addDataToComment(comment, postId, parentReplyId, commentId);
   }
@@ -826,4 +806,34 @@ export function handlerDeleteTranslation(event: TranslationDeleted): void {
   updatePostContent(postId);
   indexingPeriods();
   logTransaction(Network.Polygon, event, event.params.user, 'TranslationDeleted', replyId, commentId, true, null, postId);
+}
+
+export function handleConfigureNewAchievement(event: ConfigureNewAchievementNFT): void {
+  let achievement = new Achievement(idToIndexId(Network.Polygon, event.params.achievementId.toString()));
+  newAchievement(achievement, event.params.achievementId);
+
+  achievement.save();
+
+  logTransaction(Network.Polygon, event, Address.zero(), 'ConfigureAchievement', 0, 0, true);
+}
+
+///
+// TODO remove NFT
+// indexing all users?   if (!user) return;
+// can be error when remove
+///
+export function handleTransferNFT(event: Transfer): void {
+  let id: BigInt = (event.params.tokenId.div(BigInt.fromI32(POOL_NFT))).plus(BigInt.fromI32(1)); // (a / b) + c
+  let achievement = Achievement.load(idToIndexId(Network.Polygon, id.toString()));
+  let user = User.load(event.params.to.toHex());
+  if (!achievement || !user) {
+    logTransaction(Network.Polygon, event, event.params.to, 'Transfer', 0, 0, false);
+    return;
+  }
+
+  addDataToAchievement(achievement, id);
+  giveAchievement(user, achievement.id);
+
+  achievement.save();  
+  logTransaction(Network.Polygon, event, event.params.to, 'Transfer', 0, 0, true);
 }

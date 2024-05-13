@@ -41,6 +41,9 @@ export function newPost(post: Post, postId: BigInt, blockTimeStamp: BigInt): voi
 
   let user = getUser(peeranhaPost.author, blockTimeStamp);
   user.postCount++;
+  let userPosts = user.posts
+  userPosts.push(post.id);
+  user.posts = userPosts;
   user.save();
 
   addDataToPost(post, postId);
@@ -266,6 +269,9 @@ export function newReply(reply: Reply | null, postId: BigInt, replyId: i32, bloc
 
   let user = getUser(Address.fromString(reply.author), blockTimeStamp);
   user.replyCount++;
+  let userReplies = user.replies
+  userReplies.push(reply.id);
+  user.replies = userReplies;
   user.save();
 
   if (peeranhaReply.isFirstReply || peeranhaReply.isQuickReply) {
@@ -345,7 +351,7 @@ export function deleteReply(reply: Reply, post: Post, blockTimeStamp: BigInt): v
   }
 }
 
-export function newComment(comment: Comment, post: Post, parentReplyId: i32, commentId: i32): void {
+export function newComment(comment: Comment, post: Post, parentReplyId: i32, commentId: i32, blockTimeStamp: BigInt): void {
   const postId = BigInt.fromString(indexIdToId(post.id));
   let peeranhaComment = getPeeranhaContent().getComment(postId, parentReplyId, commentId);
   if (peeranhaComment == null) return;
@@ -377,6 +383,13 @@ export function newComment(comment: Comment, post: Post, parentReplyId: i32, com
       reply.save();
     }
   }
+
+  let user = getUser(Address.fromString(comment.author), blockTimeStamp);
+  user.replyCount++;
+  let userComments = user.comments
+  userComments.push(comment.id);
+  user.comments = userComments;
+  user.save();
 
   addDataToComment(comment, postId, parentReplyId, commentId);
   updateUserRating(Address.fromString(post.author), post.communityId);
