@@ -31,7 +31,15 @@ export function addDataToUser(user: User, userAddress: Address): void {
 }
 
 export function banCommunityUser(userCommunityBan: UserCommunityBan, user: User, communityId: string): void {
-  // ban user`s posts
+  banUserPosts(user, communityId);
+  banUserReplies(user, communityId);
+  banUserComments(user, communityId);
+
+  userCommunityBan.user = user.id;
+  userCommunityBan.communityId = communityId;
+}
+
+export function banUserPosts(user: User, communityId: string): void {
   const userPostsLength = user.posts.length;
   for (let i = 0; i < userPostsLength; i++) {
     const post = Post.load(user.posts[i]);
@@ -41,8 +49,8 @@ export function banCommunityUser(userCommunityBan: UserCommunityBan, user: User,
         post.save();
         user.postCount--;
 
-        const replyiesCount = post.replyCount
-        for (let i = 0; i < replyiesCount; i++) {
+        const repliesCount = post.replyCount
+        for (let i = 0; i < repliesCount; i++) {
 
           let reply = Reply.load(post.id + '-' + i.toString());
           if (reply && !reply.isDeleted) {
@@ -56,8 +64,9 @@ export function banCommunityUser(userCommunityBan: UserCommunityBan, user: User,
       /// to do logTransaction()
     }
   }
+}
 
-  // ban user`s replies
+export function banUserReplies(user: User, communityId: string): void {
   const userRepliesLength = user.replies.length;
   for (let i = 0; i < userRepliesLength; i++) {
     const reply = Reply.load(user.replies[i]);
@@ -76,8 +85,9 @@ export function banCommunityUser(userCommunityBan: UserCommunityBan, user: User,
       // todo logTransaction()
     }
   }
+}
 
-  // ban user`s comments
+export function banUserComments(user: User, communityId: string): void {
   const userCommentsLength = user.comments.length;
   for (let i = 0; i < userCommentsLength; i++) {
     const comment = Comment.load(user.comments[i]);
@@ -95,14 +105,15 @@ export function banCommunityUser(userCommunityBan: UserCommunityBan, user: User,
       // todo logTransaction()
     }
   }
-
-  userCommunityBan.user = user.id;
-  userCommunityBan.communityId = communityId;
-  user.save();
 }
 
 export function unBanCommunityUser(user: User, communityId: string): void {
-  // unban user`s posts
+  unbanUserPosts(user, communityId);
+  unbanUserReplies(user, communityId);
+  unbanUserComments(user, communityId);
+}
+
+export function unbanUserPosts(user: User, communityId: string): void {
   const userPostsLength = user.posts.length;
   for (let i = 0; i < userPostsLength; i++) {
     const post = Post.load(user.posts[i]);
@@ -114,10 +125,10 @@ export function unBanCommunityUser(user: User, communityId: string): void {
 
         post.isDeleted = false;
         post.save();
-        user.postCount;
+        user.postCount++;
 
-        const replyiesCount = post.replyCount
-        for (let i = 0; i < replyiesCount; i++) {
+        const repliesCount = post.replyCount
+        for (let i = 0; i < repliesCount; i++) {
           // Increment reply count for another user in post
           let reply = Reply.load(post.id + '-' + i.toString());
           if (reply && !reply.isDeleted) {
@@ -134,15 +145,16 @@ export function unBanCommunityUser(user: User, communityId: string): void {
       /// to do logTransaction()
     }
   }
+}
 
-  // unban user`s reply
+export function unbanUserReplies(user: User, communityId: string): void {
   const userRepliesLength = user.replies.length;
   for (let i = 0; i < userRepliesLength; i++) {
     const reply = Reply.load(user.replies[i]);
     if (reply && reply.isDeleted) {
       const post = Post.load(reply.postId);
       if (post) {
-        if (!post.isDeleted && post.communityId == communityId) {
+        if (post.communityId == communityId) {
           const peeranhaPost = getPeeranhaContent().getPost(BigInt.fromString(indexIdToId(post.id)));
           const peeranhaReply = getPeeranhaContent().getReply(BigInt.fromString(indexIdToId(post.id)), BigInt.fromString(indexIdToId(reply.id)).toI32());
           
@@ -161,9 +173,10 @@ export function unBanCommunityUser(user: User, communityId: string): void {
       // todo logTransaction()
     }
   }
+}
 
+export function unbanUserComments(user: User, communityId: string): void {
   // check comment contract
-  // unban user`s comments
   const userCommentsLength = user.comments.length;
   for (let i = 0; i < userCommentsLength; i++) {
     const comment = Comment.load(user.comments[i]);
@@ -171,6 +184,10 @@ export function unBanCommunityUser(user: User, communityId: string): void {
       const post = Post.load(comment.postId);
       if (post) {
         if (post.communityId == communityId) {
+          const peeranhaComment = getPeeranhaContent().getComment(BigInt.fromString(indexIdToId(post.id)), comment.parentReplyId, BigInt.fromString(indexIdToId(comment.id)).toI32());
+          if (peeranhaComment.isDeleted) 
+            continue;
+
           comment.isDeleted = false;
           comment.save();
         }
@@ -181,8 +198,6 @@ export function unBanCommunityUser(user: User, communityId: string): void {
       // todo logTransaction()
     }
   }
-
-  user.save();
 }
 
 export function getIpfsUserData(user: User): void {

@@ -116,6 +116,7 @@ export function handleBanCommunityUser(event: BanCommunityUser): void {
 
   let userCommunityBan = new UserCommunityBan(`${user.id}-${fullCommunityId}`);
   banCommunityUser(userCommunityBan, user, fullCommunityId);
+  user.save();
   userCommunityBan.save();
 }
 
@@ -125,6 +126,7 @@ export function handleUnBanCommunityUser(event: UnBanCommunityUser): void {
   let fullCommunityId = idToIndexId(Network.Polygon, event.params.communityId.toString());
 
   unBanCommunityUser(user, fullCommunityId);
+  user.save();
   store.remove('UserCommunityBan', `${user.id}-${fullCommunityId}`);
 }
 
