@@ -73,10 +73,12 @@ export function banUserReplies(user: User, communityId: string): void {
     if (reply) {
       const post = Post.load(reply.postId);
       if (post) {
-        if (!reply.isDeleted && !post.isDeleted && post.communityId == communityId) {
+        if (!reply.isDeleted && post.communityId == communityId) {
           reply.isDeleted = true;
           reply.save();
-          user.replyCount--;
+          if (!post.isDeleted) {
+            user.replyCount--;
+          }
         }
       } else {
         /// to do logTransaction()
