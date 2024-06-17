@@ -50,13 +50,14 @@ export function banUserPosts(user: User, communityId: string): void {
         user.postCount--;
 
         const repliesCount = post.replyCount
-        for (let i = 0; i < repliesCount; i++) {
+        for (let i = 1; i <= repliesCount; i++) {
 
           let reply = Reply.load(post.id + '-' + i.toString());
           if (reply && !reply.isDeleted) {
             const replyAuthor = reply.author;
             let userReply = getUser(Address.fromString(replyAuthor), BigInt.fromI32(1));
             userReply.replyCount--;
+            userReply.save();
           }
         }
       }
@@ -130,7 +131,7 @@ export function unbanUserPosts(user: User, communityId: string): void {
         user.postCount++;
 
         const repliesCount = post.replyCount
-        for (let i = 0; i < repliesCount; i++) {
+        for (let i = 1; i <= repliesCount; i++) {
           // Increment reply count for another user in post
           let reply = Reply.load(post.id + '-' + i.toString());
           if (reply && !reply.isDeleted) {
@@ -140,6 +141,7 @@ export function unbanUserPosts(user: User, communityId: string): void {
             const replyAuthor = reply.author;
             let userReply = getUser(Address.fromString(replyAuthor), BigInt.fromI32(1));
             userReply.replyCount++;
+            userReply.save();
           }
         }
       }
