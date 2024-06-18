@@ -1,5 +1,5 @@
 import { Address, BigInt, Bytes, log, store, ethereum } from '@graphprotocol/graph-ts'
-import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity, RoleGranted, RoleRevoked, BanCommunityUser } from '../generated/PeeranhaUser/PeeranhaUser'
+import { UserCreated, UserUpdated, FollowedCommunity, UnfollowedCommunity, RoleGranted, RoleRevoked, BanCommunityUser, UnBanCommunityUser } from '../generated/PeeranhaUser/PeeranhaUser'
 import { 
   CommunityCreated, CommunityUpdated, CommunityFrozen, CommunityUnfrozen,
   TagCreated, TagUpdated
@@ -25,7 +25,7 @@ import { newPost, addDataToPost, deletePost, newReply, addDataToReply, deleteRep
   addDataToPostTranslation, addDataToReplyTranslation, addDataToCommentTranslation,
   newComment, addDataToComment, deleteComment, updatePostContent, updatePostUsersRatings, generateDocumentationPosts } from './post'
 import { newCommunity, addDataToCommunity, newTag, addDataToTag, getCommunity } from './community-tag'
-import { newUser, addDataToUser, updateUserRating, getUser, banCommunityUser } from './user'
+import { newUser, addDataToUser, updateUserRating, getUser, banCommunityUser, unBanCommunityUser } from './user'
 import { addDataToAchievement, giveAchievement, newAchievement } from './achievement'
 import { ConfigureNewAchievementNFT, Transfer } from '../generated/PeeranhaNFT/PeeranhaNFT'
 
@@ -112,11 +112,22 @@ export function handlerUnfollowCommunity(event: UnfollowedCommunity): void {
 export function handleBanCommunityUser(event: BanCommunityUser): void {
   let userAddress = event.params.targetUserAddress;
   let user = getUser(userAddress, event.block.timestamp);
-  let communityId = idToIndexId(Network.Polygon, event.params.communityId.toString());
+  let fullCommunityId = idToIndexId(Network.Polygon, event.params.communityId.toString());
 
-  let userCommunityBan = new UserCommunityBan(`${user.id}-${communityId}`);
-  banCommunityUser(userCommunityBan, user, communityId);
+  let userCommunityBan = new UserCommunityBan(`${user.id}-${fullCommunityId}`);
+  banCommunityUser(userCommunityBan, user, fullCommunityId);
+  user.save();
   userCommunityBan.save();
+}
+
+export function handleUnBanCommunityUser(event: UnBanCommunityUser): void {
+  let userAddress = event.params.targetUserAddress;
+  let user = getUser(userAddress, event.block.timestamp);
+  let fullCommunityId = idToIndexId(Network.Polygon, event.params.communityId.toString());
+
+  unBanCommunityUser(user, fullCommunityId);
+  user.save();
+  store.remove('UserCommunityBan', `${user.id}-${fullCommunityId}`);
 }
 
 export function handleNewCommunity(event: CommunityCreated): void {

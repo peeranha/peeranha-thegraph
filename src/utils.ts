@@ -4,6 +4,7 @@ import { PeeranhaCommunity } from '../generated/PeeranhaCommunity/PeeranhaCommun
 import { PeeranhaContent } from '../generated/PeeranhaContent/PeeranhaContent'
 import { PeeranhaNFT } from '../generated/PeeranhaNFT/PeeranhaNFT'
 import { PeeranhaToken } from '../generated/PeeranhaToken/PeeranhaToken'
+import { UserCommunityBan } from '../generated/schema'
 import { USER_ADDRESS, COMMUNITY_ADDRESS, CONTENT_ADDRESS, TOKEN_ADDRESS, NFT_ADDRESS } from './config'
 
 export const ERROR_IPFS = "error IPFS";
@@ -63,7 +64,7 @@ export function idToIndexId(network: Network, objId: string): string {
 export function indexIdToId(objId: string): string {
   let bufValue = objId.split('-');
   if(bufValue.length >= 1)
-    return bufValue[1]
+    return bufValue[bufValue.length - 1]
 
   return '';
 }
@@ -96,6 +97,13 @@ export function convertIpfsHash(ipfsHash: Bytes): Bytes | null {
   }
   return result as Bytes;
 };
+
+export function isUserBanned(userAddress: string, communityId: string): boolean {
+  let userCommunityBan = UserCommunityBan.load(`${userAddress}-${communityId}`);
+  if (userCommunityBan) return true;
+  
+  return false;
+}
 
 export function bytesToJson(ipfsHash: Bytes): JSONValue | null {
   return json.fromBytes(ipfsHash as Bytes);

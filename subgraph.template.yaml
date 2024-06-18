@@ -17,9 +17,12 @@ dataSources:
       apiVersion: 0.0.5
       language: wasm/assemblyscript
       entities:
+        - PeeranhaContent
         - PeeranhaUser
         - PeeranhaToken
       abis:
+        - name: PeeranhaContent
+          file: ./abis/PeeranhaContent.json
         - name: PeeranhaUser
           file: ./abis/PeeranhaUser.json
         - name: PeeranhaToken
@@ -39,6 +42,8 @@ dataSources:
           handler: handlerRevokedRole
         - event: BanCommunityUser(indexed address,indexed address,indexed uint32)
           handler: handleBanCommunityUser
+        - event: UnBanCommunityUser(indexed address,indexed address,indexed uint32)
+          handler: handleUnBanCommunityUser
       file: ./src/mapping.ts
 
   - kind: ethereum/contract

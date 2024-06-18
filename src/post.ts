@@ -1,6 +1,6 @@
 import { Bytes, BigInt, Address, ByteArray, log, store, JSONValue, JSONValueKind } from '@graphprotocol/graph-ts'
 import { Post, Reply, Comment, Tag, CommunityDocumentation, PostTranslation, ReplyTranslation, CommentTranslation, TagTranslation } from '../generated/schema'
-import { getPeeranhaContent, ERROR_IPFS, isValidIPFS, PostType, ItemProperties, Language, convertIpfsHash, bytesToJson, idToIndexId, indexIdToId, Network } from './utils'
+import { getPeeranhaContent, ERROR_IPFS, isValidIPFS, PostType, ItemProperties, Language, convertIpfsHash, bytesToJson, idToIndexId, indexIdToId, Network, isUserBanned } from './utils'
 import { updateUserRating, getUser, newUser } from './user'
 import { getCommunity } from './community-tag'
 
@@ -173,19 +173,24 @@ export function deletePost(post: Post, postId: BigInt, blockTimeStamp: BigInt): 
     }
   }
 
-  for (let i = 1; i <= post.replyCount; i++) {
-    let reply = Reply.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + i.toString());
-    if (reply != null && !reply.isDeleted) {
+  for (let replyId = 1; replyId <= post.replyCount; replyId++) {
+    let reply = Reply.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + replyId.toString());
+    let peeranhaReply = getPeeranhaContent().getReply(postId, replyId);
+    if (peeranhaReply == null) continue;
+    if (reply != null && !peeranhaReply.isDeleted) {
       updateUserRating(Address.fromString(reply.author), post.communityId);
       
-      let userReply = getUser(Address.fromString(reply.author), blockTimeStamp);
-      userReply.replyCount--;
-      userReply.save();
-
+      let isReplyUserBanned = isUserBanned(reply.author, post.communityId);
+      if (!isReplyUserBanned) {
+        let userReply = getUser(Address.fromString(reply.author), blockTimeStamp);
+        userReply.replyCount--;
+        userReply.save();  
+      }
+      
       community.replyCount--;
 
       for (let j = 1; j <= reply.commentCount; j++) {
-        let comment = Comment.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + i.toString() + '-' + j.toString());
+        let comment = Comment.load(idToIndexId(Network.Polygon, postId.toString()) + '-' + replyId.toString() + '-' + j.toString());
         if (comment != null && !comment.isDeleted) {
           comment.isDeleted = true;
           comment.save();
@@ -201,7 +206,10 @@ export function deletePost(post: Post, postId: BigInt, blockTimeStamp: BigInt): 
   community.save();
 
   let userPost = getUser(Address.fromString(post.author), blockTimeStamp);
-  userPost.postCount--;
+  let isReplyUserBanned = isUserBanned(post.author, post.communityId);
+  if (!isReplyUserBanned) {
+    userPost.postCount--;
+  }
   userPost.save();
 
   for (let i = 1; i <= post.commentCount; i++) {
@@ -338,9 +346,12 @@ export function deleteReply(reply: Reply, post: Post, blockTimeStamp: BigInt): v
   post.lastmod = blockTimeStamp;
   post.save();
 
-  let user = getUser(Address.fromString(reply.author), blockTimeStamp);
-  user.replyCount--;
-  user.save();
+  let isReplyUserBanned = isUserBanned(reply.author, post.communityId);
+  if (!isReplyUserBanned) {
+    let user = getUser(Address.fromString(reply.author), blockTimeStamp);
+    user.replyCount--;
+    user.save();
+  }
 
   for (let i = 1; i <= reply.commentCount; i++) {
     let comment = Comment.load(reply.id + '-' + i.toString());
